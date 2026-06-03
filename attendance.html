@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance — Panchhi HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+.att-tabs{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:24px;overflow-x:auto;}
+.att-tab{padding:10px 20px;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;}
+.att-tab:hover{color:var(--gray-800);}
+.att-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.att-section{display:none;}
+.att-section.active{display:block;}
+.preview-name{font-weight:700;color:var(--gray-900);}
+.preview-phone{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--primary);font-weight:700;}
+.remark-input{padding:5px 9px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;width:180px;font-family:inherit;outline:none;transition:border .2s;}
+.remark-input:focus{border-color:var(--primary);}
+.report-msg-box{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;color:var(--gray-800);}
+.archive-row td{font-size:13px;}
+.status-p{background:var(--success-light);color:var(--success);}
+.status-a{background:var(--danger-light);color:var(--danger);}
+.status-l{background:var(--warning-light);color:#b45309;}
+.status-h{background:var(--info-light);color:var(--info);}
+</style>
+</head>
+<body>
+<div class="app-wrapper active" id="appWrapper">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-feather-pointed"></i></div>
+    <div class="brand-text"><h2>Panchhi HR</h2><span>Software v1.0</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">HR & Payroll</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link active"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><div class="user-avatar">AD</div><div class="user-info"><h4>Admin</h4><span><span class="online-dot"></span> Super Admin</span></div></div>
+</nav>
+
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>Attendance</h1><p>Upload, track, report & archive</p></div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <div class="header-avatar" onclick="window.location='index.html'">AD</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div class="stat-number" id="st-present">—</div><div class="stat-label">Present Today</div></div>
+      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-user-xmark"></i></div><div class="stat-number" id="st-absent">—</div><div class="stat-label">Absent Today</div></div>
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-number" id="st-late">—</div><div class="stat-label">Late Today</div></div>
+      <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-calendar-xmark"></i></div><div class="stat-number" id="st-leave">—</div><div class="stat-label">On Leave</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="att-tabs">
+      <div class="att-tab active" onclick="switchTab('upload',this)"><i class="fas fa-upload"></i> Upload Sheet</div>
+      <div class="att-tab" onclick="switchTab('late',this)"><i class="fas fa-user-clock"></i> Late Coming Report</div>
+      <div class="att-tab" onclick="switchTab('absent',this)"><i class="fas fa-user-xmark"></i> Absent Report</div>
+      <div class="att-tab" onclick="switchTab('archive',this)"><i class="fas fa-archive"></i> Archive</div>
+    </div>
+
+    <!-- ═══ TAB 1: UPLOAD ═══ -->
+    <div class="att-section active" id="tab-upload">
+      <div class="grid-1-2">
+        <div class="form-card">
+          <div class="form-card-title"><i class="fas fa-file-arrow-up"></i> Upload Biometric Sheet</div>
+          <div class="form-group mb-16">
+            <label>Attendance Date</label>
+            <input type="date" id="att_date" class="today-date">
+          </div>
+          <div class="drop-zone" id="attDropZone" onclick="document.getElementById('attFile').click()">
+            <i class="fas fa-file-excel" style="color:var(--success)"></i>
+            <p>Upload Biometric Excel / CSV</p>
+            <span>Columns needed: Employee Name (or E-Code) + In Time</span>
+          </div>
+          <input type="file" id="attFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="processAttFile(this)">
+
+          <div id="attUploadStatus" style="display:none;margin-top:14px">
+            <div class="alert alert-info" id="attStatusMsg"><i class="fas fa-spinner spin"></i> Processing...</div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="alert alert-warning">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <strong>How it works:</strong> Upload your biometric export. System will match employee names/codes, detect late arrivals based on shift timing, and mark absents for employees with no entry.
+                <br>Employees with <strong>invalid/unmatched records</strong> will be flagged separately.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card" style="margin-bottom:0">
+          <div class="table-header">
+            <h3><i class="fas fa-calendar-day"></i> Today's Summary</h3>
+            <input type="date" id="att_viewDate" class="today-date"
+              style="padding:7px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none"
+              onchange="loadDayAttendance()">
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Employee</th><th>In Time</th><th>Status</th><th>Remark</th></tr></thead>
+              <tbody id="attDaySummaryBody">
+                <tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>Upload attendance to see</p></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full uploaded sheet preview -->
+      <div id="attPreviewSection" style="display:none;margin-top:24px">
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fas fa-table"></i> Uploaded Sheet — Preview</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span class="badge badge-green" id="prev-present-count">0 Present</span>
+              <span class="badge badge-amber" id="prev-late-count">0 Late</span>
+              <span class="badge badge-red" id="prev-absent-count">0 Absent</span>
+              <span class="badge badge-gray" id="prev-unmatched-count">0 Unmatched</span>
+              <button class="btn btn-success btn-sm" onclick="saveAttendance()"><i class="fas fa-save"></i> Save Attendance</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>E-Code</th><th>Name</th><th>Dept</th><th>Shift</th><th>In Time</th><th>Status</th><th>Flag</th></tr></thead>
+              <tbody id="attPreviewBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 2: LATE COMING ═══ -->
+    <div class="att-section" id="tab-late">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fas fa-user-clock"></i> Late Coming Report</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:0">
+          <div class="form-group" style="margin:0">
+            <label>Date</label>
+            <input type="date" id="late_date" class="today-date" onchange="buildLateReport()">
+          </div>
+          <button class="btn btn-primary" onclick="buildLateReport()"><i class="fas fa-rotate"></i> Generate Report</button>
+          <button class="btn btn-success" id="late_downloadBtn" style="display:none" onclick="downloadLateReport()">
+            <i class="fas fa-download"></i> Download Report
+          </button>
+          <span id="sheetStatus" class="sheet-status"></span>
+        </div>
+      </div>
+
+      <!-- Preview table -->
+      <div id="latePreviewSection" style="display:none">
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fas fa-eye"></i> Preview — Late Coming</h3>
+            <span class="badge badge-amber" id="late-count-badge">0 Late</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Employee</th><th>Dept</th>
+                  <th>Phone</th><th>Shift Start</th>
+                  <th>In Time</th><th>Late By</th><th>Reason / Remark</th>
+                </tr>
+              </thead>
+              <tbody id="latePreviewBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- WhatsApp-style message preview -->
+        <div class="form-card">
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview (for Sir)</div>
+          <div class="report-msg-box" id="lateReportMsg"></div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-outline btn-sm" onclick="copyReport('lateReportMsg')"><i class="fas fa-copy"></i> Copy Message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 3: ABSENT ═══ -->
+    <div class="att-section" id="tab-absent">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fas fa-user-xmark"></i> Absent Report</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="margin:0">
+            <label>Date</label>
+            <input type="date" id="absent_date" class="today-date" onchange="buildAbsentReport()">
+          </div>
+          <button class="btn btn-primary" onclick="buildAbsentReport()"><i class="fas fa-rotate"></i> Generate Report</button>
+          <button class="btn btn-success" id="absent_downloadBtn" style="display:none" onclick="downloadAbsentReport()">
+            <i class="fas fa-download"></i> Download Report
+          </button>
+        </div>
+      </div>
+
+      <div id="absentPreviewSection" style="display:none">
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fas fa-eye"></i> Preview — Absent Employees</h3>
+            <span class="badge badge-red" id="absent-count-badge">0 Absent</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Employee</th><th>Dept</th>
+                  <th>Phone</th><th>Reason / Remark</th><th>Leave Type</th>
+                </tr>
+              </thead>
+              <tbody id="absentPreviewBody"></tbody>
+            </table>
+          </div>
+          <div style="padding:14px 22px;border-top:1px solid var(--gray-100)">
+            <button class="btn btn-primary btn-sm" onclick="saveAbsentRemarks()">
+              <i class="fas fa-save"></i> Save Remarks to Sheet
+            </button>
+            <span style="font-size:12px;color:var(--gray-400);margin-left:10px">Remarks will sync to Google Sheet automatically</span>
+          </div>
+        </div>
+
+        <!-- Message Preview -->
+        <div class="form-card">
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview (for Sir)</div>
+          <div class="report-msg-box" id="absentReportMsg"></div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-outline btn-sm" onclick="copyReport('absentReportMsg')"><i class="fas fa-copy"></i> Copy Message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 4: ARCHIVE ═══ -->
+    <div class="att-section" id="tab-archive">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fas fa-archive"></i> Attendance Archive (History Vault)</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="margin:0">
+            <label>Quick Range</label>
+            <select id="archiveRange" onchange="loadArchive()" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+              <option value="7">Last 7 Days</option>
+              <option value="10">Last 10 Days</option>
+              <option value="15">Last 15 Days</option>
+              <option value="30">Last 30 Days</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>From</label>
+            <input type="date" id="archiveFrom" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>To</label>
+            <input type="date" id="archiveTo" class="today-date" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+          </div>
+          <button class="btn btn-primary" onclick="loadArchive()"><i class="fas fa-search"></i> Load Records</button>
+          <button class="btn btn-outline btn-sm" onclick="exportArchive()"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fas fa-database"></i> Attendance Records</h3>
+          <div class="search-box"><i class="fas fa-search"></i>
+            <input type="text" id="archiveSearch" placeholder="Search employee..." oninput="filterArchive()">
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Date</th><th>Employee</th><th>Dept</th><th>In Time</th><th>Status</th><th>Remark</th></tr></thead>
+            <tbody id="archiveBody">
+              <tr><td colspan="6" class="table-empty"><i class="fas fa-archive"></i><p>Select range and click Load</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end page-content -->
+</div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+/* ══════════════════════════════════════
+   ATTENDANCE MODULE
+══════════════════════════════════════ */
+let allEmployees   = [];
+let attRecords     = []; // all saved attendance
+let uploadBuffer   = []; // parsed from excel, not yet saved
+let archiveData    = [];
+
+window.addEventListener('load', () => {
+  updateClock(); setInterval(updateClock,1000);
+  allEmployees = Store.get('employees');
+  attRecords   = Store.get('attendance');
+  loadDayAttendance();
+  renderStats();
+  setupDragDrop();
+});
+
+/* ── Tab switch ── */
+function switchTab(tab, el) {
+  document.querySelectorAll('.att-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.att-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='late')   buildLateReport();
+  if(tab==='absent') buildAbsentReport();
+  if(tab==='archive') loadArchive();
+}
+
+/* ── Stats ── */
+function renderStats() {
+  const today = todayStr();
+  const recs  = attRecords.filter(r=>r.date===today);
+  document.getElementById('st-present').textContent = recs.filter(r=>r.status==='P'||r.status==='L').length;
+  document.getElementById('st-absent').textContent  = recs.filter(r=>r.status==='A').length;
+  document.getElementById('st-late').textContent    = recs.filter(r=>r.status==='L').length;
+  document.getElementById('st-leave').textContent   = recs.filter(r=>r.status==='LV').length;
+}
+
+/* ══ UPLOAD TAB ══ */
+function setupDragDrop() {
+  const dz = document.getElementById('attDropZone');
+  if(!dz) return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0]; if(f) processAttFileObj(f);
+  });
+}
+
+function processAttFile(input) {
+  if(input.files[0]) processAttFileObj(input.files[0]);
+}
+
+function processAttFileObj(file) {
+  const status = document.getElementById('attUploadStatus');
+  const msg    = document.getElementById('attStatusMsg');
+  status.style.display = 'block';
+  msg.innerHTML = '<i class="fas fa-spinner spin"></i> Reading file...';
+  msg.className = 'alert alert-info';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb   = XLSX.read(e.target.result,{type:'binary'});
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws,{defval:''});
+      parseAttRows(rows, msg, status);
+    } catch(err) {
+      msg.innerHTML = `<i class="fas fa-times-circle"></i> Error: ${err.message}`;
+      msg.className = 'alert alert-danger';
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function parseAttRows(rows, msg, status) {
+  uploadBuffer = [];
+  const date   = document.getElementById('att_date').value || todayStr();
+  let matched=0, unmatched=0;
+
+  rows.forEach(row => {
+    // Try to find employee by name or code
+    const nameKey = Object.keys(row).find(k=>k.toLowerCase().includes('name'))||'';
+    const codeKey = Object.keys(row).find(k=>k.toLowerCase().includes('code')||k.toLowerCase().includes('e-code')||k.toLowerCase()==='id')||'';
+    const timeKey = Object.keys(row).find(k=>k.toLowerCase().includes('in')||k.toLowerCase().includes('time'))||'';
+
+    const rawName = nameKey ? row[nameKey].toString().trim().toUpperCase() : '';
+    const rawCode = codeKey ? row[codeKey].toString().trim().toUpperCase() : '';
+    const inTime  = timeKey ? row[timeKey].toString().trim() : '';
+
+    // Match employee
+    let emp = allEmployees.find(e =>
+      (rawCode && e.ecode === rawCode) ||
+      (rawName && e.fullname === rawName) ||
+      (rawName && e.fullname?.includes(rawName))
+    );
+
+    // Detect late
+    let status_code = 'P';
+    let lateMin = 0;
+    let flag = '';
+
+    if (!inTime) {
+      flag = 'NO_TIME';
+    } else if (!emp) {
+      flag = 'UNMATCHED';
+      unmatched++;
+    } else {
+      matched++;
+      // Parse in time
+      const parsed = parseTimeStr(inTime);
+      if (parsed && emp.shift) {
+        const shiftStart = emp.shift.split('-')[0];
+        lateMin = timeDiffMinutes(shiftStart, parsed);
+        if (lateMin > 0) {
+          // Check 3-hr grace for senior
+          const graceLimit = emp.tagSenior ? 180 : 0;
+          status_code = 'L'; // late
+        }
+      }
+    }
+
+    uploadBuffer.push({
+      rawName, rawCode, inTime,
+      empId:      emp?.id || null,
+      ecode:      emp?.ecode || rawCode || '—',
+      empName:    emp?.fullname || rawName || '—',
+      department: emp?.department || '—',
+      shift:      emp?.shift || '—',
+      date,
+      inTimeParsed: inTime ? parseTimeStr(inTime) : null,
+      status:     emp ? status_code : 'U',
+      lateMin,
+      flag,
+      remark:     '',
+    });
+  });
+
+  // Add absent for employees not in sheet
+  const sheetCodes = new Set(uploadBuffer.filter(r=>r.empId).map(r=>r.empId));
+  allEmployees.filter(e=>e.status==='ACTIVE').forEach(e=>{
+    if(!sheetCodes.has(e.id)) {
+      uploadBuffer.push({
+        empId:e.id, ecode:e.ecode, empName:e.fullname,
+        department:e.department, shift:e.shift, date,
+        inTimeParsed:null, status:'A', lateMin:0, flag:'ABSENT', remark:'',
+      });
+    }
+  });
+
+  // Build preview
+  buildUploadPreview();
+  msg.innerHTML = `<i class="fas fa-check-circle"></i> File read — ${matched} matched, ${unmatched} unmatched`;
+  msg.className = 'alert alert-success';
+}
+
+function parseTimeStr(str) {
+  if(!str) return null;
+  str = str.toString().trim();
+  // HH:MM or HH:MM:SS or AM/PM
+  const m = str.match(/(\d{1,2}):(\d{2})/);
+  if(m) {
+    let h=parseInt(m[1]), min=parseInt(m[2]);
+    if(str.toLowerCase().includes('pm') && h<12) h+=12;
+    if(str.toLowerCase().includes('am') && h===12) h=0;
+    return `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+  }
+  return null;
+}
+
+function buildUploadPreview() {
+  const section = document.getElementById('attPreviewSection');
+  section.style.display = 'block';
+  const body = document.getElementById('attPreviewBody');
+  body.innerHTML = '';
+
+  let pCount=0, lCount=0, aCount=0, uCount=0;
+
+  uploadBuffer.forEach(r => {
+    const statusMap = {P:'badge-green',L:'badge-amber',A:'badge-red',U:'badge-gray',LV:'badge-blue'};
+    const statusLbl = {P:'Present',L:'Late',A:'Absent',U:'Unmatched',LV:'On Leave'};
+    if(r.status==='P')pCount++;
+    else if(r.status==='L')lCount++;
+    else if(r.status==='A')aCount++;
+    else uCount++;
+
+    const flagHtml = r.flag==='UNMATCHED'
+      ? `<span class="badge badge-red" style="font-size:10px">Name not found</span>`
+      : r.flag==='NO_TIME'
+      ? `<span class="badge badge-amber" style="font-size:10px">No time entry</span>`
+      : '';
+    const shiftLbl = getShiftLabel(r.shift);
+    body.innerHTML += `
+      <tr>
+        <td class="font-mono" style="font-size:11.5px;color:var(--primary)">${r.ecode}</td>
+        <td style="font-weight:600">${r.empName}</td>
+        <td style="font-size:12px">${r.department}</td>
+        <td style="font-size:12px">${shiftLbl}</td>
+        <td class="font-mono">${r.inTimeParsed?formatTime(r.inTimeParsed):'—'}</td>
+        <td><span class="badge ${statusMap[r.status]||'badge-gray'}">${statusLbl[r.status]||r.status}${r.status==='L'&&r.lateMin>0?' (+'+minutesToHHMM(r.lateMin)+')':''}</span></td>
+        <td>${flagHtml}</td>
+      </tr>`;
+  });
+
+  document.getElementById('prev-present-count').textContent = `${pCount} Present`;
+  document.getElementById('prev-late-count').textContent    = `${lCount} Late`;
+  document.getElementById('prev-absent-count').textContent  = `${aCount} Absent`;
+  document.getElementById('prev-unmatched-count').textContent = `${uCount} Unmatched`;
+}
+
+function saveAttendance() {
+  const date = document.getElementById('att_date').value || todayStr();
+  // Remove existing records for this date
+  attRecords = attRecords.filter(r=>r.date !== date);
+  uploadBuffer.filter(r=>r.status!=='U').forEach(r=>{
+    attRecords.push({
+      id: genId('ATT'),
+      empId:r.empId, ecode:r.ecode, empName:r.empName,
+      department:r.department, shift:r.shift,
+      date, inTime:r.inTimeParsed||null,
+      status:r.status, lateMin:r.lateMin,
+      remark:r.remark||'', savedAt:new Date().toISOString()
+    });
+  });
+  Store.set('attendance', attRecords);
+  GSheet.send('Attendance', {date, count:uploadBuffer.length});
+  renderStats();
+  loadDayAttendance();
+  document.getElementById('attPreviewSection').style.display='none';
+  uploadBuffer=[];
+  showToast('success','Attendance Saved!',`Records saved for ${formatDate(date)}`);
+}
+
+function loadDayAttendance() {
+  const date = document.getElementById('att_viewDate')?.value || todayStr();
+  const recs = attRecords.filter(r=>r.date===date);
+  const body = document.getElementById('attDaySummaryBody');
+  if(!body) return;
+  if(recs.length===0){
+    body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>No data for this date</p></td></tr>`;
+    return;
+  }
+  const statusMap={P:'badge-green',L:'badge-amber',A:'badge-red',LV:'badge-blue'};
+  const statusLbl={P:'Present',L:'Late',A:'Absent',LV:'On Leave'};
+  body.innerHTML='';
+  recs.forEach(r=>{
+    body.innerHTML+=`
+      <tr>
+        <td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${r.ecode}</div></td>
+        <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+        <td><span class="badge ${statusMap[r.status]||'badge-gray'}">${statusLbl[r.status]||r.status}</span></td>
+        <td style="font-size:12px;color:var(--gray-500)">${r.remark||'—'}</td>
+      </tr>`;
+  });
+}
+
+/* ══ LATE REPORT TAB ══ */
+function buildLateReport() {
+  const date = document.getElementById('late_date')?.value || todayStr();
+  const late = attRecords.filter(r=>r.date===date && r.status==='L');
+  const section = document.getElementById('latePreviewSection');
+  const btn     = document.getElementById('late_downloadBtn');
+
+  if(late.length===0){
+    section.style.display='none'; btn.style.display='none';
+    showToast('info','No Late Records',`No late arrivals found for ${formatDate(date)}`);
+    return;
+  }
+
+  document.getElementById('late-count-badge').textContent = `${late.length} Late`;
+  section.style.display='block'; btn.style.display='inline-flex';
+
+  const body = document.getElementById('latePreviewBody');
+  body.innerHTML='';
+  late.forEach((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    const shiftStart = r.shift?r.shift.split('-')[0]:'';
+    body.innerHTML+=`
+      <tr data-id="${r.id}">
+        <td style="font-weight:800;color:var(--gray-500)">${i+1}</td>
+        <td><div class="preview-name">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td class="preview-phone">${emp.mobile||'—'}</td>
+        <td class="font-mono">${shiftStart?formatTime(shiftStart):'—'}</td>
+        <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+        <td style="color:var(--danger);font-weight:700">${r.lateMin?minutesToHHMM(r.lateMin):'—'}</td>
+        <td><input class="remark-input" data-id="${r.id}" placeholder="Reason for late..." value="${r.remark||''}" onchange="updateRemark(this,'attendance')"></td>
+      </tr>`;
+  });
+
+  buildLateMessage(late, date);
+}
+
+function buildLateMessage(lateRecs, date) {
+  const msg = document.getElementById('lateReportMsg');
+  let text = `🕐 *LATE COMING REPORT*\n📅 Date: ${formatDate(date)}\n\n`;
+  lateRecs.forEach((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    text += `${i+1}. ${r.empName||'—'}\n`;
+    text += `   Dept: ${r.department||'—'} | Phone: ${emp.mobile||'—'}\n`;
+    text += `   In: ${r.inTime?formatTime(r.inTime):'—'} | Late by: ${r.lateMin?minutesToHHMM(r.lateMin):'—'}\n`;
+    if(r.remark) text += `   Reason: ${r.remark}\n`;
+    text += '\n';
+  });
+  text += `Total Late: ${lateRecs.length}`;
+  msg.textContent = text;
+}
+
+function downloadLateReport() {
+  const date = document.getElementById('late_date')?.value || todayStr();
+  const late = attRecords.filter(r=>r.date===date && r.status==='L');
+  const rows = late.map((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    return {
+      Sr:i+1, ECode:r.ecode, Name:r.empName, Department:r.department,
+      Phone:emp.mobile||'', ShiftStart:r.shift?r.shift.split('-')[0]:'',
+      InTime:r.inTime||'', LateBy:r.lateMin?minutesToHHMM(r.lateMin):'',
+      Reason:r.remark||''
+    };
+  });
+  downloadCSV(`Late_Report_${date}.csv`, rows,
+    ['Sr','ECode','Name','Department','Phone','ShiftStart','InTime','LateBy','Reason']);
+}
+
+/* ══ ABSENT REPORT TAB ══ */
+function buildAbsentReport() {
+  const date    = document.getElementById('absent_date')?.value || todayStr();
+  const absent  = attRecords.filter(r=>r.date===date && r.status==='A');
+  const section = document.getElementById('absentPreviewSection');
+  const btn     = document.getElementById('absent_downloadBtn');
+
+  if(absent.length===0){
+    section.style.display='none'; btn.style.display='none';
+    showToast('info','No Absents',`No absent records found for ${formatDate(date)}`);
+    return;
+  }
+
+  document.getElementById('absent-count-badge').textContent = `${absent.length} Absent`;
+  section.style.display='block'; btn.style.display='inline-flex';
+
+  const body = document.getElementById('absentPreviewBody');
+  body.innerHTML='';
+  absent.forEach((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    body.innerHTML+=`
+      <tr data-id="${r.id}">
+        <td style="font-weight:800;color:var(--gray-500)">${i+1}</td>
+        <td><div class="preview-name">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td class="preview-phone">${emp.mobile||'—'}</td>
+        <td><input class="remark-input" data-id="${r.id}" placeholder="Reason for absent..." value="${r.remark||''}" onchange="updateRemark(this,'attendance')"></td>
+        <td>
+          <select data-id="${r.id}" onchange="updateLeaveType(this)" style="padding:5px 8px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;outline:none;font-family:inherit">
+            <option value="">Mark as...</option>
+            <option value="PL" ${r.leaveType==='PL'?'selected':''}>PL (Paid Leave)</option>
+            <option value="SL" ${r.leaveType==='SL'?'selected':''}>SL (Sick Leave)</option>
+            <option value="LWP" ${r.leaveType==='LWP'?'selected':''}>LWP (Salary Cut)</option>
+          </select>
+        </td>
+      </tr>`;
+  });
+
+  buildAbsentMessage(absent, date);
+}
+
+function buildAbsentMessage(absentRecs, date) {
+  const msg = document.getElementById('absentReportMsg');
+  let text = `❌ *ABSENT REPORT*\n📅 Date: ${formatDate(date)}\n\n`;
+  absentRecs.forEach((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    text += `${i+1}. ${r.empName||'—'}\n`;
+    text += `   Dept: ${r.department||'—'} | Phone: ${emp.mobile||'—'}\n`;
+    if(r.remark) text += `   Reason: ${r.remark}\n`;
+    text += '\n';
+  });
+  text += `Total Absent: ${absentRecs.length}`;
+  msg.textContent = text;
+}
+
+function saveAbsentRemarks() {
+  Store.set('attendance', attRecords);
+  GSheet.send('Attendance_Remarks', {updated: new Date().toISOString()});
+  showToast('success','Saved','Remarks saved and synced to Google Sheet');
+}
+
+function downloadAbsentReport() {
+  const date   = document.getElementById('absent_date')?.value || todayStr();
+  const absent = attRecords.filter(r=>r.date===date && r.status==='A');
+  const rows   = absent.map((r,i)=>{
+    const emp = allEmployees.find(e=>e.id===r.empId)||{};
+    return {Sr:i+1,ECode:r.ecode,Name:r.empName,Department:r.department,
+      Phone:emp.mobile||'',Reason:r.remark||'',LeaveType:r.leaveType||''};
+  });
+  downloadCSV(`Absent_Report_${date}.csv`,rows,
+    ['Sr','ECode','Name','Department','Phone','Reason','LeaveType']);
+}
+
+/* ══ ARCHIVE TAB ══ */
+function loadArchive() {
+  const range = parseInt(document.getElementById('archiveRange')?.value)||7;
+  const to    = document.getElementById('archiveTo')?.value || todayStr();
+  let fromDate;
+  if(document.getElementById('archiveFrom')?.value) {
+    fromDate = document.getElementById('archiveFrom').value;
+  } else {
+    const d = new Date(to); d.setDate(d.getDate()-range+1);
+    fromDate = d.toISOString().split('T')[0];
+  }
+
+  archiveData = attRecords.filter(r => r.date >= fromDate && r.date <= to);
+  renderArchive(archiveData);
+}
+
+function renderArchive(data) {
+  const body = document.getElementById('archiveBody');
+  if(data.length===0){
+    body.innerHTML=`<tr><td colspan="6" class="table-empty"><i class="fas fa-archive"></i><p>No records in this range</p></td></tr>`;
+    return;
+  }
+  const statusMap={P:'badge-green',L:'badge-amber',A:'badge-red',LV:'badge-blue'};
+  const statusLbl={P:'Present',L:'Late',A:'Absent',LV:'On Leave'};
+  body.innerHTML='';
+  [...data].sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
+    body.innerHTML+=`
+      <tr class="archive-row">
+        <td class="font-mono" style="font-size:12px">${formatDate(r.date)}</td>
+        <td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+        <td><span class="badge ${statusMap[r.status]||'badge-gray'}">${statusLbl[r.status]||r.status}</span></td>
+        <td style="font-size:12px;color:var(--gray-500)">${r.remark||'—'}</td>
+      </tr>`;
+  });
+}
+
+function filterArchive() {
+  const q = document.getElementById('archiveSearch')?.value?.toLowerCase()||'';
+  const filtered = archiveData.filter(r=>
+    (r.empName||'').toLowerCase().includes(q)||
+    (r.ecode||'').toLowerCase().includes(q)||
+    (r.department||'').toLowerCase().includes(q)
+  );
+  renderArchive(filtered);
+}
+
+function exportArchive() {
+  if(!archiveData.length){showToast('warning','Nothing','No data to export');return;}
+  downloadCSV(`Attendance_Archive.csv`,archiveData,
+    ['date','ecode','empName','department','inTime','status','remark']);
+}
+
+/* ── Helpers ── */
+function updateRemark(input, storeKey) {
+  const id = input.dataset.id;
+  const idx = attRecords.findIndex(r=>r.id===id);
+  if(idx>-1){ attRecords[idx].remark = input.value; Store.set('attendance',attRecords); }
+}
+function updateLeaveType(sel) {
+  const id = sel.dataset.id;
+  const idx = attRecords.findIndex(r=>r.id===id);
+  if(idx>-1){ attRecords[idx].leaveType=sel.value; Store.set('attendance',attRecords); }
+}
+function copyReport(id) {
+  const text = document.getElementById(id)?.textContent||'';
+  navigator.clipboard.writeText(text).then(()=>showToast('success','Copied!','Report copied to clipboard'));
+}
+function getShiftLabel(shift){
+  const m={'09:00-18:00':'9AM–6PM','10:00-19:00':'10AM–7PM','08:00-17:00':'8AM–5PM','11:00-20:00':'11AM–8PM'};
+  return m[shift]||shift||'—';
+}
+</script>
+</body>
+</html>
