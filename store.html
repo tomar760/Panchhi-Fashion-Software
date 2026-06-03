@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store & Inventory — Panchhi HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+.store-tabs{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:24px;overflow-x:auto;}
+.store-tab{padding:10px 20px;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;}
+.store-tab:hover{color:var(--gray-800);}
+.store-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.store-section{display:none;}
+.store-section.active{display:block;}
+.po-missing{background:var(--danger-light);color:var(--danger);border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;font-weight:700;}
+.po-ok{background:var(--success-light);color:var(--success);border-radius:var(--radius-sm);padding:3px 8px;font-size:11px;font-weight:700;}
+.reminder-banner{background:linear-gradient(135deg,#fef3c7,#fffbeb);border:1px solid #fcd34d;border-radius:var(--radius-md);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;}
+.reminder-banner i{font-size:22px;color:var(--warning);flex-shrink:0;}
+.reminder-banner h4{font-size:14px;font-weight:800;color:#92400e;}
+.reminder-banner p{font-size:12.5px;color:#b45309;margin-top:2px;}
+.item-category{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;}
+.cat-plant{background:#dbeafe;color:#1d4ed8;}
+.cat-ho{background:#ede9fe;color:var(--primary);}
+.cat-global{background:#d1fae5;color:var(--success);}
+</style>
+</head>
+<body>
+<div class="app-wrapper active" id="appWrapper">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-feather-pointed"></i></div>
+    <div class="brand-text"><h2>Panchhi HR</h2><span>Software v1.0</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">HR & Payroll</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link active"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><div class="user-avatar">AD</div><div class="user-info"><h4>Admin</h4><span><span class="online-dot"></span> Super Admin</span></div></div>
+</nav>
+
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>Store & Inventory</h1><p>Track items, PO/PR, attachments & stock</p></div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <div class="header-avatar" onclick="window.location='index.html'">AD</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-boxes-stacked"></i></div><div class="stat-number" id="st-totalItems">0</div><div class="stat-label">Total Entries</div></div>
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-number" id="st-pendingPO">0</div><div class="stat-label">PO/PR Pending</div></div>
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-number" id="st-complete">0</div><div class="stat-label">Complete Entries</div></div>
+      <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-calendar-day"></i></div><div class="stat-number" id="st-today">0</div><div class="stat-label">Added Today</div></div>
+    </div>
+
+    <!-- PO Reminder Banner -->
+    <div class="reminder-banner" id="poBanner" style="display:none">
+      <i class="fas fa-bell"></i>
+      <div>
+        <h4>⏰ PO / PR Number Reminder</h4>
+        <p id="poBannerText">You have pending entries without PO/PR numbers. Please update them to keep records complete.</p>
+      </div>
+      <button class="btn btn-warning btn-sm" style="margin-left:auto;flex-shrink:0" onclick="switchStoreTab('pending',document.querySelector('.store-tab:nth-child(3)'))">
+        View Pending
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="store-tabs">
+      <div class="store-tab active" onclick="switchStoreTab('add',this)"><i class="fas fa-plus-circle"></i> Add Entry</div>
+      <div class="store-tab" onclick="switchStoreTab('all',this)"><i class="fas fa-list"></i> All Entries</div>
+      <div class="store-tab" onclick="switchStoreTab('pending',this)"><i class="fas fa-clock"></i> PO/PR Pending</div>
+      <div class="store-tab" onclick="switchStoreTab('reports',this)"><i class="fas fa-file-chart-column"></i> Reports</div>
+    </div>
+
+    <!-- ═══ TAB 1: ADD ENTRY ═══ -->
+    <div class="store-section active" id="stab-add">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fas fa-plus-circle"></i> New Store Entry</div>
+        <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px">
+
+          <div class="form-group"><label>Date *</label>
+            <input type="date" id="st_date" class="today-date"></div>
+
+          <div class="form-group"><label>Item Name *</label>
+            <input type="text" id="st_itemName" placeholder="e.g. A4 Paper, Pen, Stapler..."></div>
+
+          <div class="form-group"><label>Category / For *</label>
+            <select id="st_category">
+              <option value="">Select...</option>
+              <option value="PLANT">Plant</option>
+              <option value="HO">HO (Head Office)</option>
+              <option value="GLOBAL">Global</option>
+            </select>
+          </div>
+
+          <div class="form-group"><label>New / Old</label>
+            <select id="st_condition">
+              <option value="NEW">New</option>
+              <option value="OLD">Old / Used</option>
+            </select>
+          </div>
+
+          <div class="form-group"><label>Quantity *</label>
+            <input type="number" id="st_qty" placeholder="1" min="1" value="1"></div>
+
+          <div class="form-group"><label>Unit</label>
+            <input type="text" id="st_unit" placeholder="e.g. Pcs, Box, Kg, Litre"></div>
+
+          <div class="form-group"><label>Rate (₹)</label>
+            <input type="number" id="st_rate" placeholder="0" min="0"></div>
+
+          <div class="form-group"><label>Total Amount (₹)</label>
+            <input type="number" id="st_total" placeholder="Auto or enter manually"></div>
+
+          <div class="form-group"><label>Vendor / Supplier</label>
+            <input type="text" id="st_vendor" placeholder="Supplier name"></div>
+
+          <div class="form-group"><label>PO Number</label>
+            <input type="text" id="st_po" placeholder="PO-XXXX (leave blank if pending)" class="font-mono"></div>
+
+          <div class="form-group"><label>PR Number</label>
+            <input type="text" id="st_pr" placeholder="PR-XXXX (leave blank if pending)" class="font-mono"></div>
+
+          <div class="form-group"><label>Bill / Invoice Number</label>
+            <input type="text" id="st_bill" placeholder="Invoice no." class="font-mono"></div>
+
+        </div>
+
+        <div class="form-group mt-12" style="margin-bottom:14px">
+          <label>Remarks (if any)</label>
+          <textarea id="st_remark" rows="2" placeholder="Any notes about this entry..."></textarea>
+        </div>
+
+        <!-- Attachment -->
+        <div style="margin-bottom:18px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">
+            Attachment (Bill / PO / Invoice) — Max 5MB
+          </label>
+          <div class="drop-zone" id="storeDropZone" onclick="document.getElementById('storeFile').click()" style="padding:20px">
+            <i class="fas fa-paperclip" style="font-size:24px;color:var(--gray-300);margin-bottom:8px;display:block"></i>
+            <p style="font-size:13px">Click to attach file</p>
+            <span>PDF, JPG, PNG — Max 5MB</span>
+          </div>
+          <input type="file" id="storeFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleAttachment(this)">
+          <div id="attachmentPreview" style="display:none;margin-top:10px;padding:10px 14px;background:var(--success-light);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--success)">
+            <i class="fas fa-file-circle-check"></i>
+            <span id="attachmentName"></span>
+            <button onclick="removeAttachment()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="addStoreEntry()">
+            <i class="fas fa-save"></i> Save Entry
+          </button>
+          <button class="btn btn-outline" onclick="resetStoreForm()">
+            <i class="fas fa-rotate-left"></i> Reset
+          </button>
+          <span id="sheetStatus" class="sheet-status"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 2: ALL ENTRIES ═══ -->
+    <div class="store-section" id="stab-all">
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fas fa-list"></i> All Store Entries</h3>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="search-box"><i class="fas fa-search"></i>
+              <input type="text" id="storeSearch" placeholder="Search item, vendor..." oninput="renderStoreTable()">
+            </div>
+            <select id="storeCatFilter" onchange="renderStoreTable()"
+              style="padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+              <option value="">All Categories</option>
+              <option value="PLANT">Plant</option>
+              <option value="HO">HO</option>
+              <option value="GLOBAL">Global</option>
+            </select>
+            <button class="btn btn-success btn-sm" onclick="exportStoreExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button class="btn btn-danger btn-sm" onclick="exportStorePDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Date</th><th>Item</th><th>Category</th>
+                <th>Condition</th><th>Qty</th><th>Rate</th><th>Total</th>
+                <th>Vendor</th><th>PO No.</th><th>PR No.</th>
+                <th>Attachment</th><th>Remark</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="storeTableBody">
+              <tr><td colspan="14" class="table-empty"><i class="fas fa-boxes-stacked"></i><p>No entries yet</p><span>Add your first store entry</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 3: PO/PR PENDING ═══ -->
+    <div class="store-section" id="stab-pending">
+      <div class="alert alert-warning mb-16">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>Entries below are missing PO or PR numbers. You'll receive reminders every 3 hours until these are filled. Click the edit button to update.</div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fas fa-clock"></i> Pending PO / PR Entries</h3>
+          <span class="badge badge-red" id="pendingCountBadge">0 Pending</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Item</th><th>Category</th><th>Qty</th><th>Total</th><th>Vendor</th><th>PO No.</th><th>PR No.</th><th>Update</th></tr>
+            </thead>
+            <tbody id="pendingTableBody">
+              <tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle" style="color:var(--success)"></i><p>All entries have PO/PR numbers</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 4: REPORTS ═══ -->
+    <div class="store-section" id="stab-reports">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fas fa-file-chart-column"></i> Download Reports</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;text-align:center">
+            <i class="fas fa-file-excel" style="font-size:36px;color:var(--success);margin-bottom:12px;display:block"></i>
+            <h4 style="font-weight:800;color:var(--gray-900);margin-bottom:6px">Excel Export</h4>
+            <p style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Full store data with all columns in Excel format</p>
+            <button class="btn btn-success btn-sm btn-full" onclick="exportStoreExcel()"><i class="fas fa-download"></i> Download Excel</button>
+          </div>
+
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;text-align:center">
+            <i class="fas fa-file-pdf" style="font-size:36px;color:var(--danger);margin-bottom:12px;display:block"></i>
+            <h4 style="font-weight:800;color:var(--gray-900);margin-bottom:6px">PDF Report</h4>
+            <p style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Printable store register in PDF format</p>
+            <button class="btn btn-danger btn-sm btn-full" onclick="exportStorePDF()"><i class="fas fa-download"></i> Download PDF</button>
+          </div>
+
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px;text-align:center">
+            <i class="fas fa-triangle-exclamation" style="font-size:36px;color:var(--warning);margin-bottom:12px;display:block"></i>
+            <h4 style="font-weight:800;color:var(--gray-900);margin-bottom:6px">Pending PO/PR</h4>
+            <p style="font-size:12px;color:var(--gray-500);margin-bottom:14px">Export only entries with missing PO/PR numbers</p>
+            <button class="btn btn-warning btn-sm btn-full" onclick="exportPendingReport()"><i class="fas fa-download"></i> Download Pending</button>
+          </div>
+
+        </div>
+
+        <!-- Date filter for reports -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-100)">
+          <h4 style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:12px">Filter by Date Range</h4>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div class="form-group" style="margin:0"><label>From</label><input type="date" id="rpt_from"></div>
+            <div class="form-group" style="margin:0"><label>To</label><input type="date" id="rpt_to" class="today-date"></div>
+            <button class="btn btn-primary btn-sm" onclick="exportFilteredReport()"><i class="fas fa-filter"></i> Export Filtered</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end page-content -->
+</div>
+</div>
+
+<!-- ═══ EDIT PO/PR MODAL ═══ -->
+<div class="modal-overlay" id="modal-editPO">
+  <div class="modal-box modal-box-sm">
+    <div class="modal-header">
+      <h3><i class="fas fa-pen" style="color:var(--primary);margin-right:8px"></i>Update PO / PR Number</h3>
+      <button class="modal-close" onclick="closeModal('editPO')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <input type="hidden" id="editPO_id">
+    <div class="form-group mb-16"><label>Item Name</label><input type="text" id="editPO_item" disabled style="background:var(--gray-50)"></div>
+    <div class="form-group mb-16"><label>PO Number</label><input type="text" id="editPO_po" placeholder="Enter PO Number" class="font-mono"></div>
+    <div class="form-group mb-16"><label>PR Number</label><input type="text" id="editPO_pr" placeholder="Enter PR Number" class="font-mono"></div>
+    <div class="form-group mb-16"><label>Bill / Invoice</label><input type="text" id="editPO_bill" placeholder="Invoice number" class="font-mono"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editPO')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePOEdit()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+/* ══════════════════════════════════════
+   STORE MODULE
+══════════════════════════════════════ */
+let storeEntries    = [];
+let currentAttachment = null;
+let reminderTimers  = [];
+
+window.addEventListener('load',()=>{
+  updateClock(); setInterval(updateClock,1000);
+  storeEntries = Store.get('storeEntries');
+  renderStats();
+  checkPOReminder();
+  setupStoreDragDrop();
+  // Auto-calc total
+  document.getElementById('st_qty')?.addEventListener('input', autoCalcTotal);
+  document.getElementById('st_rate')?.addEventListener('input', autoCalcTotal);
+  // Set reminder interval: every 3 hours
+  setInterval(checkPOReminder, 3*60*60*1000);
+});
+
+/* ── Tab switch ── */
+function switchStoreTab(tab, el) {
+  document.querySelectorAll('.store-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.store-section').forEach(s=>s.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('stab-'+tab)?.classList.add('active');
+  if(tab==='all')     renderStoreTable();
+  if(tab==='pending') renderPendingTable();
+}
+
+/* ── Auto-calc total ── */
+function autoCalcTotal() {
+  const qty  = parseFloat(document.getElementById('st_qty')?.value)||0;
+  const rate = parseFloat(document.getElementById('st_rate')?.value)||0;
+  if(qty && rate) document.getElementById('st_total').value = (qty*rate).toFixed(2);
+}
+
+/* ── Attachment handler ── */
+function handleAttachment(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024) {
+    showToast('error','File Too Large','Max 5MB allowed');
+    input.value=''; return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentAttachment = { name: file.name, type: file.type, data: e.target.result };
+    const prev = document.getElementById('attachmentPreview');
+    document.getElementById('attachmentName').textContent = file.name;
+    prev.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+function removeAttachment() {
+  currentAttachment = null;
+  document.getElementById('storeFile').value = '';
+  document.getElementById('attachmentPreview').style.display = 'none';
+}
+
+function setupStoreDragDrop() {
+  const dz = document.getElementById('storeDropZone');
+  if(!dz) return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f){
+      const fakeInput={files:[f]};
+      document.getElementById('storeFile').files; // can't set directly
+      handleAttachment({files:[f]});
+    }
+  });
+}
+
+/* ── Add Entry ── */
+function addStoreEntry() {
+  const itemName = document.getElementById('st_itemName')?.value?.trim();
+  const category = document.getElementById('st_category')?.value;
+  const qty      = parseFloat(document.getElementById('st_qty')?.value)||0;
+  const date     = document.getElementById('st_date')?.value || todayStr();
+
+  if(!itemName || !category || !qty) {
+    showToast('error','Required Fields','Item name, category, and quantity are required');
+    return;
+  }
+
+  const po   = document.getElementById('st_po')?.value?.trim();
+  const pr   = document.getElementById('st_pr')?.value?.trim();
+  const bill = document.getElementById('st_bill')?.value?.trim();
+
+  const entry = {
+    id:         genId('ST'),
+    date,
+    itemName,
+    category,
+    condition:  document.getElementById('st_condition')?.value || 'NEW',
+    qty,
+    unit:       document.getElementById('st_unit')?.value?.trim(),
+    rate:       parseFloat(document.getElementById('st_rate')?.value)||0,
+    total:      parseFloat(document.getElementById('st_total')?.value)||0,
+    vendor:     document.getElementById('st_vendor')?.value?.trim(),
+    po,
+    pr,
+    bill,
+    remark:     document.getElementById('st_remark')?.value?.trim(),
+    attachment: currentAttachment ? { name: currentAttachment.name, type: currentAttachment.type } : null,
+    // Store attachment data separately to save space in main array
+    attachmentData: currentAttachment?.data || null,
+    poStatus:   (po && pr) ? 'COMPLETE' : 'PENDING',
+    addedAt:    new Date().toISOString(),
+  };
+
+  storeEntries.push(entry);
+  Store.set('storeEntries', storeEntries);
+  GSheet.send('Store', {
+    ...entry, attachmentData: entry.attachment ? 'attached' : 'none'
+  });
+
+  resetStoreForm();
+  renderStats();
+  checkPOReminder();
+  showToast('success','Entry Saved!', `${itemName} added to store register`);
+
+  if(!po || !pr) {
+    setTimeout(()=>showToast('warning','PO/PR Pending',`Remember to add PO/PR for "${itemName}"`),1500);
+  }
+}
+
+/* ── Reset form ── */
+function resetStoreForm() {
+  ['st_itemName','st_unit','st_vendor','st_po','st_pr','st_bill','st_remark','st_rate','st_total'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('st_qty').value = '1';
+  document.getElementById('st_category').value = '';
+  document.getElementById('st_condition').value = 'NEW';
+  removeAttachment();
+}
+
+/* ── Stats ── */
+function renderStats() {
+  const today = todayStr();
+  document.getElementById('st-totalItems').textContent = storeEntries.length;
+  document.getElementById('st-pendingPO').textContent  = storeEntries.filter(e=>e.poStatus==='PENDING').length;
+  document.getElementById('st-complete').textContent   = storeEntries.filter(e=>e.poStatus==='COMPLETE').length;
+  document.getElementById('st-today').textContent      = storeEntries.filter(e=>e.date===today).length;
+}
+
+/* ── PO Reminder ── */
+function checkPOReminder() {
+  const pending = storeEntries.filter(e=>e.poStatus==='PENDING');
+  const banner  = document.getElementById('poBanner');
+  const badge   = document.getElementById('pendingCountBadge');
+  if(pending.length>0) {
+    banner.style.display = 'flex';
+    document.getElementById('poBannerText').textContent =
+      `${pending.length} entr${pending.length>1?'ies':'y'} missing PO/PR numbers. Please update them.`;
+    if(badge) badge.textContent = `${pending.length} Pending`;
+  } else {
+    banner.style.display = 'none';
+    if(badge) badge.textContent = '0 Pending';
+  }
+}
+
+/* ── Render All table ── */
+function renderStoreTable() {
+  const q   = document.getElementById('storeSearch')?.value?.toLowerCase()||'';
+  const cat = document.getElementById('storeCatFilter')?.value||'';
+  const filtered = storeEntries.filter(e=>{
+    if(cat && e.category!==cat) return false;
+    if(q && !`${e.itemName} ${e.vendor} ${e.po} ${e.pr}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const body = document.getElementById('storeTableBody');
+  if(filtered.length===0){
+    body.innerHTML=`<tr><td colspan="14" class="table-empty"><i class="fas fa-boxes-stacked"></i><p>No entries</p></td></tr>`;
+    return;
+  }
+  body.innerHTML='';
+  filtered.forEach((e,i)=>{
+    const catClass = e.category==='PLANT'?'cat-plant':e.category==='HO'?'cat-ho':'cat-global';
+    const condBadge= e.condition==='NEW'?'badge-green':'badge-amber';
+    const poBadge  = e.poStatus==='COMPLETE'
+      ? `<span class="po-ok"><i class="fas fa-check"></i> OK</span>`
+      : `<span class="po-missing"><i class="fas fa-clock"></i> Pending</span>`;
+    const attBadge = e.attachment
+      ? `<span class="badge badge-green" style="cursor:pointer" title="${e.attachment.name}"><i class="fas fa-paperclip"></i> ${e.attachment.name.slice(0,12)}${e.attachment.name.length>12?'...':''}</span>`
+      : `<span class="badge badge-gray">None</span>`;
+    body.innerHTML+=`
+      <tr>
+        <td style="font-weight:700;color:var(--gray-400)">${i+1}</td>
+        <td style="font-size:12px">${formatDate(e.date)}</td>
+        <td style="font-weight:700">${e.itemName}</td>
+        <td><span class="item-category ${catClass}">${e.category}</span></td>
+        <td><span class="badge ${condBadge}">${e.condition}</span></td>
+        <td style="font-weight:700">${e.qty} ${e.unit||''}</td>
+        <td>${e.rate?formatINR(e.rate):'—'}</td>
+        <td style="font-weight:700;color:var(--success)">${e.total?formatINR(e.total):'—'}</td>
+        <td style="font-size:12.5px">${e.vendor||'—'}</td>
+        <td class="font-mono" style="font-size:12px">${e.po||poBadge}</td>
+        <td class="font-mono" style="font-size:12px">${e.pr||'—'}</td>
+        <td>${attBadge}</td>
+        <td style="font-size:12px;color:var(--gray-500)">${e.remark||'—'}</td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-outline btn-icon btn-sm" onclick="openEditPO('${e.id}')" title="Update PO/PR"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-icon btn-sm" onclick="deleteEntry('${e.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  });
+}
+
+/* ── Render Pending ── */
+function renderPendingTable() {
+  const pending = storeEntries.filter(e=>e.poStatus==='PENDING');
+  const body    = document.getElementById('pendingTableBody');
+  if(pending.length===0){
+    body.innerHTML=`<tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle" style="color:var(--success)"></i><p>All entries complete!</p></td></tr>`;
+    document.getElementById('pendingCountBadge').textContent='0 Pending';
+    return;
+  }
+  document.getElementById('pendingCountBadge').textContent=`${pending.length} Pending`;
+  body.innerHTML='';
+  pending.forEach(e=>{
+    const catClass=e.category==='PLANT'?'cat-plant':e.category==='HO'?'cat-ho':'cat-global';
+    body.innerHTML+=`
+      <tr>
+        <td style="font-size:12px">${formatDate(e.date)}</td>
+        <td style="font-weight:700">${e.itemName}</td>
+        <td><span class="item-category ${catClass}">${e.category}</span></td>
+        <td>${e.qty} ${e.unit||''}</td>
+        <td style="font-weight:700;color:var(--success)">${e.total?formatINR(e.total):'—'}</td>
+        <td style="font-size:12.5px">${e.vendor||'—'}</td>
+        <td>${e.po?`<span class="po-ok">${e.po}</span>`:'<span class="po-missing">Missing</span>'}</td>
+        <td>${e.pr?`<span class="po-ok">${e.pr}</span>`:'<span class="po-missing">Missing</span>'}</td>
+        <td><button class="btn btn-primary btn-sm" onclick="openEditPO('${e.id}')"><i class="fas fa-pen"></i> Update</button></td>
+      </tr>`;
+  });
+}
+
+/* ── Edit PO Modal ── */
+function openEditPO(id) {
+  const e = storeEntries.find(x=>x.id===id);
+  if(!e) return;
+  document.getElementById('editPO_id').value   = id;
+  document.getElementById('editPO_item').value  = e.itemName;
+  document.getElementById('editPO_po').value    = e.po||'';
+  document.getElementById('editPO_pr').value    = e.pr||'';
+  document.getElementById('editPO_bill').value  = e.bill||'';
+  showModal('editPO');
+}
+function savePOEdit() {
+  const id   = document.getElementById('editPO_id').value;
+  const po   = document.getElementById('editPO_po').value.trim();
+  const pr   = document.getElementById('editPO_pr').value.trim();
+  const bill = document.getElementById('editPO_bill').value.trim();
+  const idx  = storeEntries.findIndex(e=>e.id===id);
+  if(idx<0) return;
+  storeEntries[idx].po   = po;
+  storeEntries[idx].pr   = pr;
+  storeEntries[idx].bill = bill;
+  storeEntries[idx].poStatus = (po&&pr)?'COMPLETE':'PENDING';
+  Store.set('storeEntries', storeEntries);
+  GSheet.send('Store_Update',{id,po,pr,bill});
+  closeModal('editPO');
+  renderStats(); checkPOReminder();
+  renderStoreTable(); renderPendingTable();
+  showToast('success','Updated!','PO/PR numbers saved');
+}
+
+/* ── Delete ── */
+function deleteEntry(id) {
+  if(!confirm('Delete this store entry?')) return;
+  storeEntries = storeEntries.filter(e=>e.id!==id);
+  Store.set('storeEntries',storeEntries);
+  renderStats(); checkPOReminder(); renderStoreTable();
+  showToast('success','Deleted','Entry removed');
+}
+
+/* ══ EXPORT ══ */
+function exportStoreExcel() {
+  if(!storeEntries.length){showToast('warning','No Data','Nothing to export');return;}
+  const headers=['date','itemName','category','condition','qty','unit','rate','total','vendor','po','pr','bill','remark'];
+  downloadCSV(`Store_Register_${todayStr()}.csv`, storeEntries, headers);
+  showToast('success','Excel Downloaded','Store register exported');
+}
+
+function exportStorePDF() {
+  // Generate printable HTML and open print dialog
+  const rows = storeEntries.map((e,i)=>`
+    <tr>
+      <td>${i+1}</td><td>${formatDate(e.date)}</td><td>${e.itemName}</td>
+      <td>${e.category}</td><td>${e.condition}</td><td>${e.qty} ${e.unit||''}</td>
+      <td>${e.rate?'₹'+e.rate:''}</td><td>${e.total?'₹'+e.total:''}</td>
+      <td>${e.vendor||''}</td><td>${e.po||'PENDING'}</td><td>${e.pr||'PENDING'}</td>
+      <td>${e.remark||''}</td>
+    </tr>`).join('');
+
+  const html=`<!DOCTYPE html><html><head>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:11px;padding:20px;}
+      h2{text-align:center;color:#6c47ff;margin-bottom:4px;}
+      p{text-align:center;color:#888;margin-bottom:16px;}
+      table{width:100%;border-collapse:collapse;}
+      th{background:#6c47ff;color:#fff;padding:7px 8px;text-align:left;font-size:10px;}
+      td{padding:6px 8px;border-bottom:1px solid #eee;font-size:10.5px;}
+      tr:nth-child(even){background:#f9f9f9;}
+    </style></head><body>
+    <h2>Panchhi HR Software — Store Register</h2>
+    <p>Generated: ${new Date().toLocaleString('en-IN')}</p>
+    <table><thead><tr>
+      <th>#</th><th>Date</th><th>Item</th><th>Category</th><th>Condition</th>
+      <th>Qty</th><th>Rate</th><th>Total</th><th>Vendor</th><th>PO</th><th>PR</th><th>Remark</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <script>window.print();window.close();<\/script></body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+function exportPendingReport() {
+  const pending = storeEntries.filter(e=>e.poStatus==='PENDING');
+  if(!pending.length){showToast('info','None Pending','All entries have PO/PR numbers');return;}
+  downloadCSV(`Pending_PO_PR_${todayStr()}.csv`, pending,
+    ['date','itemName','category','qty','total','vendor','po','pr','remark']);
+}
+
+function exportFilteredReport() {
+  const from = document.getElementById('rpt_from')?.value;
+  const to   = document.getElementById('rpt_to')?.value || todayStr();
+  const filtered = storeEntries.filter(e=> (!from || e.date>=from) && e.date<=to);
+  if(!filtered.length){showToast('warning','No Data','No entries in selected range');return;}
+  downloadCSV(`Store_${from||'all'}_to_${to}.csv`, filtered,
+    ['date','itemName','category','condition','qty','unit','rate','total','vendor','po','pr','bill','remark']);
+}
+</script>
+</body>
+</html>
