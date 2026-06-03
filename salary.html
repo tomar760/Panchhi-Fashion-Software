@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary / Payroll — Panchhi HR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+.sal-tabs{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:24px;overflow-x:auto;}
+.sal-tab{padding:10px 20px;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;}
+.sal-tab:hover{color:var(--gray-800);}
+.sal-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.sal-section{display:none;}
+.sal-section.active{display:block;}
+
+.payslip-box{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;font-size:13px;}
+.payslip-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-100);}
+.payslip-row:last-child{border-bottom:none;}
+.payslip-row.total{font-size:16px;font-weight:800;padding-top:14px;margin-top:4px;border-top:2px solid var(--gray-200);}
+.payslip-row .label{color:var(--gray-600);font-weight:600;}
+.payslip-row .value{font-weight:700;font-family:'JetBrains Mono',monospace;}
+.payslip-row .value.green{color:var(--success);}
+.payslip-row .value.red{color:var(--danger);}
+.payslip-row .value.big{font-size:20px;color:var(--primary);}
+
+.bonus-tag{background:var(--success-light);color:var(--success);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;}
+.advance-warning{background:var(--danger-light);border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:11px 14px;font-size:12.5px;color:#b91c1c;font-weight:600;display:flex;align-items:center;gap:8px;}
+</style>
+</head>
+<body>
+<div class="app-wrapper active" id="appWrapper">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-feather-pointed"></i></div>
+    <div class="brand-text"><h2>Panchhi HR</h2><span>Software v1.0</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">HR & Payroll</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link active"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+  </div>
+  <div class="sidebar-footer"><div class="user-avatar">AD</div><div class="user-info"><h4>Admin</h4><span><span class="online-dot"></span> Super Admin</span></div></div>
+</nav>
+
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>Salary / Payroll</h1><p>Calculate, advance, loan & disburse</p></div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <div class="header-avatar">AD</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-receipt"></i></div><div class="stat-number" id="st-grossPayroll">₹0</div><div class="stat-label">Total Gross This Month</div></div>
+      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-scissors"></i></div><div class="stat-number" id="st-totalDeductions">₹0</div><div class="stat-label">Total Deductions</div></div>
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-wallet"></i></div><div class="stat-number" id="st-netPayroll">₹0</div><div class="stat-label">Net Disbursement</div></div>
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-hand-holding-dollar"></i></div><div class="stat-number" id="st-totalAdvance">₹0</div><div class="stat-label">Advance Outstanding</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sal-tabs">
+      <div class="sal-tab active" onclick="switchSalTab('calculate',this)"><i class="fas fa-calculator"></i> Run Payroll</div>
+      <div class="sal-tab" onclick="switchSalTab('advance',this)"><i class="fas fa-hand-holding-dollar"></i> Advance / Loan</div>
+      <div class="sal-tab" onclick="switchSalTab('sheet',this)"><i class="fas fa-table"></i> Salary Sheet</div>
+      <div class="sal-tab" onclick="switchSalTab('history',this)"><i class="fas fa-history"></i> Pay History</div>
+    </div>
+
+    <!-- ═══ TAB 1: RUN PAYROLL ═══ -->
+    <div class="sal-section active" id="stab-calculate">
+      <div class="grid-1-2">
+
+        <!-- Left: Month selector + Run button -->
+        <div class="form-card">
+          <div class="form-card-title"><i class="fas fa-calculator"></i> Calculate Payroll</div>
+
+          <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:16px">
+            <div class="form-group">
+              <label>Payroll Month *</label>
+              <select id="sal_month"></select>
+            </div>
+            <div class="form-group">
+              <label>Working Days in Month</label>
+              <input type="number" id="sal_workingDays" value="26" min="1" max="31">
+            </div>
+          </div>
+
+          <div class="alert alert-info" style="margin-bottom:16px">
+            <i class="fas fa-info-circle"></i>
+            <div>System will calculate: Gross × (Present Days / Working Days) − Advance − Loan EMI − LWP Deduction. Special rules (31-Day Bonus, 3-HR Grace) applied automatically.</div>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="runPayrollBtn" onclick="runPayroll()">
+            <i class="fas fa-play-circle"></i> Run Auto-Calculation for All Employees
+          </button>
+          <div style="margin-top:10px;text-align:center"><span id="sheetStatus" class="sheet-status"></span></div>
+        </div>
+
+        <!-- Right: Individual payslip preview -->
+        <div class="form-card">
+          <div class="form-card-title"><i class="fas fa-file-invoice-dollar"></i> Individual Payslip Preview</div>
+          <div class="form-group mb-16">
+            <label>Select Employee</label>
+            <select id="sal_empPreview" onchange="previewPayslip()">
+              <option value="">Select employee...</option>
+            </select>
+          </div>
+          <div id="payslipPreview" style="display:none">
+            <div class="payslip-box" id="payslipBox"></div>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="printPayslip()"><i class="fas fa-print"></i> Print Payslip</button>
+            </div>
+          </div>
+          <div id="payslipEmpty" style="text-align:center;padding:28px;color:var(--gray-400)">
+            <i class="fas fa-file-invoice" style="font-size:36px;display:block;margin-bottom:10px;opacity:.3"></i>
+            <p style="font-size:13px;font-weight:600">Select an employee to preview payslip</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payroll Table (after run) -->
+      <div class="table-card mt-24" id="payrollTableWrap" style="display:none">
+        <div class="table-header">
+          <h3><i class="fas fa-table"></i> Payroll Sheet — <span id="payrollMonthLabel"></span></h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-success btn-sm" onclick="exportPayrollExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button class="btn btn-danger btn-sm" onclick="exportPayrollPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>E-Code</th><th>Employee</th><th>Dept</th>
+                <th>Gross</th><th>Present</th><th>Payable Days</th>
+                <th>Earned</th><th>Advance</th><th>Loan EMI</th>
+                <th>LWP Cut</th><th>Other Ded.</th><th>Net Salary</th><th>Bonus</th>
+              </tr>
+            </thead>
+            <tbody id="payrollTableBody"></tbody>
+          </table>
+        </div>
+        <div style="padding:16px 22px;border-top:1px solid var(--gray-100);display:flex;gap:14px;flex-wrap:wrap">
+          <div style="font-size:13px;font-weight:700;color:var(--gray-600)">Total Gross: <span style="color:var(--primary)" id="payrollSumGross">—</span></div>
+          <div style="font-size:13px;font-weight:700;color:var(--gray-600)">Total Deductions: <span style="color:var(--danger)" id="payrollSumDed">—</span></div>
+          <div style="font-size:15px;font-weight:800;color:var(--gray-900)">NET PAYABLE: <span style="color:var(--success)" id="payrollSumNet">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 2: ADVANCE / LOAN ═══ -->
+    <div class="sal-section" id="stab-advance">
+      <div class="grid-1-2">
+
+        <!-- Give Advance / Loan -->
+        <div class="form-card">
+          <div class="form-card-title"><i class="fas fa-hand-holding-dollar"></i> Give Advance / Loan</div>
+
+          <div class="form-group mb-16">
+            <label>Employee *</label>
+            <select id="adv_emp" onchange="onAdvEmpChange()">
+              <option value="">Select Employee...</option>
+            </select>
+          </div>
+
+          <!-- Employee strip -->
+          <div id="adv_strip" style="display:none;background:var(--gray-50);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:14px;font-size:12.5px;border:1px solid var(--gray-200)">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">
+              <div><span style="color:var(--gray-500)">Gross:</span> <strong id="adv_stripGross">—</strong></div>
+              <div><span style="color:var(--gray-500)">Max Advance (50%):</span> <strong id="adv_stripMax" style="color:var(--success)">—</strong></div>
+              <div><span style="color:var(--gray-500)">Current Advance:</span> <strong id="adv_stripCurrent" style="color:var(--danger)">—</strong></div>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:14px">
+            <div class="form-group">
+              <label>Type *</label>
+              <select id="adv_type" onchange="onAdvTypeChange()">
+                <option value="ADVANCE">Advance (deduct this month)</option>
+                <option value="LOAN">Loan (EMI deduction)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount (₹) *</label>
+              <input type="number" id="adv_amount" placeholder="e.g. 5000" oninput="validateAdvAmount()">
+            </div>
+          </div>
+
+          <!-- Advance 50% warning -->
+          <div class="advance-warning" id="adv_warning" style="display:none">
+            <i class="fas fa-triangle-exclamation"></i>
+            <div>Amount exceeds <strong>50% of salary</strong> (company rule). Max allowed: <strong id="adv_maxLabel">₹0</strong></div>
+          </div>
+
+          <!-- Loan specific fields -->
+          <div id="adv_loanFields" style="display:none;margin-top:14px">
+            <div class="form-grid form-grid-2" style="gap:12px">
+              <div class="form-group">
+                <label>EMI Amount (₹/month)</label>
+                <input type="number" id="adv_emi" placeholder="Monthly EMI">
+              </div>
+              <div class="form-group">
+                <label>Deduction Starts From</label>
+                <select id="adv_startMonth">
+                  <option value="NEXT">Next Month (default 90%)</option>
+                  <option value="THIS">This Month</option>
+                  <option value="CUSTOM">Custom (Sir's instruction)</option>
+                </select>
+              </div>
+            </div>
+            <div id="adv_customMonthWrap" style="display:none;margin-top:10px">
+              <div class="form-group"><label>Custom Start Month</label><input type="month" id="adv_customMonth"></div>
+            </div>
+          </div>
+
+          <div class="form-group mt-12 mb-16">
+            <label>Remarks</label>
+            <textarea id="adv_remark" rows="2" placeholder="Reason for advance/loan..."></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-full" onclick="giveAdvance()">
+            <i class="fas fa-paper-plane"></i> Confirm & Save
+          </button>
+          <div style="margin-top:8px;text-align:center"><span class="sheet-status" id="sheetStatus2"></span></div>
+        </div>
+
+        <!-- Advance/Loan ledger -->
+        <div class="table-card" style="margin-bottom:0">
+          <div class="table-header">
+            <h3><i class="fas fa-book"></i> Advance & Loan Ledger</h3>
+            <div class="search-box"><i class="fas fa-search"></i>
+              <input type="text" id="advSearch" placeholder="Search employee..." oninput="renderAdvLedger()">
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Employee</th><th>Type</th><th>Amount</th><th>EMI</th><th>Balance</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="advLedgerBody">
+                <tr><td colspan="8" class="table-empty"><i class="fas fa-book"></i><p>No advance/loan records</p></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 3: SALARY SHEET ═══ -->
+    <div class="sal-section" id="stab-sheet">
+      <div class="form-card" style="margin-bottom:20px">
+        <div class="form-card-title"><i class="fas fa-table"></i> Salary Register</div>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="margin:0">
+            <label>Month</label>
+            <select id="sheet_month" onchange="renderSalarySheet()"></select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Department</label>
+            <select id="sheet_dept" onchange="renderSalarySheet()"
+              style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+              <option value="">All Departments</option>
+            </select>
+          </div>
+          <button class="btn btn-success btn-sm" onclick="exportSalaryExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+          <button class="btn btn-danger btn-sm" onclick="exportSalaryPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>E-Code</th><th>Employee</th><th>Dept</th><th>Bank A/C</th>
+                <th>Gross CTC</th><th>Payable Days</th><th>Earned</th>
+                <th>Advance Ded.</th><th>Loan EMI</th><th>LWP Ded.</th>
+                <th>Net Salary</th><th>Bonus</th>
+              </tr>
+            </thead>
+            <tbody id="salarySheetBody">
+              <tr><td colspan="12" class="table-empty"><i class="fas fa-table"></i><p>Run payroll first to see salary sheet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:14px 22px;border-top:1px solid var(--gray-100)" id="sheetSummaryRow" style="display:none">
+          <span style="font-size:13px;font-weight:700;color:var(--gray-600)">Summary — </span>
+          <span style="font-size:13px;font-weight:800;color:var(--success)" id="sheetNetTotal">Net: —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 4: PAY HISTORY ═══ -->
+    <div class="sal-section" id="stab-history">
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fas fa-history"></i> Payroll History</h3>
+          <div class="search-box"><i class="fas fa-search"></i>
+            <input type="text" id="payHistSearch" placeholder="Search employee..." oninput="renderPayHistory()">
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Month</th><th>Employee</th><th>Dept</th><th>Gross</th><th>Deductions</th><th>Net Paid</th><th>Advance</th><th>Loan EMI</th></tr>
+            </thead>
+            <tbody id="payHistBody">
+              <tr><td colspan="8" class="table-empty"><i class="fas fa-history"></i><p>No payroll records yet</p><span>Run payroll to see history</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+/* ══════════════════════════════════════
+   SALARY / PAYROLL MODULE
+══════════════════════════════════════ */
+let allEmployees  = [];
+let salaryRecords = []; // processed payroll records
+let advanceLedger = []; // advance/loan records
+let attRecords    = [];
+let leaveRecords  = [];
+
+window.addEventListener('load',()=>{
+  updateClock(); setInterval(updateClock,1000);
+  allEmployees  = Store.get('employees');
+  salaryRecords = Store.get('salaryRecords');
+  advanceLedger = Store.get('advanceLedger');
+  attRecords    = Store.get('attendance');
+  leaveRecords  = Store.get('leaveRecords');
+  populateMonthDropdowns();
+  populateEmpDropdowns();
+  populateDeptDropdown('sheet_dept');
+  renderStats();
+  renderAdvLedger();
+});
+
+/* ── Tab switch ── */
+function switchSalTab(tab,el){
+  document.querySelectorAll('.sal-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sal-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('stab-'+tab).classList.add('active');
+  if(tab==='sheet')   renderSalarySheet();
+  if(tab==='history') renderPayHistory();
+  if(tab==='advance') renderAdvLedger();
+}
+
+/* ── Month dropdowns ── */
+function populateMonthDropdowns(){
+  ['sal_month','sheet_month'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    sel.innerHTML='';
+    for(let i=0;i<12;i++){
+      const d=new Date(); d.setMonth(d.getMonth()-i);
+      const val=d.toISOString().slice(0,7);
+      const lbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+      sel.innerHTML+=`<option value="${val}"${i===0?' selected':''}>${lbl}</option>`;
+    }
+  });
+}
+
+/* ── Emp dropdowns ── */
+function populateEmpDropdowns(){
+  ['adv_emp','sal_empPreview'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    const ph=id==='adv_emp'?'Select Employee...':'Select employee...';
+    sel.innerHTML=`<option value="">${ph}</option>`;
+    allEmployees.filter(e=>e.status==='ACTIVE').forEach(e=>{
+      sel.innerHTML+=`<option value="${e.id}">${e.ecode} — ${e.fullname} (${e.department||''})</option>`;
+    });
+  });
+}
+
+/* ── Stats ── */
+function renderStats(){
+  const month=document.getElementById('sal_month')?.value||new Date().toISOString().slice(0,7);
+  const monthRecs=salaryRecords.filter(r=>r.month===month);
+  const grossSum=monthRecs.reduce((s,r)=>s+(r.grossEarned||0),0);
+  const dedSum  =monthRecs.reduce((s,r)=>s+(r.totalDeductions||0),0);
+  const netSum  =monthRecs.reduce((s,r)=>s+(r.netSalary||0),0);
+  const advOut  =advanceLedger.filter(a=>a.status==='ACTIVE').reduce((s,a)=>s+(a.balance||0),0);
+  document.getElementById('st-grossPayroll').textContent   = formatINR(grossSum);
+  document.getElementById('st-totalDeductions').textContent= formatINR(dedSum);
+  document.getElementById('st-netPayroll').textContent     = formatINR(netSum);
+  document.getElementById('st-totalAdvance').textContent   = formatINR(advOut);
+}
+
+/* ══ RUN PAYROLL ══ */
+function runPayroll(){
+  const month      =document.getElementById('sal_month').value;
+  const workingDays=parseInt(document.getElementById('sal_workingDays').value)||26;
+  const btn        =document.getElementById('runPayrollBtn');
+  const done       =btnLoading(btn,'Calculating...');
+
+  setTimeout(()=>{
+    const results=[];
+    allEmployees.filter(e=>e.status==='ACTIVE').forEach(emp=>{
+      const rec=calculateSalary(emp,month,workingDays);
+      results.push(rec);
+    });
+
+    // Remove existing records for this month
+    salaryRecords=salaryRecords.filter(r=>r.month!==month);
+    salaryRecords.push(...results);
+    Store.set('salaryRecords',salaryRecords);
+    GSheet.send('Payroll',{month,count:results.length});
+
+    renderPayrollTable(results,month);
+    renderStats();
+    done('Calculated!');
+    showToast('success','Payroll Done!',`${results.length} employees calculated for ${month}`);
+  },1800);
+}
+
+/* ── Core salary calculation ── */
+function calculateSalary(emp,month,workingDays){
+  const gross = emp.newctc||emp.fixctc||0;
+
+  // Get present days from attendance
+  const monthAtt=attRecords.filter(r=>r.empId===emp.id&&(r.date||'').startsWith(month));
+  const presentDays=monthAtt.filter(r=>r.status==='P'||r.status==='L').length;
+
+  // Get LWP days from leave records
+  const lwpDays=leaveRecords.filter(r=>
+    r.empId===emp.id&&r.type==='LWP'&&r.status==='APPROVED'&&(r.from||'').startsWith(month)
+  ).reduce((s,r)=>s+r.days,0);
+
+  // 31-Day Bonus rule
+  let bonusDays=0;
+  const daysInMonth=new Date(month.split('-')[0],month.split('-')[1],0).getDate();
+  if(emp.tagBonus && presentDays>=daysInMonth){
+    bonusDays=1;
+  }
+
+  // Per day salary
+  const perDay=gross/workingDays;
+
+  // Payable days = present + bonus
+  const payableDays=Math.min(presentDays+bonusDays, workingDays+bonusDays);
+
+  // Earned salary
+  const earned=perDay*(payableDays>0?payableDays:(presentDays||workingDays));
+
+  // LWP deduction
+  const lwpDeduction=perDay*lwpDays;
+
+  // Get advance deduction for this month
+  const advDed=getAdvanceDeduction(emp.id,month);
+
+  // Get loan EMI for this month
+  const loanDed=getLoanDeduction(emp.id,month);
+
+  // Total deductions
+  const totalDed=lwpDeduction+advDed+loanDed;
+
+  // Net
+  const net=Math.max(0,earned-totalDed);
+
+  return {
+    id:genId('SAL'),
+    month,
+    empId:emp.id,
+    ecode:emp.ecode,
+    empName:emp.fullname,
+    department:emp.department,
+    bankAcc:emp.accno,
+    gross,
+    workingDays,
+    presentDays:presentDays||workingDays, // fallback if no attendance
+    payableDays:payableDays||workingDays,
+    bonusDays,
+    grossEarned:Math.round(earned),
+    lwpDeduction:Math.round(lwpDeduction),
+    advanceDeduction:Math.round(advDed),
+    loanEMI:Math.round(loanDed),
+    totalDeductions:Math.round(totalDed),
+    netSalary:Math.round(net),
+    tagBonus:emp.tagBonus||false,
+    tagSenior:emp.tagSenior||false,
+    calculatedAt:new Date().toISOString(),
+  };
+}
+
+/* ── Get advance deduction ── */
+function getAdvanceDeduction(empId,month){
+  const advances=advanceLedger.filter(a=>
+    a.empId===empId && a.type==='ADVANCE' && a.deductMonth===month && a.status==='ACTIVE'
+  );
+  const total=advances.reduce((s,a)=>s+(a.amount||0),0);
+  // Mark as deducted
+  advances.forEach(a=>{a.status='DEDUCTED';a.deductedOn=todayStr();});
+  Store.set('advanceLedger',advanceLedger);
+  return total;
+}
+
+/* ── Get loan EMI deduction ── */
+function getLoanDeduction(empId,month){
+  const loans=advanceLedger.filter(a=>
+    a.empId===empId && a.type==='LOAN' && a.status==='ACTIVE' &&
+    (!a.emiStartMonth || a.emiStartMonth<=month)
+  );
+  let total=0;
+  loans.forEach(l=>{
+    const emi=l.emi||0;
+    if(emi>0 && (l.balance||0)>0){
+      const deduct=Math.min(emi,l.balance);
+      l.balance=Math.max(0,l.balance-deduct);
+      if(l.balance<=0) l.status='CLEARED';
+      total+=deduct;
+    }
+  });
+  if(loans.length) Store.set('advanceLedger',advanceLedger);
+  return total;
+}
+
+/* ── Render payroll table ── */
+function renderPayrollTable(results,month){
+  const wrap=document.getElementById('payrollTableWrap');
+  const body=document.getElementById('payrollTableBody');
+  const lbl =document.getElementById('payrollMonthLabel');
+  wrap.style.display='block';
+  const d=new Date(month+'-01');
+  lbl.textContent=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+
+  let sumGross=0,sumDed=0,sumNet=0;
+  body.innerHTML='';
+  results.forEach(r=>{
+    sumGross+=r.grossEarned||0;
+    sumDed  +=r.totalDeductions||0;
+    sumNet  +=r.netSalary||0;
+    const bonusBadge=r.bonusDays>0?`<span class="bonus-tag">+1 Bonus Day</span>`:'';
+    body.innerHTML+=`
+      <tr>
+        <td class="font-mono" style="font-size:12px;color:var(--primary)">${r.ecode}</td>
+        <td style="font-weight:700">${r.empName||'—'}</td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td style="font-weight:700">${formatINR(r.gross)}</td>
+        <td style="font-weight:700;color:var(--success)">${r.presentDays}</td>
+        <td>${r.payableDays}${bonusBadge}</td>
+        <td style="font-weight:700;color:var(--primary)">${formatINR(r.grossEarned)}</td>
+        <td style="color:var(--danger)">${r.advanceDeduction>0?'-'+formatINR(r.advanceDeduction):'—'}</td>
+        <td style="color:var(--danger)">${r.loanEMI>0?'-'+formatINR(r.loanEMI):'—'}</td>
+        <td style="color:var(--danger)">${r.lwpDeduction>0?'-'+formatINR(r.lwpDeduction):'—'}</td>
+        <td style="color:var(--danger)">${r.totalDeductions>0?'-'+formatINR(r.totalDeductions):'—'}</td>
+        <td style="font-weight:800;font-size:14px;color:var(--success)">${formatINR(r.netSalary)}</td>
+        <td>${r.tagBonus?'<span class="badge badge-green">Eligible</span>':'—'}</td>
+      </tr>`;
+  });
+  document.getElementById('payrollSumGross').textContent=formatINR(sumGross);
+  document.getElementById('payrollSumDed').textContent  =formatINR(sumDed);
+  document.getElementById('payrollSumNet').textContent  =formatINR(sumNet);
+}
+
+/* ── Individual payslip preview ── */
+function previewPayslip(){
+  const empId=document.getElementById('sal_empPreview').value;
+  const month=document.getElementById('sal_month').value;
+  const emp  =allEmployees.find(e=>e.id===empId);
+  const prev =document.getElementById('payslipPreview');
+  const empty=document.getElementById('payslipEmpty');
+  if(!emp){prev.style.display='none';empty.style.display='block';return;}
+
+  const workingDays=parseInt(document.getElementById('sal_workingDays').value)||26;
+
+  // Check if already calculated
+  let rec=salaryRecords.find(r=>r.empId===empId&&r.month===month);
+  if(!rec) rec=calculateSalary(emp,month,workingDays);
+
+  const d=new Date(month+'-01');
+  const monthLbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+
+  document.getElementById('payslipBox').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--gray-200)">
+      <div style="font-size:11px;font-weight:800;color:var(--gray-400);text-transform:uppercase;letter-spacing:.8px">Panchhi HR Software</div>
+      <div style="font-size:16px;font-weight:800;color:var(--gray-900);margin-top:4px">SALARY SLIP — ${monthLbl}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;font-size:12.5px">
+      <div><span style="color:var(--gray-500)">Employee:</span> <strong>${rec.empName}</strong></div>
+      <div><span style="color:var(--gray-500)">E-Code:</span> <strong class="font-mono">${rec.ecode}</strong></div>
+      <div><span style="color:var(--gray-500)">Department:</span> <strong>${rec.department||'—'}</strong></div>
+      <div><span style="color:var(--gray-500)">Bank A/C:</span> <strong class="font-mono">${emp.accno||'—'}</strong></div>
+      <div><span style="color:var(--gray-500)">Working Days:</span> <strong>${rec.workingDays}</strong></div>
+      <div><span style="color:var(--gray-500)">Present Days:</span> <strong>${rec.presentDays}</strong></div>
+    </div>
+    <div class="payslip-row"><span class="label">Gross CTC</span><span class="value green">${formatINR(rec.gross)}</span></div>
+    <div class="payslip-row"><span class="label">Payable Days</span><span class="value">${rec.payableDays}${rec.bonusDays>0?' (+1 Bonus)':''}</span></div>
+    <div class="payslip-row"><span class="label">Earned Amount</span><span class="value green">${formatINR(rec.grossEarned)}</span></div>
+    ${rec.advanceDeduction>0?`<div class="payslip-row"><span class="label">Advance Deduction</span><span class="value red">- ${formatINR(rec.advanceDeduction)}</span></div>`:''}
+    ${rec.loanEMI>0?`<div class="payslip-row"><span class="label">Loan EMI</span><span class="value red">- ${formatINR(rec.loanEMI)}</span></div>`:''}
+    ${rec.lwpDeduction>0?`<div class="payslip-row"><span class="label">LWP Deduction</span><span class="value red">- ${formatINR(rec.lwpDeduction)}</span></div>`:''}
+    <div class="payslip-row total"><span class="label">NET SALARY</span><span class="value big">${formatINR(rec.netSalary)}</span></div>
+    ${rec.tagBonus&&rec.bonusDays>0?`<div style="margin-top:10px;text-align:center"><span class="bonus-tag"><i class="fas fa-gift"></i> 31-Day Bonus Applied</span></div>`:''}
+  `;
+  prev.style.display='block'; empty.style.display='none';
+}
+
+/* ── Print payslip ── */
+function printPayslip(){
+  const content=document.getElementById('payslipBox')?.innerHTML||'';
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <style>body{font-family:Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;}
+    .payslip-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee;}
+    .payslip-row.total{font-size:16px;font-weight:800;padding-top:12px;border-top:2px solid #ccc;}
+    .value.green{color:#10b981;}.value.red{color:#ef4444;}.value.big{font-size:20px;color:#6c47ff;}
+    .bonus-tag{background:#d1fae5;color:#065f46;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;}
+    </style></head><body>${content}
+    <script>window.print();window.close();<\/script></body></html>`);
+  w.document.close();
+}
+
+/* ══ ADVANCE / LOAN ══ */
+function onAdvEmpChange(){
+  const id=document.getElementById('adv_emp').value;
+  const emp=allEmployees.find(e=>e.id===id);
+  const strip=document.getElementById('adv_strip');
+  if(!emp){strip.style.display='none';return;}
+  strip.style.display='block';
+  const gross=emp.newctc||emp.fixctc||0;
+  const maxAdv=Math.floor(gross*0.5);
+  const currAdv=advanceLedger.filter(a=>a.empId===id&&a.status==='ACTIVE'&&a.type==='ADVANCE').reduce((s,a)=>s+(a.amount||0),0);
+  document.getElementById('adv_stripGross').textContent  =formatINR(gross);
+  document.getElementById('adv_stripMax').textContent    =formatINR(maxAdv);
+  document.getElementById('adv_stripCurrent').textContent=formatINR(currAdv);
+}
+
+function onAdvTypeChange(){
+  const type=document.getElementById('adv_type').value;
+  document.getElementById('adv_loanFields').style.display=type==='LOAN'?'block':'none';
+}
+
+function validateAdvAmount(){
+  const id=document.getElementById('adv_emp').value;
+  const amount=parseFloat(document.getElementById('adv_amount').value)||0;
+  const emp=allEmployees.find(e=>e.id===id);
+  const warning=document.getElementById('adv_warning');
+  if(!emp||!amount){warning.style.display='none';return;}
+  const gross=emp.newctc||emp.fixctc||0;
+  const max=gross*0.5;
+  if(amount>max){
+    warning.style.display='flex';
+    document.getElementById('adv_maxLabel').textContent=formatINR(max);
+  } else {
+    warning.style.display='none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('adv_startMonth')?.addEventListener('change',function(){
+    document.getElementById('adv_customMonthWrap').style.display=this.value==='CUSTOM'?'block':'none';
+  });
+});
+
+function giveAdvance(){
+  const empId =document.getElementById('adv_emp').value;
+  const type  =document.getElementById('adv_type').value;
+  const amount=parseFloat(document.getElementById('adv_amount').value)||0;
+  const remark=document.getElementById('adv_remark').value.trim();
+  if(!empId||!amount){showToast('error','Required','Employee and amount required');return;}
+
+  const emp  =allEmployees.find(e=>e.id===empId);
+  if(!emp)return;
+  const gross=emp.newctc||emp.fixctc||0;
+  const max  =gross*0.5;
+
+  if(type==='ADVANCE'&&amount>max){
+    if(!confirm(`Amount ₹${amount} exceeds 50% rule (max ₹${max}). Proceed anyway?`)) return;
+  }
+
+  // Determine deduction month
+  const now=new Date();
+  const thisMonth=now.toISOString().slice(0,7);
+  const nextMonth=new Date(now.getFullYear(),now.getMonth()+1,1).toISOString().slice(0,7);
+
+  let deductMonth=thisMonth;
+  let emiStartMonth=nextMonth; // default: loan starts next month
+
+  if(type==='LOAN'){
+    const startSel=document.getElementById('adv_startMonth').value;
+    if(startSel==='THIS') emiStartMonth=thisMonth;
+    else if(startSel==='CUSTOM'){
+      emiStartMonth=document.getElementById('adv_customMonth').value||nextMonth;
+    }
+  }
+
+  const emi=type==='LOAN'?parseFloat(document.getElementById('adv_emi').value)||0:0;
+
+  const rec={
+    id:genId('ADV'),
+    empId,ecode:emp.ecode,empName:emp.fullname,department:emp.department,
+    type,amount,emi,
+    balance:type==='LOAN'?amount:0,
+    deductMonth:type==='ADVANCE'?deductMonth:null,
+    emiStartMonth:type==='LOAN'?emiStartMonth:null,
+    remark,status:'ACTIVE',
+    givenOn:todayStr(),givenAt:new Date().toISOString(),
+  };
+
+  advanceLedger.push(rec);
+  Store.set('advanceLedger',advanceLedger);
+  GSheet.send('AdvanceLoan',rec);
+
+  // Reset form
+  document.getElementById('adv_emp').value='';
+  document.getElementById('adv_amount').value='';
+  document.getElementById('adv_emi').value='';
+  document.getElementById('adv_remark').value='';
+  document.getElementById('adv_strip').style.display='none';
+  document.getElementById('adv_warning').style.display='none';
+  document.getElementById('adv_loanFields').style.display='none';
+  document.getElementById('adv_startMonth').value='NEXT';
+
+  renderAdvLedger();renderStats();
+  showToast('success',type==='ADVANCE'?'Advance Given!':'Loan Created!',
+    `${formatINR(amount)} — ${emp.fullname}`);
+}
+
+/* ── Render advance ledger ── */
+function renderAdvLedger(){
+  const q   =document.getElementById('advSearch')?.value?.toLowerCase()||'';
+  const data=advanceLedger.filter(a=>!q||`${a.empName} ${a.ecode}`.toLowerCase().includes(q));
+  const body=document.getElementById('advLedgerBody');
+  if(!data.length){
+    body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-book"></i><p>No advance/loan records</p></td></tr>`;return;
+  }
+  body.innerHTML='';
+  [...data].sort((a,b)=>b.givenAt?.localeCompare(a.givenAt||'')).forEach(a=>{
+    const typeBadge=a.type==='ADVANCE'?'badge-amber':'badge-blue';
+    const stBadge  =a.status==='ACTIVE'?'badge-green':a.status==='DEDUCTED'?'badge-gray':'badge-purple';
+    body.innerHTML+=`
+      <tr>
+        <td style="font-size:12px">${formatDate(a.givenOn)}</td>
+        <td><div style="font-weight:700">${a.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${a.ecode}</div></td>
+        <td><span class="badge ${typeBadge}">${a.type}</span></td>
+        <td style="font-weight:700;color:var(--primary)">${formatINR(a.amount)}</td>
+        <td>${a.emi?formatINR(a.emi)+'/mo':'—'}</td>
+        <td style="font-weight:700;color:${a.balance>0?'var(--danger)':'var(--success)'}">${a.type==='LOAN'?formatINR(a.balance):'—'}</td>
+        <td><span class="badge ${stBadge}">${a.status}</span></td>
+        <td>
+          ${a.type==='LOAN'&&a.status==='ACTIVE'?`
+          <button class="btn btn-outline btn-sm" onclick="clearLoan('${a.id}')">
+            <i class="fas fa-check"></i> Clear
+          </button>`:'—'}
+        </td>
+      </tr>`;
+  });
+}
+
+function clearLoan(id){
+  const idx=advanceLedger.findIndex(a=>a.id===id);
+  if(idx<0)return;
+  advanceLedger[idx].status='CLEARED';
+  advanceLedger[idx].balance=0;
+  Store.set('advanceLedger',advanceLedger);
+  renderAdvLedger();renderStats();
+  showToast('success','Cleared','Loan marked as fully cleared');
+}
+
+/* ── Salary sheet ── */
+function renderSalarySheet(){
+  const month=document.getElementById('sheet_month')?.value||new Date().toISOString().slice(0,7);
+  const dept =document.getElementById('sheet_dept')?.value||'';
+  let recs=salaryRecords.filter(r=>r.month===month);
+  if(dept) recs=recs.filter(r=>r.department===dept);
+  const body=document.getElementById('salarySheetBody');
+  if(!recs.length){
+    body.innerHTML=`<tr><td colspan="12" class="table-empty"><i class="fas fa-table"></i><p>No data — run payroll first</p></td></tr>`;return;
+  }
+  let netTotal=0;
+  body.innerHTML='';
+  recs.forEach(r=>{
+    netTotal+=r.netSalary||0;
+    const emp=allEmployees.find(e=>e.id===r.empId)||{};
+    body.innerHTML+=`
+      <tr>
+        <td class="font-mono" style="font-size:12px;color:var(--primary)">${r.ecode}</td>
+        <td style="font-weight:700">${r.empName||'—'}</td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td class="font-mono" style="font-size:11px">${emp.accno||'—'}</td>
+        <td style="font-weight:700">${formatINR(r.gross)}</td>
+        <td>${r.payableDays}${r.bonusDays>0?' <span class="bonus-tag">+1</span>':''}</td>
+        <td style="color:var(--primary);font-weight:700">${formatINR(r.grossEarned)}</td>
+        <td style="color:var(--danger)">${r.advanceDeduction>0?formatINR(r.advanceDeduction):'—'}</td>
+        <td style="color:var(--danger)">${r.loanEMI>0?formatINR(r.loanEMI):'—'}</td>
+        <td style="color:var(--danger)">${r.lwpDeduction>0?formatINR(r.lwpDeduction):'—'}</td>
+        <td style="font-weight:800;color:var(--success);font-size:14px">${formatINR(r.netSalary)}</td>
+        <td>${r.tagBonus&&r.bonusDays>0?'<span class="bonus-tag">Bonus</span>':'—'}</td>
+      </tr>`;
+  });
+  document.getElementById('sheetNetTotal').textContent='Net Payable: '+formatINR(netTotal);
+}
+
+/* ── Pay History ── */
+function renderPayHistory(){
+  const q=document.getElementById('payHistSearch')?.value?.toLowerCase()||'';
+  const recs=[...salaryRecords]
+    .filter(r=>!q||`${r.empName} ${r.ecode}`.toLowerCase().includes(q))
+    .sort((a,b)=>b.month?.localeCompare(a.month||'')||0);
+  const body=document.getElementById('payHistBody');
+  if(!recs.length){
+    body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-history"></i><p>No payroll records</p></td></tr>`;return;
+  }
+  body.innerHTML='';
+  recs.forEach(r=>{
+    const d=new Date(r.month+'-01');
+    const monthLbl=d.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+    body.innerHTML+=`
+      <tr>
+        <td style="font-weight:700;color:var(--primary)">${monthLbl}</td>
+        <td style="font-weight:700">${r.empName||'—'}</td>
+        <td style="font-size:12.5px">${r.department||'—'}</td>
+        <td>${formatINR(r.grossEarned)}</td>
+        <td style="color:var(--danger)">${formatINR(r.totalDeductions)}</td>
+        <td style="font-weight:800;color:var(--success)">${formatINR(r.netSalary)}</td>
+        <td>${r.advanceDeduction>0?formatINR(r.advanceDeduction):'—'}</td>
+        <td>${r.loanEMI>0?formatINR(r.loanEMI):'—'}</td>
+      </tr>`;
+  });
+}
+
+/* ══ EXPORTS ══ */
+function exportPayrollExcel(){
+  const month=document.getElementById('sal_month')?.value||'';
+  const recs=salaryRecords.filter(r=>r.month===month);
+  if(!recs.length){showToast('warning','No Data','Run payroll first');return;}
+  downloadCSV(`Payroll_${month}.csv`,recs,
+    ['ecode','empName','department','gross','presentDays','payableDays','grossEarned',
+     'advanceDeduction','loanEMI','lwpDeduction','totalDeductions','netSalary']);
+}
+
+function exportPayrollPDF(){
+  const month=document.getElementById('sal_month')?.value||'';
+  const recs=salaryRecords.filter(r=>r.month===month);
+  if(!recs.length){showToast('warning','No Data','Run payroll first');return;}
+  const d=new Date(month+'-01');
+  const monthLbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const rows=recs.map((r,i)=>`
+    <tr><td>${i+1}</td><td>${r.ecode}</td><td>${r.empName}</td><td>${r.department}</td>
+    <td>₹${r.gross}</td><td>${r.payableDays}</td><td>₹${r.grossEarned}</td>
+    <td>${r.advanceDeduction>0?'₹'+r.advanceDeduction:'-'}</td>
+    <td>${r.loanEMI>0?'₹'+r.loanEMI:'-'}</td>
+    <td style="font-weight:bold;color:green">₹${r.netSalary}</td></tr>`).join('');
+  const netTotal=recs.reduce((s,r)=>s+(r.netSalary||0),0);
+  const html=`<!DOCTYPE html><html><head>
+    <style>body{font-family:Arial,sans-serif;font-size:11px;padding:20px;}
+    h2{text-align:center;color:#6c47ff;}p{text-align:center;color:#888;margin-bottom:16px;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#6c47ff;color:#fff;padding:7px;font-size:10px;}
+    td{padding:6px 7px;border-bottom:1px solid #eee;font-size:10.5px;}
+    tr:nth-child(even){background:#f9f9f9;}
+    .total-row{font-weight:bold;background:#e8f5e9;}</style></head>
+    <body><h2>Panchhi HR — Salary Register</h2>
+    <p>${monthLbl} &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')}</p>
+    <table><thead><tr><th>#</th><th>E-Code</th><th>Name</th><th>Dept</th>
+    <th>Gross</th><th>Days</th><th>Earned</th><th>Advance</th><th>Loan</th><th>Net</th>
+    </tr></thead><tbody>${rows}
+    <tr class="total-row"><td colspan="9" style="text-align:right;padding-right:10px">TOTAL NET PAYABLE →</td><td style="color:green">₹${netTotal.toLocaleString('en-IN')}</td></tr>
+    </tbody></table>
+    <script>window.print();window.close();<\/script></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+}
+
+function exportSalaryExcel(){exportPayrollExcel();}
+function exportSalaryPDF(){exportPayrollPDF();}
+</script>
+</body>
+</html>
