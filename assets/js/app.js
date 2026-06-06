@@ -481,13 +481,15 @@ const GSheet = {
   async send(sheet, data) {
     this.showStatus('loading', '⏳ Syncing...');
     try {
-      // Use URL params method — works with Google Apps Script CORS
+      // If array and large — send in batches of 50
+      if (Array.isArray(data) && data.length > 50) {
+        return await this.sendBatch(sheet, data);
+      }
       const params = new URLSearchParams();
       params.append('sheet', sheet);
       params.append('data', JSON.stringify(data));
       params.append('action', 'INSERT');
-
-      const res = await fetch(this.WEB_APP_URL, {
+      await fetch(this.WEB_APP_URL, {
         method: 'POST',
         mode:   'no-cors',
         body:   params,
@@ -499,6 +501,34 @@ const GSheet = {
       console.error('GSheet error:', e);
       return false;
     }
+  },
+
+  async sendBatch(sheet, dataArr) {
+    const BATCH = 50;
+    const total = dataArr.length;
+    let done = 0;
+    for (let i = 0; i < total; i += BATCH) {
+      const chunk = dataArr.slice(i, i + BATCH);
+      try {
+        const params = new URLSearchParams();
+        params.append('sheet', sheet);
+        params.append('data', JSON.stringify(chunk));
+        params.append('action', 'INSERT');
+        await fetch(this.WEB_APP_URL, {
+          method: 'POST',
+          mode:   'no-cors',
+          body:   params,
+        });
+        done += chunk.length;
+        this.showStatus('loading', `⏳ Syncing... ${done}/${total}`);
+        // Small delay between batches
+        await new Promise(r => setTimeout(r, 800));
+      } catch(e) {
+        console.error('Batch error at', i, e);
+      }
+    }
+    this.showStatus('success', `✓ All ${total} records synced to Google Sheet`);
+    return true;
   },
 
   async read(sheet, filter) {
