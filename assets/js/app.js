@@ -466,40 +466,45 @@ function populateShiftDropdown(selectId) {
    (Placeholder — to be enabled in Phase 2)
 ══════════════════════════════════════ */
 const GSheet = {
-  // Replace with your deployed Apps Script Web App URL
-  WEB_APP_URL: '',
+  WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyGeFIezQQq_0rMhfHkuQv9brAVdjNV-SI4Fu-Hcdj7Z_RkcEUqxxdjzGZmY8mpjciG/exec',
+
+  showStatus(type, msg) {
+    ['sheetStatus','sheetStatus2'].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.textContent = msg;
+      el.className   = 'sheet-status ' + type;
+      if(type === 'success') setTimeout(() => { el.textContent=''; el.className='sheet-status'; }, 4000);
+    });
+  },
 
   async send(sheet, data) {
-    if (!this.WEB_APP_URL) {
-      // Local only — just show indicator
-      const el = document.getElementById('sheetStatus');
-      if (el) {
-        el.textContent = '⚠ Google Sheet not connected yet';
-        el.className = 'sheet-status warning';
-      }
-      return false;
-    }
+    this.showStatus('loading', '⏳ Syncing...');
     try {
-      const res = await fetch(this.WEB_APP_URL, {
+      await fetch(this.WEB_APP_URL, {
         method: 'POST',
-        body: JSON.stringify({ sheet, data }),
+        mode:   'no-cors',
+        body:   JSON.stringify({ sheet, data }),
         headers: { 'Content-Type': 'application/json' }
       });
-      const json = await res.json();
-      const el = document.getElementById('sheetStatus');
-      if (el) {
-        el.textContent = '✓ Google Sheet updated';
-        el.className = 'sheet-status success';
-        setTimeout(() => { el.textContent = ''; el.className = 'sheet-status'; }, 4000);
-      }
-      return json.success;
-    } catch (e) {
-      const el = document.getElementById('sheetStatus');
-      if (el) {
-        el.textContent = '✗ Sheet sync failed';
-        el.className = 'sheet-status error';
-      }
+      this.showStatus('success', '✓ Google Sheet updated');
+      return true;
+    } catch(e) {
+      this.showStatus('error', '✗ Sync failed — check connection');
+      console.error('GSheet error:', e);
       return false;
+    }
+  },
+
+  async read(sheet, filter) {
+    try {
+      const url = this.WEB_APP_URL + '?sheet=' + sheet + (filter ? '&filter='+filter : '');
+      const res  = await fetch(url);
+      const json = await res.json();
+      return json.data || [];
+    } catch(e) {
+      console.error('GSheet read error:', e);
+      return [];
     }
   }
 };
