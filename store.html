@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Store & Inventory — Panchhi HR</title>
+<title>Store & Inventory — House of Panchhi HR</title>
+<link rel="icon" type="image/png" href="assets/img/hop-logo-wings.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -26,6 +27,13 @@
 .cat-plant{background:#dbeafe;color:#1d4ed8;}
 .cat-ho{background:#ede9fe;color:var(--primary);}
 .cat-global{background:#d1fae5;color:var(--success);}
+
+.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
+@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
+.maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.maintenance-overlay.show{display:flex;}
+.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;animation:modalPop .3s ease;}
+.maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
 </style>
 </head>
 <body>
@@ -293,6 +301,12 @@
       </div>
     </div>
 
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
+      <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;&middot;&nbsp; </span>
+      <span class="credit-name">Crafted with &#10084;&#65039; by Aditya Tomar</span>
+    </div>
   </div><!-- end page-content -->
 </div>
 </div>
@@ -316,8 +330,32 @@
   </div>
 </div>
 
+<!-- MAINTENANCE MODAL -->
+<div class="maintenance-overlay" id="maintenanceModal">
+  <div class="maintenance-box" style="text-align:center">
+    <div style="font-size:56px;margin-bottom:16px">&#128679;</div>
+    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
+    <h3 style="font-size:20px;font-weight:800;color:#111827;margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
+    <p style="font-size:13.5px;color:#6b7280;line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed. Stay tuned!</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto">
+      <i class="fas fa-thumbs-up"></i>&nbsp;Got it!
+    </button>
+  </div>
+</div>
+
 <script src="assets/js/app.js"></script>
 <script>
+
+function showMaintenance(t,d){
+  document.getElementById('maintenanceTitle').textContent=t||'Coming Soon';
+  document.getElementById('maintenanceDesc').textContent=d||'This module is being developed. Stay tuned!';
+  document.getElementById('maintenanceModal').classList.add('show');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var mo=document.getElementById('maintenanceModal');
+  if(mo)mo.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+});
+
 /* ══════════════════════════════════════
    STORE MODULE
 ══════════════════════════════════════ */
