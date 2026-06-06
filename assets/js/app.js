@@ -481,16 +481,21 @@ const GSheet = {
   async send(sheet, data) {
     this.showStatus('loading', '⏳ Syncing...');
     try {
-      await fetch(this.WEB_APP_URL, {
+      // Use URL params method — works with Google Apps Script CORS
+      const params = new URLSearchParams();
+      params.append('sheet', sheet);
+      params.append('data', JSON.stringify(data));
+      params.append('action', 'INSERT');
+
+      const res = await fetch(this.WEB_APP_URL, {
         method: 'POST',
         mode:   'no-cors',
-        body:   JSON.stringify({ sheet, data }),
-        headers: { 'Content-Type': 'application/json' }
+        body:   params,
       });
       this.showStatus('success', '✓ Google Sheet updated');
       return true;
     } catch(e) {
-      this.showStatus('error', '✗ Sync failed — check connection');
+      this.showStatus('error', '✗ Sync failed');
       console.error('GSheet error:', e);
       return false;
     }
