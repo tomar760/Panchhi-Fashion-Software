@@ -896,6 +896,8 @@ function confirmImport(){
   Store.set('employees',allEmployees);updateStats();renderTable();
   closeModal('importExcel');
   showToast('success','Import Complete!',`${importBuffer.length} employees imported`);
+  // Bulk send to Google Sheet — all at once
+  GSheet.send('Employees_Bulk', allEmployees);
   importBuffer=[];
 }
 function exportEmployees(){
