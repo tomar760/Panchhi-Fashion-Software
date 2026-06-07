@@ -11,79 +11,50 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-.att-tabs{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:24px;overflow-x:auto;flex-shrink:0;}
+.att-tabs{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:24px;overflow-x:auto;}
 .att-tab{padding:10px 20px;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;}
 .att-tab:hover{color:var(--gray-800);}
 .att-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
 .att-section{display:none;}
 .att-section.active{display:block;}
-
-/* Upload zone */
 .upload-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:40px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--gray-50);}
 .upload-zone:hover,.upload-zone.drag-over{border-color:var(--primary);background:var(--primary-light);}
-.upload-zone i{font-size:40px;color:var(--gray-300);display:block;margin-bottom:12px;}
-.upload-zone.drag-over i{color:var(--primary);}
-
-/* Report table */
-.report-table-wrap{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--gray-200);}
-.report-table{width:100%;border-collapse:collapse;font-size:13px;}
-.report-table th{padding:10px 12px;text-align:left;font-size:10.5px;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);white-space:nowrap;}
-.report-table td{padding:10px 12px;border-bottom:1px solid var(--gray-100);vertical-align:middle;}
+.report-header{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:18px 22px;border-radius:var(--radius-md) var(--radius-md) 0 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.report-header h2{font-size:15px;font-weight:800;color:#fff;margin:0;}
+.report-header p{font-size:11px;color:rgba(255,255,255,.7);margin:3px 0 0;}
+.report-table-wrap{overflow-x:auto;border-radius:0 0 var(--radius-md) var(--radius-md);border:1px solid var(--gray-200);border-top:none;}
+.report-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.report-table th{padding:9px 11px;text-align:left;font-size:10px;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);white-space:nowrap;}
+.report-table td{padding:9px 11px;border-bottom:1px solid var(--gray-100);vertical-align:middle;}
 .report-table tr:last-child td{border-bottom:none;}
 .report-table tbody tr:hover{background:var(--gray-50);}
-.report-table tbody tr.highlighted{background:#fff3cd;}
-.report-table tbody tr.deleted-row{display:none;}
-
-/* Editable cell */
-.editable-cell{min-width:120px;}
-.editable-cell input,.editable-cell select{width:100%;padding:5px 8px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-family:inherit;outline:none;background:#fff;transition:border .2s;}
-.editable-cell input:focus,.editable-cell select:focus{border-color:var(--primary);}
-
-/* Late badge */
+.deleted-row{display:none!important;}
+.editable-input{width:100%;padding:5px 8px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-family:inherit;outline:none;transition:border .2s;background:#fff;}
+.editable-input:focus{border-color:var(--primary);}
+.editable-select{padding:5px 8px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-family:inherit;outline:none;background:#fff;}
 .late-badge{background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;}
-.ontime-badge{background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;}
-.absent-badge{background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;}
-.highlight-row{background:#fef3c7!important;}
-
-/* Report header for print/PDF */
-.report-header{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:20px 24px;border-radius:var(--radius-md) var(--radius-md) 0 0;margin-bottom:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-.report-header h2{font-size:16px;font-weight:800;color:#fff;}
-.report-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;}
-
-/* Processing status */
-.process-bar{background:var(--gray-100);border-radius:6px;height:8px;overflow:hidden;margin-top:10px;}
-.process-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#a855f7);border-radius:6px;transition:width .4s;}
-
-/* Stats strip */
-.stats-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
-.stat-pill{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-md);font-size:13px;font-weight:700;}
+.pbar{height:7px;background:var(--gray-100);border-radius:4px;overflow:hidden;margin-top:8px;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--primary),#a855f7);border-radius:4px;transition:width .4s;}
+.stats-strip{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.stat-pill{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:700;}
 .stat-pill.green{background:var(--success-light);color:var(--success);}
 .stat-pill.red{background:var(--danger-light);color:var(--danger);}
 .stat-pill.amber{background:var(--warning-light);color:#b45309;}
 .stat-pill.blue{background:var(--info-light);color:var(--info);}
-.stat-pill.gray{background:var(--gray-100);color:var(--gray-600);}
-
-/* Archive */
-.archive-date-header{background:var(--gray-100);padding:8px 16px;font-size:12px;font-weight:800;color:var(--gray-600);border-bottom:1px solid var(--gray-200);}
-
-/* Maintenance */
+.sticky-col{position:sticky;right:0;background:#fff;box-shadow:-2px 0 6px rgba(0,0,0,.06);}
+.report-table tbody tr:hover .sticky-col{background:var(--gray-50);}
+.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
+.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
+@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
 .maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .maintenance-overlay.show{display:flex;}
 .maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;}
-.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
-@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
-.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
-
-/* Sticky actions in table */
-.sticky-col{position:sticky;right:0;background:#fff;box-shadow:-2px 0 6px rgba(0,0,0,.06);}
-.report-table tbody tr:hover .sticky-col{background:var(--gray-50);}
+.maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
 </style>
 </head>
 <body>
 <div class="app-wrapper active" id="appWrapper">
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-<!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
@@ -105,6 +76,26 @@
     <div class="nav-section">
       <div class="nav-section-title">Operations</div>
       <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+      <div class="nav-link" onclick="showMaintenance('Expenses','Coming soon!')"><i class="fas fa-receipt"></i> Expenses <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Visitor Log','Coming soon!')"><i class="fas fa-person-walking-arrow-right"></i> Visitor Log <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-link" onclick="showMaintenance('Task Manager','Coming soon!')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Announcements','Coming soon!')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <div class="nav-link" onclick="showMaintenance('MIS Reports','Coming soon!')"><i class="fas fa-file-chart-column"></i> MIS Reports <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Performance','Coming soon!')"><i class="fas fa-star"></i> Performance <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Recruitment','Coming soon!')"><i class="fas fa-user-tie"></i> Recruitment <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-user-circle"></i> My Profile</div>
     </div>
   </div>
   <div class="sidebar-footer">
@@ -112,31 +103,24 @@
     <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span> Super Admin</span></div>
   </div>
 </nav>
-
-<!-- MAIN -->
 <div class="main-content">
   <header class="top-header">
     <div class="header-left">
       <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <div class="page-title"><h1>Attendance</h1><p>Upload biometric → Auto generate Late & Absent report</p></div>
+      <div class="page-title"><h1>Attendance</h1><p>Upload biometric → Late & Absent report ready</p></div>
     </div>
     <div class="header-right">
       <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
       <div class="header-avatar" onclick="window.location='index.html'">AT</div>
     </div>
   </header>
-
   <div class="page-content">
-
-    <!-- Stats -->
     <div class="stat-cards">
       <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div class="stat-number" id="st-present">—</div><div class="stat-label">Present</div></div>
       <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-user-xmark"></i></div><div class="stat-number" id="st-absent">—</div><div class="stat-label">Absent</div></div>
       <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-number" id="st-late">—</div><div class="stat-label">Late</div></div>
       <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-number" id="st-unmatched">—</div><div class="stat-label">Unmatched</div></div>
     </div>
-
-    <!-- Tabs -->
     <div class="att-tabs">
       <div class="att-tab active" onclick="switchTab('upload',this)"><i class="fas fa-upload"></i> Upload Biometric</div>
       <div class="att-tab" onclick="switchTab('late',this)"><i class="fas fa-user-clock"></i> Late Coming Report</div>
@@ -144,41 +128,33 @@
       <div class="att-tab" onclick="switchTab('archive',this)"><i class="fas fa-archive"></i> Archive</div>
     </div>
 
-    <!-- ═══ TAB 1: UPLOAD ═══ -->
+    <!-- ═══ UPLOAD TAB ═══ -->
     <div class="att-section active" id="tab-upload">
       <div class="grid-1-2">
         <div class="form-card">
           <div class="form-card-title"><i class="fas fa-file-arrow-up"></i> Upload Biometric File</div>
           <div class="form-group mb-16">
             <label>Attendance Date</label>
-            <input type="date" id="att_date" max="">
+            <input type="date" id="att_date">
           </div>
           <div class="upload-zone" id="attDropZone" onclick="document.getElementById('attFile').click()">
-            <i class="fas fa-file-excel" style="color:var(--success)"></i>
+            <i class="fas fa-file-excel" style="font-size:40px;color:var(--success);display:block;margin-bottom:12px"></i>
             <p style="font-size:14px;font-weight:700;color:var(--gray-700)">Upload Biometric Excel</p>
-            <span style="font-size:12px;color:var(--gray-400)">Drag & drop or click — .xls / .xlsx file</span>
+            <span style="font-size:12px;color:var(--gray-400)">Drag & drop or click — .xls / .xlsx format</span>
           </div>
           <input type="file" id="attFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="processFile(this)">
-
-          <div id="uploadProgress" style="display:none;margin-top:16px">
+          <div id="uploadStatus" style="display:none;margin-top:14px">
             <div style="display:flex;align-items:center;gap:10px">
               <div id="uploadIcon"><i class="fas fa-spinner spin" style="color:var(--primary);font-size:18px"></i></div>
-              <div id="uploadText" style="font-size:13.5px;font-weight:700;color:var(--gray-800)">Reading file...</div>
+              <div id="uploadText" style="font-size:13px;font-weight:700;color:var(--gray-800)">Reading...</div>
             </div>
-            <div class="process-bar mt-8"><div class="process-bar-fill" id="uploadBar" style="width:0%"></div></div>
+            <div class="pbar mt-8"><div class="pbar-fill" id="uploadBar" style="width:0%"></div></div>
           </div>
-
-          <div class="alert alert-info mt-16" id="uploadInfoBox">
+          <div class="alert alert-info mt-16">
             <i class="fas fa-info-circle"></i>
-            <div>
-              <strong>How it works:</strong> Upload biometric XLS → System matches E-Codes → 
-              Late calculated from shift timing → Blank IN time = Absent.
-              <br>Unmatched records highlighted separately.
-            </div>
+            <div><strong>How it works:</strong> Upload biometric XLS → System reads E-Code (col 2) + IN Time (col 5) → Matches with employee shifts → Late/Absent detected automatically.</div>
           </div>
         </div>
-
-        <!-- Today summary -->
         <div class="table-card" style="margin-bottom:0">
           <div class="table-header">
             <h3><i class="fas fa-calendar-day"></i> Today's Summary</h3>
@@ -187,25 +163,18 @@
           <div class="table-wrapper">
             <table>
               <thead><tr><th>Employee</th><th>In Time</th><th>Status</th><th>Remark</th></tr></thead>
-              <tbody id="daySummaryBody">
-                <tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>Upload attendance to see</p></td></tr>
-              </tbody>
+              <tbody id="daySummaryBody"><tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>Upload attendance to see</p></td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
-
-      <!-- Unmatched section -->
       <div id="unmatchedSection" style="display:none;margin-top:20px">
-        <div class="alert alert-warning">
-          <i class="fas fa-triangle-exclamation"></i>
-          <div><strong>Unmatched Records</strong> — These E-Codes from biometric file were not found in employee directory. Please verify.</div>
-        </div>
+        <div class="alert alert-warning"><i class="fas fa-triangle-exclamation"></i><div><strong>Unmatched Records</strong> — These E-Codes not found in Employee Directory.</div></div>
         <div class="table-card">
-          <div class="table-header"><h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> Unmatched Records</h3></div>
+          <div class="table-header"><h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> Unmatched</h3></div>
           <div class="table-wrapper">
             <table>
-              <thead><tr><th>E-Code (from biometric)</th><th>Name (from biometric)</th><th>In Time</th><th>Issue</th></tr></thead>
+              <thead><tr><th>E-Code</th><th>Name (from biometric)</th><th>In Time</th><th>Issue</th></tr></thead>
               <tbody id="unmatchedBody"></tbody>
             </table>
           </div>
@@ -213,160 +182,107 @@
       </div>
     </div>
 
-    <!-- ═══ TAB 2: LATE COMING REPORT ═══ -->
+    <!-- ═══ LATE TAB ═══ -->
     <div class="att-section" id="tab-late">
       <div class="form-card" style="margin-bottom:20px">
         <div class="form-card-title"><i class="fas fa-user-clock"></i> Late Coming Report</div>
         <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div class="form-group" style="margin:0">
-            <label>Date</label>
-            <input type="date" id="late_date" onchange="buildLateReport()">
-          </div>
+          <div class="form-group" style="margin:0"><label>Date</label><input type="date" id="late_date" onchange="buildLateReport()"></div>
           <button class="btn btn-primary" onclick="buildLateReport()"><i class="fas fa-rotate"></i> Generate</button>
-          <div id="lateActionBtns" style="display:none;display:flex;gap:8px;flex-wrap:wrap">
+          <div id="lateBtns" style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-success btn-sm" onclick="downloadLateExcel()"><i class="fas fa-file-excel"></i> Excel</button>
             <button class="btn btn-danger btn-sm" onclick="downloadLatePDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-            <button class="btn btn-outline btn-sm" onclick="copyLateMsg()"><i class="fas fa-copy"></i> Copy Message</button>
+            <button class="btn btn-outline btn-sm" onclick="copyMsg('lateMsgBox')"><i class="fas fa-copy"></i> Copy Message</button>
           </div>
           <span id="sheetStatus" class="sheet-status"></span>
         </div>
       </div>
-
-      <div id="lateReportSection" style="display:none">
-        <!-- Stats strip -->
-        <div class="stats-strip" id="lateStatsStrip"></div>
-
-        <!-- Report header preview -->
+      <div id="lateSection" style="display:none">
+        <div class="stats-strip" id="lateStats"></div>
         <div class="report-header">
-          <div>
-            <h2><i class="fas fa-user-clock" style="margin-right:8px"></i>LATE COMING REPORT</h2>
-            <p id="lateReportSubtitle">Date: —</p>
-          </div>
-          <div style="text-align:right;font-size:12px;color:rgba(255,255,255,.7)">
-            <div>House of Panchhi</div>
-            <div id="lateReportTime">—</div>
-          </div>
+          <div><h2><i class="fas fa-user-clock" style="margin-right:8px"></i>LATE COMING REPORT</h2><p id="lateSubtitle"></p></div>
+          <div style="text-align:right;font-size:11px;color:rgba(255,255,255,.7)"><div>House of Panchhi</div><div id="lateGenTime"></div></div>
         </div>
-
         <div class="report-table-wrap">
-          <table class="report-table" id="lateTable">
+          <table class="report-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Department</th>
-                <th>E-Code</th>
-                <th>Employee Name</th>
-                <th>Phone</th>
-                <th>Shift Start</th>
-                <th>In Punch</th>
-                <th style="color:var(--danger)">Late By</th>
-                <th>Reason</th>
-                <th>Action Taken</th>
-                <th class="sticky-col">Remove</th>
+                <th>#</th><th>Department</th><th>E-Code</th><th>Name</th><th>Phone</th>
+                <th>Shift</th><th>In Punch</th><th style="color:var(--danger)">Late By</th>
+                <th>Reason</th><th>Action Taken</th><th class="sticky-col" style="text-align:center">Remove</th>
               </tr>
             </thead>
-            <tbody id="lateTableBody"></tbody>
+            <tbody id="lateBody"></tbody>
           </table>
         </div>
-
-        <!-- Message preview -->
         <div class="form-card mt-16">
-          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp / Mail Message Preview</div>
-          <div id="lateMsgPreview" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:300px;overflow-y:auto;color:var(--gray-800)"></div>
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview</div>
+          <div id="lateMsgBox" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:280px;overflow-y:auto;color:var(--gray-800)"></div>
         </div>
       </div>
-
-      <div id="lateEmptyState" style="text-align:center;padding:48px;color:var(--gray-400)">
+      <div id="lateEmpty" style="text-align:center;padding:48px;color:var(--gray-400)">
         <i class="fas fa-user-clock" style="font-size:48px;display:block;margin-bottom:16px;opacity:.3"></i>
-        <p style="font-size:14px;font-weight:700">Upload biometric file first, then generate report</p>
+        <p style="font-size:14px;font-weight:700">Upload biometric file first</p>
       </div>
     </div>
 
-    <!-- ═══ TAB 3: ABSENT REPORT ═══ -->
+    <!-- ═══ ABSENT TAB ═══ -->
     <div class="att-section" id="tab-absent">
       <div class="form-card" style="margin-bottom:20px">
         <div class="form-card-title"><i class="fas fa-user-xmark"></i> Absent Report</div>
         <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div class="form-group" style="margin:0">
-            <label>Date</label>
-            <input type="date" id="absent_date" onchange="buildAbsentReport()">
-          </div>
+          <div class="form-group" style="margin:0"><label>Date</label><input type="date" id="absent_date" onchange="buildAbsentReport()"></div>
           <button class="btn btn-primary" onclick="buildAbsentReport()"><i class="fas fa-rotate"></i> Generate</button>
-          <div id="absentActionBtns" style="display:none;display:flex;gap:8px;flex-wrap:wrap">
+          <div id="absentBtns" style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-success btn-sm" onclick="downloadAbsentExcel()"><i class="fas fa-file-excel"></i> Excel</button>
             <button class="btn btn-danger btn-sm" onclick="downloadAbsentPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
-            <button class="btn btn-outline btn-sm" onclick="copyAbsentMsg()"><i class="fas fa-copy"></i> Copy Message</button>
+            <button class="btn btn-outline btn-sm" onclick="copyMsg('absentMsgBox')"><i class="fas fa-copy"></i> Copy Message</button>
           </div>
         </div>
       </div>
-
-      <div id="absentReportSection" style="display:none">
-        <div class="stats-strip" id="absentStatsStrip"></div>
-
+      <div id="absentSection" style="display:none">
+        <div class="stats-strip" id="absentStats"></div>
         <div class="report-header">
-          <div>
-            <h2><i class="fas fa-user-xmark" style="margin-right:8px"></i>ABSENT REPORT</h2>
-            <p id="absentReportSubtitle">Date: —</p>
-          </div>
-          <div style="text-align:right;font-size:12px;color:rgba(255,255,255,.7)">
-            <div>House of Panchhi</div>
-            <div id="absentReportTime">—</div>
-          </div>
+          <div><h2><i class="fas fa-user-xmark" style="margin-right:8px"></i>ABSENT REPORT</h2><p id="absentSubtitle"></p></div>
+          <div style="text-align:right;font-size:11px;color:rgba(255,255,255,.7)"><div>House of Panchhi</div><div id="absentGenTime"></div></div>
         </div>
-
         <div class="report-table-wrap">
-          <table class="report-table" id="absentTable">
+          <table class="report-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Department</th>
-                <th>E-Code</th>
-                <th>Employee Name</th>
-                <th>Phone</th>
-                <th>Leave</th>
-                <th>Pre Approved</th>
-                <th>Leave Form</th>
-                <th>Remarks</th>
-                <th>Leave Days</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Upcoming Date</th>
-                <th class="sticky-col">Remove</th>
+                <th>#</th><th>Department</th><th>E-Code</th><th>Name</th><th>Phone</th>
+                <th>Leave</th><th>Pre Approved</th><th>Leave Form</th>
+                <th>Remarks</th><th>Leave Days</th><th>From</th><th>To</th>
+                <th>Upcoming Date</th><th class="sticky-col" style="text-align:center">Remove</th>
               </tr>
             </thead>
-            <tbody id="absentTableBody"></tbody>
+            <tbody id="absentBody"></tbody>
           </table>
         </div>
-
         <div style="padding:12px 16px;border-top:1px solid var(--gray-200);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" onclick="saveAbsentRemarks()"><i class="fas fa-save"></i> Save Remarks</button>
-          <span style="font-size:12px;color:var(--gray-400)">Remarks auto-sync to Google Sheet when saved</span>
+          <button class="btn btn-primary btn-sm" onclick="saveRemarks()"><i class="fas fa-save"></i> Save Remarks</button>
+          <span style="font-size:12px;color:var(--gray-400)">Remarks sync to Google Sheet</span>
         </div>
-
-        <!-- Message preview -->
         <div class="form-card mt-16">
-          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp / Mail Message Preview</div>
-          <div id="absentMsgPreview" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:300px;overflow-y:auto;color:var(--gray-800)"></div>
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview</div>
+          <div id="absentMsgBox" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:280px;overflow-y:auto;color:var(--gray-800)"></div>
         </div>
       </div>
-
-      <div id="absentEmptyState" style="text-align:center;padding:48px;color:var(--gray-400)">
+      <div id="absentEmpty" style="text-align:center;padding:48px;color:var(--gray-400)">
         <i class="fas fa-user-xmark" style="font-size:48px;display:block;margin-bottom:16px;opacity:.3"></i>
-        <p style="font-size:14px;font-weight:700">Upload biometric file first, then generate report</p>
+        <p style="font-size:14px;font-weight:700">Upload biometric file first</p>
       </div>
     </div>
 
-    <!-- ═══ TAB 4: ARCHIVE ═══ -->
+    <!-- ═══ ARCHIVE TAB ═══ -->
     <div class="att-section" id="tab-archive">
       <div class="form-card">
-        <div class="form-card-title"><i class="fas fa-archive"></i> Attendance Archive — History Vault</div>
+        <div class="form-card-title"><i class="fas fa-archive"></i> Attendance Archive</div>
         <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div class="form-group" style="margin:0"><label>Quick Range</label>
+          <div class="form-group" style="margin:0"><label>Range</label>
             <select id="archiveRange" onchange="loadArchive()" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
-              <option value="7">Last 7 Days</option>
-              <option value="10">Last 10 Days</option>
-              <option value="15">Last 15 Days</option>
-              <option value="30">Last 30 Days</option>
+              <option value="7">Last 7 Days</option><option value="10">Last 10 Days</option>
+              <option value="15">Last 15 Days</option><option value="30">Last 30 Days</option>
             </select>
           </div>
           <div class="form-group" style="margin:0"><label>From</label><input type="date" id="archiveFrom" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none"></div>
@@ -377,469 +293,390 @@
       </div>
       <div class="table-card">
         <div class="table-header">
-          <h3><i class="fas fa-database"></i> Attendance Records</h3>
-          <div class="search-box"><i class="fas fa-search"></i><input type="text" id="archiveSearch" placeholder="Search employee..." oninput="filterArchive()"></div>
+          <h3><i class="fas fa-database"></i> Records</h3>
+          <div class="search-box"><i class="fas fa-search"></i><input type="text" id="archiveSearch" placeholder="Search..." oninput="filterArchive()"></div>
         </div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Date</th><th>E-Code</th><th>Employee</th><th>Dept</th><th>In Time</th><th>Late By</th><th>Status</th><th>Remark</th></tr></thead>
-            <tbody id="archiveBody">
-              <tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>Select range and click Load</p></td></tr>
-            </tbody>
+            <tbody id="archiveBody"><tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>Select range and click Load</p></td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
     <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
       <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;·&nbsp; </span>
       <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span>
     </div>
+  </div>
+</div>
+</div>
 
-  </div><!-- end page-content -->
-</div><!-- end main-content -->
-</div><!-- end app-wrapper -->
+<div class="maintenance-overlay" id="maintenanceModal">
+  <div class="maintenance-box">
+    <div style="font-size:56px;margin-bottom:16px">🚧</div>
+    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
+    <h3 style="font-size:20px;font-weight:800;color:#111827;margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
+    <p style="font-size:13.5px;color:#6b7280;line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto"><i class="fas fa-thumbs-up"></i>&nbsp;Got it!</button>
+  </div>
+</div>
 
 <script src="assets/js/app.js"></script>
 <script>
-/* ══════════════════════════════════════
-   ATTENDANCE MODULE — COMPLETE
-══════════════════════════════════════ */
-let allEmployees  = [];
-let attRecords    = []; // saved attendance
-let parsedBuffer  = []; // current uploaded data
-let lateRows      = []; // current late report rows
-let absentRows    = []; // current absent report rows
-let archiveData   = [];
+function showMaintenance(t,d){document.getElementById('maintenanceTitle').textContent=t;document.getElementById('maintenanceDesc').textContent=d;document.getElementById('maintenanceModal').classList.add('show');}
+document.getElementById('maintenanceModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
 
-window.addEventListener('load', () => {
-  updateClock(); setInterval(updateClock, 1000);
-  // Set date limits
-  const today = todayStr();
-  document.getElementById('att_date').value = today;
-  document.getElementById('att_date').max   = today;
-  document.getElementById('att_viewDate').value = today;
-  document.getElementById('att_viewDate').max   = today;
-  document.getElementById('late_date').value    = today;
-  document.getElementById('late_date').max      = today;
-  document.getElementById('absent_date').value  = today;
-  document.getElementById('absent_date').max    = today;
-  document.getElementById('archiveTo').value    = today;
-  document.getElementById('archiveTo').max      = today;
+/* ══ DEPARTMENT CODE MAP ══ */
+const DEPT_CODE_MAP = {
+  'ac':'ACCOUNTS','adm':'ADMIN','des':'DESIGN','dsp':'DISPATCH',
+  'emb':'EMBROIDERY','hr':'HR','mnd':'MENDING','on':'ONLINE',
+  'pp':'PRODUCTION','pur':'PURCHASE','qc':'QC','sal':'SALES',
+  'stc':'STITCHING','str':'STORE','va':'VALUE ADDITION'
+};
 
-  allEmployees = Store.get('employees');
-  attRecords   = Store.get('attendance');
-  loadDaySummary();
-  renderStats();
-  setupDragDrop();
+function getDeptFromEcode(ecode) {
+  if(!ecode) return '—';
+  const parts = ecode.split('/');
+  if(parts.length >= 2) {
+    const code = parts[1].toLowerCase();
+    return DEPT_CODE_MAP[code] || parts[1].toUpperCase();
+  }
+  return '—';
+}
+
+let allEmps=[], attRecords=[], parsedBuffer=[], lateRows=[], absentRows=[], archiveData=[];
+
+window.addEventListener('load',()=>{
+  updateClock(); setInterval(updateClock,1000);
   loadProfileName();
+  const today=todayStr();
+  ['att_date','att_viewDate','late_date','absent_date','archiveTo'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value=today;el.max=today;}
+  });
+  allEmps=Store.get('employees');
+  attRecords=Store.get('attendance');
+  loadDaySummary(); renderStats();
+  setupDragDrop();
 });
 
-function loadProfileName() {
-  const n = localStorage.getItem('phr_profileName');
-  if(n) {
-    const av = document.getElementById('sidebarAvatar');
-    const nm = document.getElementById('sidebarName');
-    if(av) av.textContent = initials(n);
-    if(nm) nm.textContent = n;
-  }
+function loadProfileName(){
+  const n=localStorage.getItem('phr_profileName');
+  if(n){const av=document.getElementById('sidebarAvatar');const nm=document.getElementById('sidebarName');if(av)av.textContent=initials(n);if(nm)nm.textContent=n;}
 }
 
-/* ── Tab switch ── */
-function switchTab(tab, el) {
-  document.querySelectorAll('.att-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.att-section').forEach(s => s.classList.remove('active'));
+function switchTab(tab,el){
+  document.querySelectorAll('.att-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.att-section').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-  if(tab === 'late')   buildLateReport();
-  if(tab === 'absent') buildAbsentReport();
-  if(tab === 'archive') loadArchive();
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='late')buildLateReport();
+  if(tab==='absent')buildAbsentReport();
+  if(tab==='archive')loadArchive();
 }
 
-/* ── Stats ── */
-function renderStats() {
-  const today = document.getElementById('att_date')?.value || todayStr();
-  const recs  = attRecords.filter(r => r.date === today);
-  document.getElementById('st-present').textContent    = recs.filter(r => r.status === 'P').length || '—';
-  document.getElementById('st-absent').textContent     = recs.filter(r => r.status === 'A').length || '—';
-  document.getElementById('st-late').textContent       = recs.filter(r => r.status === 'L').length || '—';
-  document.getElementById('st-unmatched').textContent  = recs.filter(r => r.status === 'U').length || '—';
+function renderStats(){
+  const today=document.getElementById('att_date')?.value||todayStr();
+  const recs=attRecords.filter(r=>r.date===today);
+  document.getElementById('st-present').textContent=recs.filter(r=>r.status==='P'||r.status==='L').length||'—';
+  document.getElementById('st-absent').textContent=recs.filter(r=>r.status==='A').length||'—';
+  document.getElementById('st-late').textContent=recs.filter(r=>r.status==='L').length||'—';
+  document.getElementById('st-unmatched').textContent=recs.filter(r=>r.status==='U').length||'—';
 }
 
-/* ══ UPLOAD ══ */
-function setupDragDrop() {
-  const dz = document.getElementById('attDropZone');
-  if(!dz) return;
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0]; if(f) processFileObj(f);
-  });
+/* ══ DRAG DROP ══ */
+function setupDragDrop(){
+  const dz=document.getElementById('attDropZone');
+  if(!dz)return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)processFileObj(f);});
 }
+function processFile(input){if(input.files[0])processFileObj(input.files[0]);}
 
-function processFile(input) { if(input.files[0]) processFileObj(input.files[0]); }
-
-function processFileObj(file) {
-  const prog = document.getElementById('uploadProgress');
-  const bar  = document.getElementById('uploadBar');
-  const txt  = document.getElementById('uploadText');
-  const icon = document.getElementById('uploadIcon');
-  prog.style.display = 'block';
-  document.getElementById('uploadInfoBox').style.display = 'none';
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      txt.textContent = 'Parsing biometric file...'; bar.style.width = '30%';
-      const wb   = XLSX.read(e.target.result, { type: 'binary' });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      bar.style.width = '60%'; txt.textContent = 'Matching employees...';
-      setTimeout(() => parseAttendance(data, icon, txt, bar, prog), 200);
-    } catch(err) {
-      icon.innerHTML = '<i class="fas fa-times-circle" style="color:var(--danger);font-size:18px"></i>';
-      txt.textContent = 'Error reading file: ' + err.message;
+function processFileObj(file){
+  const status=document.getElementById('uploadStatus');
+  const bar=document.getElementById('uploadBar');
+  const txt=document.getElementById('uploadText');
+  const icon=document.getElementById('uploadIcon');
+  status.style.display='block';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      txt.textContent='Reading file...';bar.style.width='20%';
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      // Get raw data with header:1 to get array of arrays
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      bar.style.width='50%';txt.textContent='Matching employees...';
+      setTimeout(()=>parseAttendance(data,icon,txt,bar),200);
+    }catch(err){
+      icon.innerHTML='<i class="fas fa-times-circle" style="color:var(--danger);font-size:18px"></i>';
+      txt.textContent='Error: '+err.message;
     }
   };
   reader.readAsBinaryString(file);
 }
 
-function parseAttendance(data, icon, txt, bar, prog) {
-  const date = document.getElementById('att_date').value || todayStr();
-  parsedBuffer = [];
-  const empByCode = {};
-  allEmployees.forEach(e => { empByCode[e.ecode?.toUpperCase()] = e; });
+function parseAttendance(data,icon,txt,bar){
+  const date=document.getElementById('att_date').value||todayStr();
+  parsedBuffer=[];
+  // Build employee lookup by E-Code
+  const empByCode={};
+  allEmps.forEach(e=>{if(e.ecode)empByCode[e.ecode.toUpperCase().trim()]=e;});
 
-  // Parse rows — E-Code is in col index 1, Name in col 2, IN DateTime in col 4
-  data.forEach(row => {
-    if(!row || !row[1]) return;
-    const ecodeRaw = row[1]?.toString()?.trim()?.toUpperCase();
-    if(!ecodeRaw || !ecodeRaw.startsWith('PF/')) return;
+  /* 
+    Biometric file structure (Panchhi Fashion):
+    Col 0: empty
+    Col 1: E-Code (PF/AC/001)
+    Col 2: Name
+    Col 3: Shift number
+    Col 4: IN DateTime (06/06/2026 10:09:38) — blank if absent
+    Col 5: empty (IN SPFID)
+    Col 6: OUT DateTime
+  */
+  let matched=0,unmatched=0;
 
-    const nameRaw   = row[2]?.toString()?.trim() || '';
-    const inDTRaw   = row[4]?.toString()?.trim() || '';
-    const emp       = empByCode[ecodeRaw];
+  data.forEach(row=>{
+    if(!row||!row[1])return;
+    const ecodeRaw=row[1]?.toString()?.trim()?.toUpperCase();
+    if(!ecodeRaw||!ecodeRaw.startsWith('PF/'))return;
 
-    // Parse IN time
-    let inTime = null;
-    if(inDTRaw && inDTRaw.length > 8) {
-      // Format: "06/05/2026 10:00:06"
-      const parts = inDTRaw.split(' ');
-      if(parts.length >= 2) {
-        const timePart = parts[1]; // "10:00:06"
-        const [h, m]   = timePart.split(':').map(Number);
-        inTime = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    const nameRaw=row[2]?.toString()?.trim()||'';
+    const inDTRaw=row[4]?.toString()?.trim()||'';
+
+    // Parse IN time from "06/06/2026 10:09:38"
+    let inTime=null;
+    if(inDTRaw&&inDTRaw.length>8){
+      const parts=inDTRaw.split(' ');
+      if(parts.length>=2){
+        const tp=parts[1].split(':');
+        if(tp.length>=2){
+          inTime=`${tp[0].padStart(2,'0')}:${tp[1].padStart(2,'0')}`;
+        }
       }
     }
 
-    // Calculate late
-    let lateMin = 0;
-    let status  = 'A'; // absent by default
-    if(inTime) {
-      status = 'P';
-      if(emp && emp.shift) {
-        const shiftStart = emp.shift.split('-')[0]; // "10:00"
-        lateMin = timeDiffMinutes(shiftStart, inTime);
-        if(lateMin > 0) status = 'L';
-        else lateMin = 0;
+    const emp=empByCode[ecodeRaw];
+    let lateMin=0,status='A';
+
+    if(inTime){
+      status='P';
+      if(emp&&emp.shift){
+        const shiftStart=emp.shift.split('-')[0];
+        lateMin=timeDiffMinutes(shiftStart,inTime);
+        if(lateMin>0)status='L';
+        else lateMin=0;
       }
     }
+
+    // Get dept from E-Code
+    const deptFromCode=getDeptFromEcode(ecodeRaw);
 
     parsedBuffer.push({
-      id:         genId('ATT'),
-      date,
-      ecode:      ecodeRaw,
-      empName:    emp ? emp.fullname : nameRaw,
-      department: emp ? emp.department : '—',
-      mobile:     emp ? emp.mobile : '',
-      shift:      emp ? emp.shift : '',
-      inTime,
-      status,
-      lateMin,
-      matched:    !!emp,
-      remark:     '',
-      // Absent report fields
-      leaveType:     'FULL DAY',
-      preApproved:   'NO',
-      leaveForm:     'NO',
-      remarks:       '',
-      leaveDays:     '',
-      leaveFrom:     '',
-      leaveTo:       '',
-      upcomingDate:  '',
+      id:genId('ATT'),date,
+      ecode:ecodeRaw,
+      empName:emp?emp.fullname:nameRaw,
+      department:emp?emp.department:deptFromCode,
+      mobile:emp?emp.mobile:'',
+      shift:emp?emp.shift:'',
+      inTime,status,lateMin,
+      matched:!!emp,
+      remark:'',
+      leaveType:'FULL DAY',preApproved:'NO',leaveForm:'NO',
+      remarks:'',leaveDays:'',leaveFrom:'',leaveTo:'',upcomingDate:'',
     });
+
+    if(emp)matched++;else unmatched++;
   });
 
-  // Auto-fill leave data for known approved leaves
-  const leaveRecords = Store.get('leaveRecords');
-  parsedBuffer.forEach(rec => {
-    if(rec.status !== 'A') return;
-    const emp = allEmployees.find(e => e.ecode === rec.ecode);
-    if(!emp) return;
-    // Find approved leave for this date
-    const lv = leaveRecords.find(l =>
-      l.empId === emp.id &&
-      l.status === 'APPROVED' &&
-      l.from <= date && l.to >= date
-    );
-    if(lv) {
-      rec.preApproved  = 'YES';
-      rec.leaveForm    = lv.medCert || lv.medVerified ? 'YES' : 'NO';
-      rec.remarks      = lv.reason || '';
-      rec.leaveDays    = lv.days + ' DAY' + (lv.days > 1 ? 'S' : '');
-      rec.leaveFrom    = formatDate(lv.from);
-      rec.leaveTo      = formatDate(lv.to);
-      rec.leaveType    = lv.type === 'SL' ? 'SICK LEAVE' : lv.type === 'PL' ? 'PAID LEAVE' : 'FULL DAY';
+  // Auto-fill leave data
+  const leaveRecords=Store.get('leaveRecords');
+  parsedBuffer.forEach(rec=>{
+    if(rec.status!=='A')return;
+    const emp=allEmps.find(e=>e.ecode===rec.ecode);
+    if(!emp)return;
+    const lv=leaveRecords.find(l=>l.empId===emp.id&&l.status==='APPROVED'&&l.from<=date&&l.to>=date);
+    if(lv){
+      rec.preApproved='YES';
+      rec.leaveForm=lv.medCert||lv.medVerified?'YES':'NO';
+      rec.remarks=lv.reason||'';
+      rec.leaveDays=lv.days+(lv.days>1?' DAYS':' DAY');
+      rec.leaveFrom=lv.from;rec.leaveTo=lv.to;
+      rec.leaveType=lv.type==='SL'?'SICK LEAVE':lv.type==='PL'?'PAID LEAVE':'FULL DAY';
     }
   });
 
   // Save to attendance records
-  attRecords = attRecords.filter(r => r.date !== date);
-  parsedBuffer.filter(r => r.matched).forEach(r => attRecords.push(r));
-  Store.set('attendance', attRecords);
+  attRecords=attRecords.filter(r=>r.date!==date);
+  parsedBuffer.filter(r=>r.matched).forEach(r=>attRecords.push(r));
+  Store.set('attendance',attRecords);
 
-  bar.style.width = '100%';
-  icon.innerHTML  = '<i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i>';
-  const present  = parsedBuffer.filter(r => r.status === 'P' || r.status === 'L').length;
-  const absent   = parsedBuffer.filter(r => r.status === 'A' && r.matched).length;
-  const late     = parsedBuffer.filter(r => r.status === 'L').length;
-  const unmatched= parsedBuffer.filter(r => !r.matched).length;
-  txt.textContent = `Done! ${present} Present · ${late} Late · ${absent} Absent · ${unmatched} Unmatched`;
+  bar.style.width='100%';
+  const present=parsedBuffer.filter(r=>r.status==='P'||r.status==='L').length;
+  const absent=parsedBuffer.filter(r=>r.status==='A'&&r.matched).length;
+  const late=parsedBuffer.filter(r=>r.status==='L').length;
+  icon.innerHTML='<i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i>';
+  txt.textContent=`Done! ${present} Present · ${late} Late · ${absent} Absent · ${unmatched} Unmatched`;
 
-  // Update stats
-  document.getElementById('st-present').textContent   = present;
-  document.getElementById('st-absent').textContent    = absent;
-  document.getElementById('st-late').textContent      = late;
-  document.getElementById('st-unmatched').textContent = unmatched;
+  document.getElementById('st-present').textContent=present;
+  document.getElementById('st-absent').textContent=absent;
+  document.getElementById('st-late').textContent=late;
+  document.getElementById('st-unmatched').textContent=unmatched;
 
-  loadDaySummary();
-  showUnmatched();
-  lateRows   = parsedBuffer.filter(r => r.status === 'L' && r.matched);
-  absentRows = parsedBuffer.filter(r => r.status === 'A' && r.matched);
-  showToast('success', 'File Processed!',
-    `${present} present · ${late} late · ${absent} absent`);
+  lateRows=parsedBuffer.filter(r=>r.status==='L'&&r.matched);
+  absentRows=parsedBuffer.filter(r=>r.status==='A'&&r.matched);
+
+  loadDaySummary();showUnmatched();
+  showToast('success','File Processed!',`${present} present · ${late} late · ${absent} absent`);
 }
 
-/* ── Day Summary ── */
-function loadDaySummary() {
-  const date = document.getElementById('att_viewDate')?.value || todayStr();
-  const recs = attRecords.filter(r => r.date === date);
-  const body = document.getElementById('daySummaryBody');
-  if(!body) return;
-  if(!recs.length) {
-    body.innerHTML = `<tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>No data for this date</p></td></tr>`;
-    return;
-  }
-  const sm = {P:'badge-green',L:'badge-amber',A:'badge-red'};
-  const sl = {P:'Present',L:'Late',A:'Absent'};
-  body.innerHTML = '';
-  recs.forEach(r => {
-    body.innerHTML += `<tr>
+function loadDaySummary(){
+  const date=document.getElementById('att_viewDate')?.value||todayStr();
+  const recs=attRecords.filter(r=>r.date===date);
+  const body=document.getElementById('daySummaryBody');
+  if(!recs.length){body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>No data for this date</p></td></tr>`;return;}
+  const sm={P:'badge-green',L:'badge-amber',A:'badge-red'};
+  const sl={P:'Present',L:'Late',A:'Absent'};
+  body.innerHTML='';
+  recs.forEach(r=>{
+    body.innerHTML+=`<tr>
       <td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td>
-      <td class="font-mono">${r.inTime ? formatTime(r.inTime) : '—'}</td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
       <td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}${r.lateMin>0?' (+'+minutesToHHMM(r.lateMin)+')':''}</span></td>
       <td style="font-size:12px;color:var(--gray-500)">${r.remark||'—'}</td>
     </tr>`;
   });
 }
 
-/* ── Unmatched ── */
-function showUnmatched() {
-  const unmatched = parsedBuffer.filter(r => !r.matched);
-  const section   = document.getElementById('unmatchedSection');
-  const body      = document.getElementById('unmatchedBody');
-  if(!unmatched.length) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  body.innerHTML = '';
-  unmatched.forEach(r => {
-    body.innerHTML += `<tr class="highlight-row">
+function showUnmatched(){
+  const u=parsedBuffer.filter(r=>!r.matched);
+  const sec=document.getElementById('unmatchedSection');
+  if(!u.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  const body=document.getElementById('unmatchedBody');
+  body.innerHTML='';
+  u.forEach(r=>{
+    body.innerHTML+=`<tr style="background:#fff3cd">
       <td class="font-mono" style="color:var(--danger);font-weight:700">${r.ecode}</td>
       <td>${r.empName||'—'}</td>
-      <td class="font-mono">${r.inTime ? formatTime(r.inTime) : '—'}</td>
-      <td><span class="badge badge-red">E-Code not in directory</span></td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+      <td><span class="badge badge-red">Not in directory</span></td>
     </tr>`;
   });
 }
 
 /* ══ LATE REPORT ══ */
-function buildLateReport() {
-  const date = document.getElementById('late_date')?.value || todayStr();
-  // Use parsedBuffer if same date, else use saved records
-  let late = lateRows.length && lateRows[0]?.date === date
-    ? lateRows
-    : attRecords.filter(r => r.date === date && r.status === 'L');
-
-  const section    = document.getElementById('lateReportSection');
-  const emptyState = document.getElementById('lateEmptyState');
-  const actionBtns = document.getElementById('lateActionBtns');
-
-  if(!late.length) {
-    section.style.display = 'none';
-    emptyState.style.display = 'block';
-    actionBtns.style.display = 'none';
-    showToast('info', 'No Late Records', `No late arrivals for ${formatDate(date)}`);
-    return;
-  }
-
-  lateRows = late;
-  section.style.display = 'block';
-  emptyState.style.display = 'none';
-  actionBtns.style.display = 'flex';
-
-  document.getElementById('lateReportSubtitle').textContent = `Date: ${formatDate(date)}`;
-  document.getElementById('lateReportTime').textContent = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
-
-  // Stats strip
-  document.getElementById('lateStatsStrip').innerHTML = `
-    <div class="stat-pill amber"><i class="fas fa-user-clock"></i> ${late.length} Late Employees</div>
-    <div class="stat-pill red"><i class="fas fa-clock"></i> Max Late: ${minutesToHHMM(Math.max(...late.map(r => r.lateMin||0)))}</div>`;
-
-  const body = document.getElementById('lateTableBody');
-  body.innerHTML = '';
-
-  late.forEach((r, i) => {
-    const shiftStart = r.shift ? r.shift.split('-')[0] : '';
-    const tr = document.createElement('tr');
-    tr.dataset.id = r.id || i;
-    tr.innerHTML = `
+function buildLateReport(){
+  const date=document.getElementById('late_date')?.value||todayStr();
+  let late=lateRows.length&&lateRows[0]?.date===date?lateRows:attRecords.filter(r=>r.date===date&&r.status==='L');
+  const sec=document.getElementById('lateSection');
+  const empty=document.getElementById('lateEmpty');
+  if(!late.length){sec.style.display='none';empty.style.display='block';showToast('info','No Late','No late records for this date');return;}
+  lateRows=late;
+  sec.style.display='block';empty.style.display='none';
+  document.getElementById('lateSubtitle').textContent=`Date: ${formatDate(date)}`;
+  document.getElementById('lateGenTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('lateStats').innerHTML=`
+    <div class="stat-pill amber"><i class="fas fa-user-clock"></i> ${late.length} Late</div>
+    <div class="stat-pill red"><i class="fas fa-clock"></i> Max: ${minutesToHHMM(Math.max(...late.map(r=>r.lateMin||0)))}</div>`;
+  const body=document.getElementById('lateBody');
+  body.innerHTML='';
+  late.forEach((r,i)=>{
+    const shiftStart=r.shift?r.shift.split('-')[0]:'';
+    // Get dept from E-Code if not available
+    const dept=r.department||getDeptFromEcode(r.ecode);
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.innerHTML=`
       <td style="font-weight:800;color:var(--gray-400)">${i+1}</td>
-      <td style="font-weight:600">${r.department||'—'}</td>
+      <td style="font-weight:600">${dept}</td>
       <td class="font-mono" style="color:var(--primary);font-weight:700">${r.ecode}</td>
       <td style="font-weight:700">${r.empName||'—'}</td>
       <td class="font-mono" style="color:var(--primary)">${r.mobile||'—'}</td>
-      <td class="font-mono">${shiftStart ? formatTime(shiftStart) : '—'}</td>
-      <td class="font-mono">${r.inTime ? formatTime(r.inTime) : '—'}</td>
+      <td class="font-mono">${shiftStart?formatTime(shiftStart):'—'}</td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
       <td><span class="late-badge">${minutesToHHMM(r.lateMin||0)}</span></td>
-      <td class="editable-cell">
-        <input type="text" placeholder="Enter reason..." value="${r.remark||''}"
-          data-id="${i}" onchange="updateLateReason(${i}, this.value)">
-      </td>
-      <td class="editable-cell">
-        <select data-id="${i}" onchange="updateLateAction(${i}, this.value)">
-          <option value="-">-</option>
-          <option value="WARNING">Warning</option>
-          <option value="NOTED">Noted</option>
-          <option value="COUNSELLED">Counselled</option>
+      <td><input class="editable-input" placeholder="Enter reason..." value="${r.remark||''}" style="min-width:140px" onchange="lateRows[${i}].remark=this.value;buildLateMsg();"></td>
+      <td>
+        <select class="editable-select" onchange="lateRows[${i}].actionTaken=this.value">
+          <option>-</option><option>WARNING</option><option>NOTED</option><option>COUNSELLED</option>
         </select>
       </td>
       <td class="sticky-col" style="text-align:center">
-        <button class="btn btn-danger btn-icon btn-sm" onclick="removeLateRow(this)" title="Remove from report">
-          <i class="fas fa-times"></i>
-        </button>
+        <button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'late')" title="Remove"><i class="fas fa-times"></i></button>
       </td>`;
     body.appendChild(tr);
   });
-
-  buildLateMessage();
+  buildLateMsg();
 }
 
-function updateLateReason(idx, val) {
-  if(lateRows[idx]) { lateRows[idx].remark = val; buildLateMessage(); }
-}
-function updateLateAction(idx, val) {
-  if(lateRows[idx]) lateRows[idx].actionTaken = val;
-}
-function removeLateRow(btn) {
-  const tr = btn.closest('tr');
-  tr.classList.add('deleted-row');
-  // Renumber
-  let num = 1;
-  document.querySelectorAll('#lateTableBody tr:not(.deleted-row) td:first-child').forEach(td => { td.textContent = num++; });
-  buildLateMessage();
-}
-
-function buildLateMessage() {
-  const date    = document.getElementById('late_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#lateTableBody tr:not(.deleted-row)')];
-  let msg = `🕐 *LATE COMING REPORT*\n📅 Date: ${formatDate(date)}\n`;
-  msg += `🏢 House of Panchhi\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-  visible.forEach((tr, i) => {
-    const cells = tr.querySelectorAll('td');
-    const name  = cells[3]?.textContent?.trim();
-    const dept  = cells[1]?.textContent?.trim();
-    const phone = cells[4]?.textContent?.trim();
-    const inT   = cells[6]?.textContent?.trim();
-    const late  = cells[7]?.textContent?.trim();
-    const reason= cells[8]?.querySelector('input')?.value || '—';
-    msg += `${i+1}. ${name}\n`;
-    msg += `   Dept: ${dept} | ☎️ ${phone}\n`;
-    msg += `   In: ${inT} | Late by: ${late}\n`;
-    if(reason && reason !== '—') msg += `   Reason: ${reason}\n`;
-    msg += '\n';
+function buildLateMsg(){
+  const date=document.getElementById('late_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')];
+  let msg=`🕐 *LATE COMING REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(22)}\n\n`;
+  visible.forEach((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    const dept=c[1]?.textContent?.trim();
+    const name=c[3]?.textContent?.trim();
+    const phone=c[4]?.textContent?.trim();
+    const inT=c[6]?.textContent?.trim();
+    const late=c[7]?.textContent?.trim();
+    const reason=c[8]?.querySelector('input')?.value||'—';
+    msg+=`${i+1}. ${name}\n   Dept: ${dept} | ☎️ ${phone}\n   In: ${inT} | Late by: ${late}\n`;
+    if(reason&&reason!=='—')msg+=`   Reason: ${reason}\n`;
+    msg+='\n';
   });
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `Total Late: ${visible.length}`;
-  document.getElementById('lateMsgPreview').textContent = msg;
+  msg+=`${'━'.repeat(22)}\nTotal Late: ${visible.length}`;
+  document.getElementById('lateMsgBox').textContent=msg;
 }
 
 /* ══ ABSENT REPORT ══ */
-function buildAbsentReport() {
-  const date = document.getElementById('absent_date')?.value || todayStr();
-  let absent = absentRows.length && absentRows[0]?.date === date
-    ? absentRows
-    : attRecords.filter(r => r.date === date && r.status === 'A');
-
-  const section    = document.getElementById('absentReportSection');
-  const emptyState = document.getElementById('absentEmptyState');
-  const actionBtns = document.getElementById('absentActionBtns');
-
-  if(!absent.length) {
-    section.style.display = 'none';
-    emptyState.style.display = 'block';
-    actionBtns.style.display = 'none';
-    showToast('info', 'No Absent Records', `No absents for ${formatDate(date)}`);
-    return;
-  }
-
-  absentRows = absent;
-  section.style.display = 'block';
-  emptyState.style.display = 'none';
-  actionBtns.style.display = 'flex';
-
-  document.getElementById('absentReportSubtitle').textContent = `Date: ${formatDate(date)}`;
-  document.getElementById('absentReportTime').textContent = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
-
-  // Group by dept for stats
-  const depts = [...new Set(absent.map(r => r.department))];
-  document.getElementById('absentStatsStrip').innerHTML = `
+function buildAbsentReport(){
+  const date=document.getElementById('absent_date')?.value||todayStr();
+  let absent=absentRows.length&&absentRows[0]?.date===date?absentRows:attRecords.filter(r=>r.date===date&&r.status==='A');
+  const sec=document.getElementById('absentSection');
+  const empty=document.getElementById('absentEmpty');
+  if(!absent.length){sec.style.display='none';empty.style.display='block';showToast('info','No Absents','No absent records for this date');return;}
+  absentRows=absent;
+  sec.style.display='block';empty.style.display='none';
+  document.getElementById('absentSubtitle').textContent=`Date: ${formatDate(date)}`;
+  document.getElementById('absentGenTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const preApproved=absent.filter(r=>r.preApproved==='YES').length;
+  document.getElementById('absentStats').innerHTML=`
     <div class="stat-pill red"><i class="fas fa-user-xmark"></i> ${absent.length} Absent</div>
-    <div class="stat-pill blue"><i class="fas fa-building"></i> ${depts.length} Departments</div>
-    <div class="stat-pill green"><i class="fas fa-calendar-check"></i> ${absent.filter(r=>r.preApproved==='YES').length} Pre-Approved</div>`;
+    <div class="stat-pill green"><i class="fas fa-calendar-check"></i> ${preApproved} Pre-Approved</div>
+    <div class="stat-pill amber"><i class="fas fa-question-circle"></i> ${absent.length-preApproved} Unplanned</div>`;
 
-  const body = document.getElementById('absentTableBody');
-  body.innerHTML = '';
-
-  // Group by department
-  const byDept = {};
-  absent.forEach(r => {
-    if(!byDept[r.department]) byDept[r.department] = [];
-    byDept[r.department].push(r);
+  // Group by dept
+  const byDept={};
+  absent.forEach(r=>{
+    const dept=r.department||getDeptFromEcode(r.ecode);
+    if(!byDept[dept])byDept[dept]=[];
+    byDept[dept].push({...r,department:dept});
   });
 
-  let rowNum = 1;
-  Object.entries(byDept).forEach(([dept, rows]) => {
-    rows.forEach((r, di) => {
-      const tr = document.createElement('tr');
-      const isApproved = r.preApproved === 'YES';
-      if(isApproved) tr.classList.add('highlighted');
-      tr.dataset.id = rowNum - 1;
-
-      // Dept cell - span for same dept
-      const deptCell = di === 0
-        ? `<td rowspan="${rows.length}" style="font-weight:800;vertical-align:middle;background:${isApproved?'#fef3c7':'#f9fafb'};text-align:center">${dept}</td>`
-        : '';
-
-      tr.innerHTML = `
-        <td style="font-weight:800;color:var(--gray-400)">${rowNum}</td>
+  const body=document.getElementById('absentBody');
+  body.innerHTML='';
+  let num=1;
+  Object.entries(byDept).forEach(([dept,rows])=>{
+    rows.forEach((r,di)=>{
+      const isApproved=r.preApproved==='YES';
+      const tr=document.createElement('tr');
+      if(isApproved)tr.style.background='#f0fff4';
+      tr.dataset.idx=num-1;
+      const idx=num-1;
+      const deptCell=di===0?`<td rowspan="${rows.length}" style="font-weight:800;vertical-align:middle;font-size:12px;background:${isApproved?'#ecfdf5':'#fafafa'};text-align:center">${dept}</td>`:'';
+      tr.innerHTML=`
+        <td style="font-weight:800;color:var(--gray-400)">${num}</td>
         ${deptCell}
-        <td class="font-mono" style="color:var(--primary);font-weight:700">${r.ecode}</td>
+        <td class="font-mono" style="color:var(--primary);font-weight:700;font-size:12px">${r.ecode}</td>
         <td style="font-weight:700">${r.empName||'—'}</td>
-        <td class="font-mono" style="color:var(--primary)">${r.mobile||'—'}</td>
+        <td class="font-mono" style="color:var(--primary);font-size:12px">${r.mobile||'—'}</td>
         <td>
-          <select class="editable-cell" onchange="updateAbsentField(${rowNum-1},'leaveType',this.value)" style="padding:4px 7px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;outline:none;font-family:inherit">
+          <select class="editable-select" onchange="absentRows[${idx}].leaveType=this.value">
             <option ${r.leaveType==='FULL DAY'?'selected':''}>FULL DAY</option>
             <option ${r.leaveType==='HALF DAY'?'selected':''}>HALF DAY</option>
             <option ${r.leaveType==='SICK LEAVE'?'selected':''}>SICK LEAVE</option>
@@ -847,265 +684,167 @@ function buildAbsentReport() {
           </select>
         </td>
         <td>
-          <select onchange="updateAbsentField(${rowNum-1},'preApproved',this.value)" style="padding:4px 7px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;outline:none;font-family:inherit">
+          <select class="editable-select" onchange="absentRows[${idx}].preApproved=this.value;buildAbsentMsg()">
             <option ${r.preApproved==='YES'?'selected':''}>YES</option>
             <option ${r.preApproved==='NO'?'selected':''}>NO</option>
           </select>
         </td>
         <td>
-          <select onchange="updateAbsentField(${rowNum-1},'leaveForm',this.value)" style="padding:4px 7px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;outline:none;font-family:inherit">
+          <select class="editable-select" onchange="absentRows[${idx}].leaveForm=this.value">
             <option ${r.leaveForm==='YES'?'selected':''}>YES</option>
             <option ${r.leaveForm==='NO'?'selected':''}>NO</option>
           </select>
         </td>
-        <td class="editable-cell"><input type="text" placeholder="Remarks..." value="${r.remarks||''}" onchange="updateAbsentField(${rowNum-1},'remarks',this.value)"></td>
-        <td class="editable-cell"><input type="text" placeholder="e.g. 1 DAY" value="${r.leaveDays||''}" onchange="updateAbsentField(${rowNum-1},'leaveDays',this.value)" style="width:80px"></td>
-        <td class="editable-cell"><input type="date" value="${r.leaveFrom||''}" onchange="updateAbsentField(${rowNum-1},'leaveFrom',this.value)" style="width:120px"></td>
-        <td class="editable-cell"><input type="date" value="${r.leaveTo||''}" onchange="updateAbsentField(${rowNum-1},'leaveTo',this.value)" style="width:120px"></td>
-        <td class="editable-cell"><input type="text" placeholder="Next date..." value="${r.upcomingDate||''}" onchange="updateAbsentField(${rowNum-1},'upcomingDate',this.value)"></td>
+        <td><input class="editable-input" placeholder="Remarks..." value="${r.remarks||''}" style="min-width:130px" onchange="absentRows[${idx}].remarks=this.value;buildAbsentMsg();"></td>
+        <td><input class="editable-input" placeholder="e.g. 1 DAY" value="${r.leaveDays||''}" style="width:80px" onchange="absentRows[${idx}].leaveDays=this.value"></td>
+        <td><input type="date" class="editable-input" value="${r.leaveFrom||''}" style="width:120px" onchange="absentRows[${idx}].leaveFrom=this.value"></td>
+        <td><input type="date" class="editable-input" value="${r.leaveTo||''}" style="width:120px" onchange="absentRows[${idx}].leaveTo=this.value"></td>
+        <td><input class="editable-input" placeholder="Next date..." value="${r.upcomingDate||''}" style="width:110px" onchange="absentRows[${idx}].upcomingDate=this.value"></td>
         <td class="sticky-col" style="text-align:center">
-          <button class="btn btn-danger btn-icon btn-sm" onclick="removeAbsentRow(this)" title="Remove from report">
-            <i class="fas fa-times"></i>
-          </button>
+          <button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'absent')" title="Remove"><i class="fas fa-times"></i></button>
         </td>`;
       body.appendChild(tr);
-      rowNum++;
+      num++;
     });
   });
-
-  buildAbsentMessage();
+  buildAbsentMsg();
 }
 
-function updateAbsentField(idx, field, val) {
-  if(absentRows[idx]) { absentRows[idx][field] = val; buildAbsentMessage(); }
-}
-function removeAbsentRow(btn) {
-  btn.closest('tr').classList.add('deleted-row');
-  let num = 1;
-  document.querySelectorAll('#absentTableBody tr:not(.deleted-row) td:first-child').forEach(td => { td.textContent = num++; });
-  buildAbsentMessage();
-}
-
-function buildAbsentMessage() {
-  const date    = document.getElementById('absent_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#absentTableBody tr:not(.deleted-row)')];
-  let msg = `❌ *ABSENT REPORT*\n📅 Date: ${formatDate(date)}\n`;
-  msg += `🏢 House of Panchhi\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-  visible.forEach((tr, i) => {
-    const cells = tr.querySelectorAll('td');
-    const name    = cells[3]?.textContent?.trim();
-    const dept    = cells[1]?.textContent?.trim() || '—';
-    const phone   = cells[4]?.textContent?.trim();
-    const preApp  = cells[6]?.querySelector('select')?.value;
-    const remarks = cells[7]?.querySelector('input')?.value || '—';
-    const lvDays  = cells[8]?.querySelector('input')?.value || '—';
-    msg += `${i+1}. ${name}\n`;
-    msg += `   Dept: ${dept} | ☎️ ${phone}\n`;
-    msg += `   Pre-Approved: ${preApp} | Days: ${lvDays}\n`;
-    if(remarks && remarks !== '—') msg += `   Remarks: ${remarks}\n`;
-    msg += '\n';
+function buildAbsentMsg(){
+  const date=document.getElementById('absent_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
+  let msg=`❌ *ABSENT REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(22)}\n\n`;
+  visible.forEach((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    const name=c[3]?.textContent?.trim();
+    const dept=c[1]?.textContent?.trim()||'—';
+    const phone=c[4]?.textContent?.trim();
+    const pre=c[6]?.querySelector('select')?.value;
+    const rem=c[8]?.querySelector('input')?.value||'—';
+    const days=c[9]?.querySelector('input')?.value||'—';
+    msg+=`${i+1}. ${name}\n   Dept: ${dept} | ☎️ ${phone}\n   Pre-Approved: ${pre} | Days: ${days}\n`;
+    if(rem&&rem!=='—')msg+=`   Remarks: ${rem}\n`;
+    msg+='\n';
   });
-  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `Total Absent: ${visible.length}`;
-  document.getElementById('absentMsgPreview').textContent = msg;
+  msg+=`${'━'.repeat(22)}\nTotal Absent: ${visible.length}`;
+  document.getElementById('absentMsgBox').textContent=msg;
 }
 
-function saveAbsentRemarks() {
-  absentRows.forEach(r => {
-    const idx = attRecords.findIndex(a => a.id === r.id);
-    if(idx > -1) Object.assign(attRecords[idx], r);
+function removeRow(btn,type){
+  const tr=btn.closest('tr');
+  tr.classList.add('deleted-row');
+  // Renumber
+  const rows=document.querySelectorAll(`#${type==='late'?'lateBody':'absentBody'} tr:not(.deleted-row) td:first-child`);
+  rows.forEach((td,i)=>td.textContent=i+1);
+  if(type==='late')buildLateMsg();else buildAbsentMsg();
+}
+
+function saveRemarks(){
+  absentRows.forEach(r=>{
+    const idx=attRecords.findIndex(a=>a.id===r.id);
+    if(idx>-1)Object.assign(attRecords[idx],r);
   });
-  Store.set('attendance', attRecords);
-  GSheet.send('Attendance_Absent', { date: document.getElementById('absent_date')?.value, count: absentRows.length });
-  showToast('success', 'Saved!', 'Remarks saved and synced');
+  Store.set('attendance',attRecords);
+  GSheet.send('Attendance_Absent',{date:document.getElementById('absent_date')?.value,count:absentRows.length});
+  showToast('success','Saved!','Remarks saved & synced');
 }
 
 /* ══ DOWNLOADS ══ */
-function downloadLateExcel() {
-  const date    = document.getElementById('late_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#lateTableBody tr:not(.deleted-row)')];
-  const rows    = visible.map((tr, i) => {
-    const cells = tr.querySelectorAll('td');
-    return {
-      Sr:         i+1,
-      Department: cells[1]?.textContent?.trim(),
-      Code:       cells[2]?.textContent?.trim(),
-      Name:       cells[3]?.textContent?.trim(),
-      Phone:      cells[4]?.textContent?.trim(),
-      ShiftStart: cells[5]?.textContent?.trim(),
-      InPunch:    cells[6]?.textContent?.trim(),
-      LateBy:     cells[7]?.textContent?.trim(),
-      Reason:     cells[8]?.querySelector('input')?.value || '',
-      ActionTaken:cells[9]?.querySelector('select')?.value || '-',
-    };
+function downloadLateExcel(){
+  const date=document.getElementById('late_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')];
+  if(!visible.length){showToast('warning','Empty','No rows');return;}
+  const rows=visible.map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return{Sr:i+1,Department:c[1]?.textContent?.trim(),Code:c[2]?.textContent?.trim(),Name:c[3]?.textContent?.trim(),Phone:c[4]?.textContent?.trim(),ShiftStart:c[5]?.textContent?.trim(),InPunch:c[6]?.textContent?.trim(),LateBy:c[7]?.textContent?.trim(),Reason:c[8]?.querySelector('input')?.value||'',ActionTaken:c[9]?.querySelector('select')?.value||'-'};
   });
-  if(!rows.length) { showToast('warning','Empty','No rows to export'); return; }
-  downloadCSV(`Late_Report_${date}.csv`, rows,
-    ['Sr','Department','Code','Name','Phone','ShiftStart','InPunch','LateBy','Reason','ActionTaken']);
+  downloadCSV(`Late_Report_${date}.csv`,rows,['Sr','Department','Code','Name','Phone','ShiftStart','InPunch','LateBy','Reason','ActionTaken']);
 }
 
-function downloadLatePDF() {
-  const date    = document.getElementById('late_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#lateTableBody tr:not(.deleted-row)')];
-  if(!visible.length) { showToast('warning','Empty','No rows to export'); return; }
-  const rows = visible.map((tr, i) => {
-    const c = tr.querySelectorAll('td');
-    return `<tr>
-      <td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td>
-      <td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td>
-      <td>${c[5]?.textContent?.trim()}</td><td>${c[6]?.textContent?.trim()}</td>
-      <td style="color:#b91c1c;font-weight:800">${c[7]?.textContent?.trim()}</td>
-      <td>${c[8]?.querySelector('input')?.value||''}</td>
-      <td>${c[9]?.querySelector('select')?.value||'-'}</td>
-    </tr>`;
+function downloadLatePDF(){
+  const date=document.getElementById('late_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')];
+  if(!visible.length){showToast('warning','Empty','No rows');return;}
+  const rows=visible.map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return `<tr><td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td><td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td><td>${c[5]?.textContent?.trim()}</td><td>${c[6]?.textContent?.trim()}</td><td style="color:#b91c1c;font-weight:800">${c[7]?.textContent?.trim()}</td><td>${c[8]?.querySelector('input')?.value||''}</td><td>${c[9]?.querySelector('select')?.value||'-'}</td></tr>`;
   }).join('');
-  const html = `<!DOCTYPE html><html><head>
-    <style>
-      body{font-family:Arial,sans-serif;padding:20px;font-size:11px;}
-      .header{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;margin-bottom:0;}
-      .header h2{font-size:16px;font-weight:800;margin:0;}
-      .header p{font-size:11px;opacity:.7;margin:4px 0 0;}
-      table{width:100%;border-collapse:collapse;margin-top:0;}
-      th{background:#e8e0ff;color:#4c1d95;padding:8px 10px;font-size:10px;text-align:left;border-bottom:2px solid #6c47ff;}
-      td{padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:11px;}
-      tr:nth-child(even){background:#fafafa;}
-      .footer{text-align:center;font-size:10px;color:#999;margin-top:16px;}
-    </style></head><body>
-    <div class="header">
-      <h2>🕐 LATE COMING REPORT</h2>
-      <p>Date: ${formatDate(date)} &nbsp;|&nbsp; House of Panchhi &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')}</p>
-    </div>
-    <table>
-      <thead><tr><th>#</th><th>Department</th><th>E-Code</th><th>Name</th><th>Phone</th><th>Shift</th><th>In Punch</th><th>Late By</th><th>Reason</th><th>Action</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="footer">Total Late: ${visible.length} &nbsp;|&nbsp; House of Panchhi HR Software &nbsp;|&nbsp; Crafted by Aditya Tomar</div>
-    <script>window.print();window.close();<\/script></body></html>`;
-  const w = window.open('','_blank'); w.document.write(html); w.document.close();
+  const html=`<!DOCTYPE html><html><head><style>body{font-family:Arial,sans-serif;padding:20px;font-size:11px;}.hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;}.hdr h2{margin:0;font-size:15px;}.hdr p{margin:4px 0 0;font-size:10px;opacity:.7;}table{width:100%;border-collapse:collapse;}th{background:#ede9fe;color:#4c1d95;padding:7px 8px;font-size:9.5px;text-align:left;border-bottom:2px solid #6c47ff;}td{padding:6px 8px;border-bottom:1px solid #f0f0f0;}tr:nth-child(even){background:#fafafa;}.foot{text-align:center;font-size:9px;color:#999;margin-top:14px;}</style></head><body>
+  <div class="hdr"><h2>🕐 LATE COMING REPORT</h2><p>Date: ${formatDate(date)} | House of Panchhi | Generated: ${new Date().toLocaleString('en-IN')}</p></div>
+  <table><thead><tr><th>#</th><th>Dept</th><th>Code</th><th>Name</th><th>Phone</th><th>Shift</th><th>In Punch</th><th>Late By</th><th>Reason</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="foot">Total: ${visible.length} | House of Panchhi HR Software | Crafted by Aditya Tomar</div>
+  <script>window.print();window.close();<\/script></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
 }
 
-function downloadAbsentExcel() {
-  const date    = document.getElementById('absent_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#absentTableBody tr:not(.deleted-row)')];
-  const rows    = visible.map((tr, i) => {
-    const c = tr.querySelectorAll('td');
-    return {
-      Sr: i+1, Department: c[1]?.textContent?.trim(), Code: c[2]?.textContent?.trim(),
-      Name: c[3]?.textContent?.trim(), Phone: c[4]?.textContent?.trim(),
-      Leave: c[5]?.querySelector('select')?.value||'',
-      PreApproved: c[6]?.querySelector('select')?.value||'',
-      LeaveForm: c[7]?.querySelector('select')?.value||'',
-      Remarks: c[8]?.querySelector('input')?.value||'',
-      LeaveDays: c[9]?.querySelector('input')?.value||'',
-      From: c[10]?.querySelector('input')?.value||'',
-      To: c[11]?.querySelector('input')?.value||'',
-      UpcomingDate: c[12]?.querySelector('input')?.value||'',
-    };
+function downloadAbsentExcel(){
+  const date=document.getElementById('absent_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
+  if(!visible.length){showToast('warning','Empty','No rows');return;}
+  const rows=visible.map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return{Sr:i+1,Department:c[1]?.textContent?.trim(),Code:c[2]?.textContent?.trim(),Name:c[3]?.textContent?.trim(),Phone:c[4]?.textContent?.trim(),Leave:c[5]?.querySelector('select')?.value||'',PreApproved:c[6]?.querySelector('select')?.value||'',LeaveForm:c[7]?.querySelector('select')?.value||'',Remarks:c[8]?.querySelector('input')?.value||'',LeaveDays:c[9]?.querySelector('input')?.value||'',From:c[10]?.querySelector('input')?.value||'',To:c[11]?.querySelector('input')?.value||'',UpcomingDate:c[12]?.querySelector('input')?.value||''};
   });
-  if(!rows.length) { showToast('warning','Empty','No rows'); return; }
-  downloadCSV(`Absent_Report_${date}.csv`, rows,
-    ['Sr','Department','Code','Name','Phone','Leave','PreApproved','LeaveForm','Remarks','LeaveDays','From','To','UpcomingDate']);
+  downloadCSV(`Absent_Report_${date}.csv`,rows,['Sr','Department','Code','Name','Phone','Leave','PreApproved','LeaveForm','Remarks','LeaveDays','From','To','UpcomingDate']);
 }
 
-function downloadAbsentPDF() {
-  const date    = document.getElementById('absent_date')?.value || todayStr();
-  const visible = [...document.querySelectorAll('#absentTableBody tr:not(.deleted-row)')];
-  if(!visible.length) { showToast('warning','Empty','No rows'); return; }
-  const rows = visible.map((tr, i) => {
-    const c = tr.querySelectorAll('td');
-    return `<tr>
-      <td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td>
-      <td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td>
-      <td>${c[5]?.querySelector('select')?.value||''}</td>
-      <td>${c[6]?.querySelector('select')?.value||''}</td>
-      <td>${c[7]?.querySelector('select')?.value||''}</td>
-      <td>${c[8]?.querySelector('input')?.value||''}</td>
-      <td>${c[9]?.querySelector('input')?.value||''}</td>
-      <td>${c[10]?.querySelector('input')?.value||''}</td>
-      <td>${c[11]?.querySelector('input')?.value||''}</td>
-      <td>${c[12]?.querySelector('input')?.value||''}</td>
-    </tr>`;
+function downloadAbsentPDF(){
+  const date=document.getElementById('absent_date')?.value||todayStr();
+  const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
+  if(!visible.length){showToast('warning','Empty','No rows');return;}
+  const rows=visible.map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return `<tr><td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td><td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td><td>${c[5]?.querySelector('select')?.value||''}</td><td>${c[6]?.querySelector('select')?.value||''}</td><td>${c[7]?.querySelector('select')?.value||''}</td><td>${c[8]?.querySelector('input')?.value||''}</td><td>${c[9]?.querySelector('input')?.value||''}</td><td>${c[10]?.querySelector('input')?.value||''}</td><td>${c[11]?.querySelector('input')?.value||''}</td><td>${c[12]?.querySelector('input')?.value||''}</td></tr>`;
   }).join('');
-  const html = `<!DOCTYPE html><html><head>
-    <style>
-      body{font-family:Arial,sans-serif;padding:20px;font-size:10px;}
-      .header{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:16px 20px;border-radius:8px 8px 0 0;}
-      .header h2{font-size:16px;font-weight:800;margin:0;}
-      .header p{font-size:11px;opacity:.7;margin:4px 0 0;}
-      table{width:100%;border-collapse:collapse;}
-      th{background:#fde8e8;color:#b91c1c;padding:7px 8px;font-size:9.5px;text-align:left;border-bottom:2px solid #ef4444;}
-      td{padding:6px 8px;border-bottom:1px solid #f0f0f0;}
-      tr:nth-child(even){background:#fafafa;}
-      .footer{text-align:center;font-size:10px;color:#999;margin-top:16px;}
-    </style></head><body>
-    <div class="header">
-      <h2>❌ ABSENT REPORT</h2>
-      <p>Date: ${formatDate(date)} &nbsp;|&nbsp; House of Panchhi &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')}</p>
-    </div>
-    <table>
-      <thead><tr><th>#</th><th>Dept</th><th>Code</th><th>Name</th><th>Phone</th><th>Leave</th><th>Pre Approved</th><th>Leave Form</th><th>Remarks</th><th>Days</th><th>From</th><th>To</th><th>Upcoming</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="footer">Total Absent: ${visible.length} &nbsp;|&nbsp; House of Panchhi HR Software &nbsp;|&nbsp; Crafted by Aditya Tomar</div>
-    <script>window.print();window.close();<\/script></body></html>`;
-  const w = window.open('','_blank'); w.document.write(html); w.document.close();
+  const html=`<!DOCTYPE html><html><head><style>body{font-family:Arial,sans-serif;padding:20px;font-size:10px;}.hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;}.hdr h2{margin:0;font-size:15px;}.hdr p{margin:4px 0 0;font-size:10px;opacity:.7;}table{width:100%;border-collapse:collapse;}th{background:#fde8e8;color:#b91c1c;padding:7px 8px;font-size:9px;text-align:left;border-bottom:2px solid #ef4444;}td{padding:5px 7px;border-bottom:1px solid #f0f0f0;}tr:nth-child(even){background:#fafafa;}.foot{text-align:center;font-size:9px;color:#999;margin-top:14px;}</style></head><body>
+  <div class="hdr"><h2>❌ ABSENT REPORT</h2><p>Date: ${formatDate(date)} | House of Panchhi | Generated: ${new Date().toLocaleString('en-IN')}</p></div>
+  <table><thead><tr><th>#</th><th>Dept</th><th>Code</th><th>Name</th><th>Phone</th><th>Leave</th><th>Pre App.</th><th>Form</th><th>Remarks</th><th>Days</th><th>From</th><th>To</th><th>Upcoming</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="foot">Total: ${visible.length} | House of Panchhi HR Software | Crafted by Aditya Tomar</div>
+  <script>window.print();window.close();<\/script></body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
 }
 
-function copyLateMsg() {
-  const text = document.getElementById('lateMsgPreview')?.textContent || '';
-  navigator.clipboard.writeText(text).then(() => showToast('success','Copied!','Message copied to clipboard'));
-}
-function copyAbsentMsg() {
-  const text = document.getElementById('absentMsgPreview')?.textContent || '';
-  navigator.clipboard.writeText(text).then(() => showToast('success','Copied!','Message copied to clipboard'));
+function copyMsg(id){
+  navigator.clipboard.writeText(document.getElementById(id)?.textContent||'').then(()=>showToast('success','Copied!','Message copied'));
 }
 
 /* ══ ARCHIVE ══ */
-function loadArchive() {
-  const range   = parseInt(document.getElementById('archiveRange')?.value) || 7;
-  const to      = document.getElementById('archiveTo')?.value || todayStr();
-  const fromInput = document.getElementById('archiveFrom')?.value;
-  let fromDate;
-  if(fromInput) fromDate = fromInput;
-  else { const d = new Date(to); d.setDate(d.getDate()-range+1); fromDate = d.toISOString().split('T')[0]; }
-  archiveData = attRecords.filter(r => r.date >= fromDate && r.date <= to);
+function loadArchive(){
+  const range=parseInt(document.getElementById('archiveRange')?.value)||7;
+  const to=document.getElementById('archiveTo')?.value||todayStr();
+  const fromInput=document.getElementById('archiveFrom')?.value;
+  let from;
+  if(fromInput)from=fromInput;
+  else{const d=new Date(to);d.setDate(d.getDate()-range+1);from=d.toISOString().split('T')[0];}
+  archiveData=attRecords.filter(r=>r.date>=from&&r.date<=to);
   renderArchive(archiveData);
 }
-function renderArchive(data) {
-  const body = document.getElementById('archiveBody');
-  if(!data.length) {
-    body.innerHTML = `<tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>No records in range</p></td></tr>`;
-    return;
-  }
-  const sm = {P:'badge-green',L:'badge-amber',A:'badge-red'};
-  const sl = {P:'Present',L:'Late',A:'Absent'};
-  body.innerHTML = '';
-  [...data].sort((a,b) => b.date?.localeCompare(a.date||'')).forEach(r => {
-    body.innerHTML += `<tr>
+function renderArchive(data){
+  const body=document.getElementById('archiveBody');
+  if(!data.length){body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>No records</p></td></tr>`;return;}
+  const sm={P:'badge-green',L:'badge-amber',A:'badge-red'};
+  const sl={P:'Present',L:'Late',A:'Absent'};
+  body.innerHTML='';
+  [...data].sort((a,b)=>b.date?.localeCompare(a.date||'')).forEach(r=>{
+    body.innerHTML+=`<tr>
       <td class="font-mono" style="font-size:12px">${formatDate(r.date)}</td>
       <td class="font-mono" style="color:var(--primary);font-size:12px">${r.ecode}</td>
       <td style="font-weight:700">${r.empName||'—'}</td>
-      <td style="font-size:12.5px">${r.department||'—'}</td>
-      <td class="font-mono">${r.inTime ? formatTime(r.inTime) : '—'}</td>
+      <td style="font-size:12.5px">${r.department||getDeptFromEcode(r.ecode)}</td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
       <td>${r.lateMin>0?`<span class="late-badge">${minutesToHHMM(r.lateMin)}</span>`:'—'}</td>
       <td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}</span></td>
       <td style="font-size:12px;color:var(--gray-500)">${r.remark||r.remarks||'—'}</td>
     </tr>`;
   });
 }
-function filterArchive() {
-  const q = document.getElementById('archiveSearch')?.value?.toLowerCase() || '';
-  renderArchive(archiveData.filter(r =>
-    (r.empName||'').toLowerCase().includes(q) ||
-    (r.ecode||'').toLowerCase().includes(q) ||
-    (r.department||'').toLowerCase().includes(q)
-  ));
+function filterArchive(){
+  const q=document.getElementById('archiveSearch')?.value?.toLowerCase()||'';
+  renderArchive(archiveData.filter(r=>(r.empName||'').toLowerCase().includes(q)||(r.ecode||'').toLowerCase().includes(q)||(r.department||'').toLowerCase().includes(q)));
 }
-function exportArchive() {
-  if(!archiveData.length) { showToast('warning','Nothing','No data'); return; }
-  downloadCSV(`Attendance_Archive.csv`, archiveData,
-    ['date','ecode','empName','department','inTime','lateMin','status','remark']);
+function exportArchive(){
+  if(!archiveData.length){showToast('warning','Nothing','No data');return;}
+  downloadCSV('Attendance_Archive.csv',archiveData,['date','ecode','empName','department','inTime','lateMin','status','remark']);
 }
 </script>
 </body>
