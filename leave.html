@@ -16,42 +16,30 @@
 .leave-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
 .leave-section{display:none;}
 .leave-section.active{display:block;}
-
-.wallet-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .25s;}
+.wallet-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;text-align:center;transition:all .25s;}
 .wallet-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
 .wallet-num{font-size:38px;font-weight:800;line-height:1;}
-.wallet-label{font-size:12px;font-weight:700;margin-top:6px;text-transform:uppercase;letter-spacing:.6px;}
+.wallet-lbl{font-size:12px;font-weight:700;margin-top:6px;text-transform:uppercase;letter-spacing:.6px;}
 .wallet-sub{font-size:11px;color:var(--gray-400);margin-top:4px;}
 .wallet-bar{width:100%;height:6px;background:var(--gray-100);border-radius:3px;margin-top:10px;overflow:hidden;}
 .wallet-bar-fill{height:100%;border-radius:3px;transition:width .6s;}
-
-.sl-warning{background:var(--warning-light);border:1px solid #fcd34d;border-radius:var(--radius-sm);padding:11px 14px;font-size:12.5px;color:#92400e;font-weight:600;display:flex;align-items:center;gap:8px;margin-top:12px;}
-
-.leave-type-pl{background:#d1fae5;color:var(--success);}
-.leave-type-sl{background:#dbeafe;color:var(--info);}
-.leave-type-lwp{background:#fee2e2;color:var(--danger);}
-.leave-type-comp{background:#ede9fe;color:var(--primary);}
-
-.approval-pending{background:#fef3c7;color:#92400e;}
-.approval-approved{background:#d1fae5;color:var(--success);}
-.approval-rejected{background:#fee2e2;color:var(--danger);}
-
+.sl-warn{background:var(--warning-light);border:1px solid #fcd34d;border-radius:var(--radius-sm);padding:11px 14px;font-size:12.5px;color:#92400e;font-weight:600;display:flex;align-items:center;gap:8px;margin-top:12px;}
+.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
 .credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
 @keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
 .maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .maintenance-overlay.show{display:flex;}
-.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;animation:modalPop .3s ease;}
+.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;}
 .maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
 </style>
 </head>
 <body>
 <div class="app-wrapper active" id="appWrapper">
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon"><i class="fas fa-feather-pointed"></i></div>
-    <div class="brand-text"><h2>Panchhi HR</h2><span>Software v1.0</span></div>
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
+    <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v1.0</span></div>
   </div>
   <div class="sidebar-nav">
     <div class="nav-section">
@@ -69,11 +57,33 @@
     <div class="nav-section">
       <div class="nav-section-title">Operations</div>
       <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+      <div class="nav-link" onclick="showMaintenance('Expenses','Coming soon!')"><i class="fas fa-receipt"></i> Expenses <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Visitor Log','Coming soon!')"><i class="fas fa-person-walking-arrow-right"></i> Visitor Log <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-link" onclick="showMaintenance('Tasks','Coming soon!')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Announcements','Coming soon!')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <div class="nav-link" onclick="showMaintenance('MIS Reports','Coming soon!')"><i class="fas fa-file-chart-column"></i> MIS Reports <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Performance','Coming soon!')"><i class="fas fa-star"></i> Performance <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Recruitment','Coming soon!')"><i class="fas fa-user-tie"></i> Recruitment <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-user-circle"></i> My Profile</div>
     </div>
   </div>
-  <div class="sidebar-footer"><div class="user-avatar">AD</div><div class="user-info"><h4>Admin</h4><span><span class="online-dot"></span> Super Admin</span></div></div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="sidebarAvatar">AT</div>
+    <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span> Super Admin</span></div>
+  </div>
 </nav>
-
 <div class="main-content">
   <header class="top-header">
     <div class="header-left">
@@ -82,249 +92,150 @@
     </div>
     <div class="header-right">
       <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
-      <div class="header-avatar">AD</div>
+      <div class="header-avatar" onclick="window.location='index.html'">AT</div>
     </div>
   </header>
-
   <div class="page-content">
-
-    <!-- Stats -->
     <div class="stat-cards">
       <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-calendar-check"></i></div><div class="stat-number" id="st-plTotal">—</div><div class="stat-label">Total PL Remaining</div></div>
       <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-notes-medical"></i></div><div class="stat-number" id="st-slTotal">—</div><div class="stat-label">Total SL Remaining</div></div>
-      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-number" id="st-pendingApproval">0</div><div class="stat-label">Pending Approval</div></div>
-      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-money-bill-wave"></i></div><div class="stat-number" id="st-lwpThisMonth">0</div><div class="stat-label">LWP This Month</div></div>
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-number" id="st-pending">0</div><div class="stat-label">Pending Approval</div></div>
+      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-money-bill-wave"></i></div><div class="stat-number" id="st-lwp">0</div><div class="stat-label">LWP This Month</div></div>
     </div>
-
-    <!-- Tabs -->
     <div class="leave-tabs">
-      <div class="leave-tab active" onclick="switchLeaveTab('request',this)"><i class="fas fa-plus-circle"></i> New Leave Request</div>
-      <div class="leave-tab" onclick="switchLeaveTab('pending',this)"><i class="fas fa-clock"></i> Pending Approval</div>
-      <div class="leave-tab" onclick="switchLeaveTab('history',this)"><i class="fas fa-history"></i> Leave History</div>
-      <div class="leave-tab" onclick="switchLeaveTab('wallet',this)"><i class="fas fa-wallet"></i> Leave Wallets</div>
+      <div class="leave-tab active" onclick="switchTab('request',this)"><i class="fas fa-plus-circle"></i> New Request</div>
+      <div class="leave-tab" onclick="switchTab('pending',this)"><i class="fas fa-clock"></i> Pending</div>
+      <div class="leave-tab" onclick="switchTab('history',this)"><i class="fas fa-history"></i> History</div>
+      <div class="leave-tab" onclick="switchTab('wallet',this)"><i class="fas fa-wallet"></i> Leave Wallets</div>
     </div>
 
-    <!-- ═══ TAB 1: NEW REQUEST ═══ -->
+    <!-- REQUEST TAB -->
     <div class="leave-section active" id="ltab-request">
       <div class="grid-1-2">
         <div class="form-card">
           <div class="form-card-title"><i class="fas fa-paper-plane"></i> Apply Leave</div>
-
           <div class="form-group mb-16">
             <label>Employee *</label>
-            <select id="lv_emp" onchange="onLeaveEmpChange()">
-              <option value="">Select Employee...</option>
-            </select>
+            <select id="lv_emp" onchange="onEmpChange()"><option value="">Select Employee...</option></select>
           </div>
-
-          <!-- Wallet Preview Strip -->
           <div id="lv_walletStrip" style="display:none;margin-bottom:16px">
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-              <div class="wallet-card" style="padding:14px">
-                <div class="wallet-num" style="color:var(--success);font-size:26px" id="lv_plBal">12</div>
-                <div class="wallet-label" style="color:var(--success)">PL Left</div>
-                <div class="wallet-sub">of 12/year</div>
-              </div>
-              <div class="wallet-card" style="padding:14px">
-                <div class="wallet-num" style="color:var(--info);font-size:26px" id="lv_slBal">3</div>
-                <div class="wallet-label" style="color:var(--info)">SL Left</div>
-                <div class="wallet-sub">of 3/year</div>
-              </div>
-              <div class="wallet-card" style="padding:14px">
-                <div class="wallet-num" style="color:var(--danger);font-size:26px" id="lv_lwpCount">0</div>
-                <div class="wallet-label" style="color:var(--danger)">LWP</div>
-                <div class="wallet-sub">this year</div>
-              </div>
+              <div class="wallet-card" style="padding:14px"><div class="wallet-num" style="color:var(--success);font-size:26px" id="lv_plBal">12</div><div class="wallet-lbl" style="color:var(--success)">PL Left</div><div class="wallet-sub">of 12/year</div></div>
+              <div class="wallet-card" style="padding:14px"><div class="wallet-num" style="color:var(--info);font-size:26px" id="lv_slBal">3</div><div class="wallet-lbl" style="color:var(--info)">SL Left</div><div class="wallet-sub">of 3/year</div></div>
+              <div class="wallet-card" style="padding:14px"><div class="wallet-num" style="color:var(--danger);font-size:26px" id="lv_lwp">0</div><div class="wallet-lbl" style="color:var(--danger)">LWP</div><div class="wallet-sub">this year</div></div>
             </div>
           </div>
-
           <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:14px">
-            <div class="form-group">
-              <label>From Date *</label>
-              <input type="date" id="lv_from" onchange="calcLeaveDays()">
-            </div>
-            <div class="form-group">
-              <label>To Date *</label>
-              <input type="date" id="lv_to" onchange="calcLeaveDays()">
-            </div>
+            <div class="form-group"><label>From Date *</label><input type="date" id="lv_from" onchange="calcDays()"></div>
+            <div class="form-group"><label>To Date *</label><input type="date" id="lv_to" onchange="calcDays()"></div>
           </div>
-
           <div id="lv_daysPreview" style="display:none;background:var(--primary-light);border-radius:var(--radius-sm);padding:9px 13px;margin-bottom:14px;font-size:13px;font-weight:700;color:var(--primary)">
-            <i class="fas fa-calendar"></i> <span id="lv_daysCount">0</span> day(s) leave
+            <i class="fas fa-calendar"></i> <span id="lv_daysCount">0</span> day(s)
           </div>
-
           <div class="form-group mb-16">
             <label>Leave Type *</label>
-            <select id="lv_type" onchange="onLeaveTypeChange()">
-              <option value="">Select Type...</option>
+            <select id="lv_type" onchange="onTypeChange()">
+              <option value="">Select...</option>
               <option value="PL">PL — Paid Leave</option>
               <option value="SL">SL — Sick Leave (Medical Certificate Required)</option>
-              <option value="LWP">LWP — Leave Without Pay (Salary Deduction)</option>
+              <option value="LWP">LWP — Leave Without Pay</option>
             </select>
           </div>
-
-          <!-- SL Warning -->
-          <div class="sl-warning" id="lv_slWarning" style="display:none">
-            <i class="fas fa-notes-medical"></i>
-            <div>Sick Leave requires a valid <strong>Medical Certificate</strong>. Upload below or mark as LWP until verified.</div>
-          </div>
-
-          <!-- Medical Certificate Upload (SL only) -->
-          <div id="lv_medCertWrap" style="display:none;margin-bottom:14px">
-            <label style="font-size:11.5px;font-weight:700;color:var(--gray-600);text-transform:uppercase;display:block;margin-bottom:6px">
-              Medical Certificate *
-            </label>
+          <div class="sl-warn" id="lv_slWarn" style="display:none"><i class="fas fa-notes-medical"></i><div>Sick Leave needs <strong>Medical Certificate</strong>. Upload below or tick verified.</div></div>
+          <div id="lv_medWrap" style="display:none;margin-bottom:14px">
+            <label style="font-size:11.5px;font-weight:700;color:var(--gray-600);text-transform:uppercase;display:block;margin-bottom:6px">Medical Certificate</label>
             <div class="drop-zone" style="padding:16px" onclick="document.getElementById('lv_medFile').click()">
               <i class="fas fa-file-medical" style="font-size:22px;color:var(--info);margin-bottom:6px;display:block"></i>
-              <p style="font-size:12.5px">Upload Medical Certificate</p>
-              <span>PDF, JPG, PNG — Max 5MB</span>
+              <p style="font-size:12.5px">Upload Certificate</p><span>PDF, JPG, PNG</span>
             </div>
-            <input type="file" id="lv_medFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleMedCert(this)">
-            <div id="lv_medCertPreview" style="display:none;margin-top:8px;padding:9px 13px;background:var(--success-light);border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;color:var(--success)">
-              <i class="fas fa-file-circle-check"></i> <span id="lv_medCertName"></span>
+            <input type="file" id="lv_medFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleMed(this)">
+            <div id="lv_medPreview" style="display:none;margin-top:8px;padding:9px 13px;background:var(--success-light);border-radius:var(--radius-sm);font-size:12.5px;font-weight:600;color:var(--success)">
+              <i class="fas fa-file-circle-check"></i> <span id="lv_medName"></span>
             </div>
             <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;font-weight:600;cursor:pointer">
-              <input type="checkbox" id="lv_medVerified" style="width:15px;height:15px;accent-color:var(--primary)">
-              Medical certificate received & verified manually
+              <input type="checkbox" id="lv_medVerified" style="width:15px;height:15px;accent-color:var(--primary)"> Verified manually
             </label>
           </div>
-
-          <!-- PL month check -->
-          <div class="alert alert-warning" id="lv_plMonthAlert" style="display:none">
+          <div class="alert alert-warning" id="lv_plAlert" style="display:none">
             <i class="fas fa-exclamation-triangle"></i>
-            <div>Only <strong>1 PL allowed per month</strong>. This employee already has PL this month. Extra days will be marked as LWP.</div>
+            <div>Only <strong>1 PL per month</strong>. Extra days will be LWP.</div>
           </div>
-
-          <div class="form-group mb-16">
-            <label>Reason</label>
-            <textarea id="lv_reason" rows="2" placeholder="Reason for leave..."></textarea>
-          </div>
-
-          <button class="btn btn-primary btn-full" onclick="submitLeaveRequest()">
-            <i class="fas fa-paper-plane"></i> Submit Leave Request
-          </button>
+          <div class="form-group mb-16"><label>Reason</label><textarea id="lv_reason" rows="2" placeholder="Reason..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="submitLeave()"><i class="fas fa-paper-plane"></i> Submit Request</button>
           <div style="margin-top:8px;text-align:center"><span id="sheetStatus" class="sheet-status"></span></div>
         </div>
-
-        <!-- Leave Rules Info Card -->
         <div>
           <div class="form-card" style="margin-bottom:20px">
             <div class="form-card-title"><i class="fas fa-book-open"></i> Leave Policy</div>
             <div style="font-size:13px;line-height:1.8;color:var(--gray-700)">
-              <div style="margin-bottom:10px;padding:10px;background:var(--success-light);border-radius:var(--radius-sm)">
-                <strong style="color:var(--success)">PL — Paid Leave</strong><br>
-                12 per year · Max 1 per month · Balance carries forward
-              </div>
-              <div style="margin-bottom:10px;padding:10px;background:var(--info-light);border-radius:var(--radius-sm)">
-                <strong style="color:var(--info)">SL — Sick Leave</strong><br>
-                3 per year · Medical certificate mandatory · No certificate = LWP
-              </div>
-              <div style="padding:10px;background:var(--danger-light);border-radius:var(--radius-sm)">
-                <strong style="color:var(--danger)">LWP — Leave Without Pay</strong><br>
-                Salary deducted for these days · Applied when PL/SL exhausted
-              </div>
+              <div style="margin-bottom:10px;padding:10px;background:var(--success-light);border-radius:var(--radius-sm)"><strong style="color:var(--success)">PL — Paid Leave</strong><br>12/year · Max 1/month · Balance carries forward</div>
+              <div style="margin-bottom:10px;padding:10px;background:var(--info-light);border-radius:var(--radius-sm)"><strong style="color:var(--info)">SL — Sick Leave</strong><br>3/year · Medical certificate mandatory</div>
+              <div style="padding:10px;background:var(--danger-light);border-radius:var(--radius-sm)"><strong style="color:var(--danger)">LWP — Leave Without Pay</strong><br>Salary deducted · When PL/SL exhausted</div>
             </div>
           </div>
-
-          <!-- Recent leaves quick view -->
           <div class="table-card">
-            <div class="table-header">
-              <h3><i class="fas fa-clock-rotate-left"></i> Recent Leaves</h3>
-            </div>
+            <div class="table-header"><h3><i class="fas fa-clock-rotate-left"></i> Recent Leaves</h3></div>
             <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Employee</th><th>Type</th><th>Days</th><th>Status</th></tr></thead>
-                <tbody id="recentLeavesBody">
-                  <tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No leaves yet</p></td></tr>
-                </tbody>
-              </table>
+              <table><thead><tr><th>Employee</th><th>Type</th><th>Days</th><th>Status</th></tr></thead>
+              <tbody id="recentBody"><tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No leaves yet</p></td></tr></tbody></table>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══ TAB 2: PENDING APPROVAL ═══ -->
+    <!-- PENDING TAB -->
     <div class="leave-section" id="ltab-pending">
       <div class="table-card">
-        <div class="table-header">
-          <h3><i class="fas fa-hourglass-half"></i> Pending Leave Approvals</h3>
-          <span class="badge badge-amber" id="pendingLeaveBadge">0 Pending</span>
-        </div>
+        <div class="table-header"><h3><i class="fas fa-hourglass-half"></i> Pending Approvals</h3><span class="badge badge-amber" id="pendingBadge">0</span></div>
         <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr><th>Employee</th><th>Dept</th><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Med. Cert.</th><th>Action</th></tr>
-            </thead>
-            <tbody id="pendingLeavesBody">
-              <tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle"></i><p>No pending approvals</p></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Employee</th><th>Dept</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Med.</th><th>Action</th></tr></thead>
+          <tbody id="pendingBody"><tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle"></i><p>No pending approvals</p></td></tr></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ═══ TAB 3: HISTORY ═══ -->
+    <!-- HISTORY TAB -->
     <div class="leave-section" id="ltab-history">
       <div class="table-card">
         <div class="table-header">
           <h3><i class="fas fa-history"></i> Leave History</h3>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-            <div class="search-box"><i class="fas fa-search"></i>
-              <input type="text" id="leaveHistSearch" placeholder="Search employee..." oninput="renderLeaveHistory()">
-            </div>
-            <select id="leaveHistType" onchange="renderLeaveHistory()"
-              style="padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
-              <option value="">All Types</option>
-              <option value="PL">PL</option>
-              <option value="SL">SL</option>
-              <option value="LWP">LWP</option>
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="histSearch" placeholder="Search..." oninput="renderHistory()"></div>
+            <select id="histType" onchange="renderHistory()" style="padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+              <option value="">All Types</option><option value="PL">PL</option><option value="SL">SL</option><option value="LWP">LWP</option>
             </select>
-            <button class="btn btn-outline btn-sm" onclick="exportLeaveHistory()"><i class="fas fa-download"></i> Export</button>
+            <button class="btn btn-outline btn-sm" onclick="exportHistory()"><i class="fas fa-download"></i> Export</button>
           </div>
         </div>
         <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr><th>Date Applied</th><th>Employee</th><th>Dept</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th></tr>
-            </thead>
-            <tbody id="leaveHistBody">
-              <tr><td colspan="9" class="table-empty"><i class="fas fa-history"></i><p>No leave records</p></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Applied</th><th>Employee</th><th>Dept</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th></tr></thead>
+          <tbody id="histBody"><tr><td colspan="9" class="table-empty"><i class="fas fa-history"></i><p>No records</p></td></tr></tbody></table>
         </div>
       </div>
     </div>
 
-    <!-- ═══ TAB 4: LEAVE WALLETS ═══ -->
+    <!-- WALLET TAB -->
     <div class="leave-section" id="ltab-wallet">
       <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
-        <div class="search-box"><i class="fas fa-search"></i>
-          <input type="text" id="walletSearch" placeholder="Search employee..." oninput="renderWallets()">
-        </div>
-        <select id="walletDeptFilter" onchange="renderWallets()"
-          style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="walletSearch" placeholder="Search..." oninput="renderWallets()"></div>
+        <select id="walletDept" onchange="renderWallets()" style="padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none">
           <option value="">All Departments</option>
         </select>
       </div>
       <div class="table-card">
-        <div class="table-header">
-          <h3><i class="fas fa-wallet"></i> Employee Leave Wallets</h3>
-          <span style="font-size:12px;color:var(--gray-400)">Click Adjust to manually edit balance</span>
-        </div>
+        <div class="table-header"><h3><i class="fas fa-wallet"></i> Leave Wallets</h3><span style="font-size:12px;color:var(--gray-400)">Click Adjust to edit balance</span></div>
         <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr><th>Employee</th><th>Dept</th><th>PL Balance</th><th>SL Balance</th><th>LWP Days</th><th>PL Used</th><th>SL Used</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="walletTableBody">
-              <tr><td colspan="8" class="table-empty"><i class="fas fa-wallet"></i><p>No employees</p><span>Add employees in Employee Directory first</span></td></tr>
-            </tbody>
-          </table>
+          <table><thead><tr><th>Employee</th><th>Dept</th><th>PL Balance</th><th>SL Balance</th><th>LWP</th><th>PL Used</th><th>SL Used</th><th>Actions</th></tr></thead>
+          <tbody id="walletBody"><tr><td colspan="8" class="table-empty"><i class="fas fa-wallet"></i><p>No employees</p></td></tr></tbody></table>
         </div>
       </div>
     </div>
 
+    <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
+      <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;·&nbsp; </span>
+      <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span>
+    </div>
   </div>
 </div>
 </div>
@@ -332,10 +243,7 @@
 <!-- ADJUST WALLET MODAL -->
 <div class="modal-overlay" id="modal-adjustWallet">
   <div class="modal-box modal-box-sm">
-    <div class="modal-header">
-      <h3><i class="fas fa-sliders" style="color:var(--primary);margin-right:8px"></i>Adjust Leave Balance</h3>
-      <button class="modal-close" onclick="closeModal('adjustWallet')"><i class="fas fa-xmark"></i></button>
-    </div>
+    <div class="modal-header"><h3><i class="fas fa-sliders" style="color:var(--primary);margin-right:8px"></i>Adjust Leave Balance</h3><button class="modal-close" onclick="closeModal('adjustWallet')"><i class="fas fa-xmark"></i></button></div>
     <input type="hidden" id="adj_empId">
     <div id="adj_empName" style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:16px;padding:10px;background:var(--gray-50);border-radius:var(--radius-sm)"></div>
     <div class="form-grid form-grid-2" style="gap:12px">
@@ -346,409 +254,183 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('adjustWallet')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveWalletAdjust()"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-primary" onclick="saveAdj()"><i class="fas fa-save"></i> Save</button>
     </div>
   </div>
 </div>
 
-<!-- MAINTENANCE MODAL -->
 <div class="maintenance-overlay" id="maintenanceModal">
-  <div class="maintenance-box" style="text-align:center">
-    <div style="font-size:56px;margin-bottom:16px">&#128679;</div>
+  <div class="maintenance-box">
+    <div style="font-size:56px;margin-bottom:16px">🚧</div>
     <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
     <h3 style="font-size:20px;font-weight:800;color:#111827;margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
-    <p style="font-size:13.5px;color:#6b7280;line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed. Stay tuned!</p>
-    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto">
-      <i class="fas fa-thumbs-up"></i>&nbsp;Got it!
-    </button>
+    <p style="font-size:13.5px;color:#6b7280;line-height:1.7;margin-bottom:24px" id="maintenanceDesc">Being developed.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto"><i class="fas fa-thumbs-up"></i>&nbsp;Got it!</button>
   </div>
 </div>
 
 <script src="assets/js/app.js"></script>
 <script>
+function showMaintenance(t,d){document.getElementById('maintenanceTitle').textContent=t;document.getElementById('maintenanceDesc').textContent=d;document.getElementById('maintenanceModal').classList.add('show');}
+document.getElementById('maintenanceModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
 
-function showMaintenance(t,d){
-  document.getElementById('maintenanceTitle').textContent=t||'Coming Soon';
-  document.getElementById('maintenanceDesc').textContent=d||'This module is being developed. Stay tuned!';
-  document.getElementById('maintenanceModal').classList.add('show');
-}
-document.addEventListener('DOMContentLoaded',function(){
-  var mo=document.getElementById('maintenanceModal');
-  if(mo)mo.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
-});
-
-/* ══════════════════════════════════════
-   LEAVE MODULE
-══════════════════════════════════════ */
-let allEmployees = [];
-let leaveRecords = [];
-let currentMedCert = null;
+let allEmps=[],leaveRecs=[],currentMed=null;
 
 window.addEventListener('load',()=>{
-  updateClock(); setInterval(updateClock,1000);
-  allEmployees = Store.get('employees');
-  leaveRecords = Store.get('leaveRecords');
-  populateEmpDropdown();
-  populateDeptDropdown('walletDeptFilter');
-  renderStats();
-  renderRecentLeaves();
-  renderPendingLeaves();
-  renderLeaveHistory();
-  renderWallets();
+  updateClock();setInterval(updateClock,1000);
+  loadProfileName();
+  allEmps=Store.get('employees');
+  leaveRecs=Store.get('leaveRecords');
+  populateEmpDrop();
+  populateDeptDropdown('walletDept');
+  renderStats();renderRecent();renderPending();renderHistory();renderWallets();
 });
 
-/* ── Tab switch ── */
-function switchLeaveTab(tab,el){
-  document.querySelectorAll('.leave-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.leave-section').forEach(s=>s.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ltab-'+tab).classList.add('active');
-  if(tab==='pending') renderPendingLeaves();
-  if(tab==='history') renderLeaveHistory();
-  if(tab==='wallet')  renderWallets();
-}
+function loadProfileName(){const n=localStorage.getItem('phr_profileName');if(n){const av=document.getElementById('sidebarAvatar');const nm=document.getElementById('sidebarName');if(av)av.textContent=initials(n);if(nm)nm.textContent=n;}}
+function switchTab(tab,el){document.querySelectorAll('.leave-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.leave-section').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('ltab-'+tab).classList.add('active');if(tab==='pending')renderPending();if(tab==='history')renderHistory();if(tab==='wallet')renderWallets();}
 
-/* ── Populate emp dropdown ── */
-function populateEmpDropdown(){
-  const sel=document.getElementById('lv_emp');
-  sel.innerHTML='<option value="">Select Employee...</option>';
-  allEmployees.filter(e=>e.status==='ACTIVE').forEach(e=>{
-    sel.innerHTML+=`<option value="${e.id}">${e.ecode} — ${e.fullname} (${e.department||''})</option>`;
-  });
-}
+function populateEmpDrop(){const sel=document.getElementById('lv_emp');sel.innerHTML='<option value="">Select Employee...</option>';allEmps.filter(e=>e.status==='ACTIVE').forEach(e=>{sel.innerHTML+=`<option value="${e.id}">${e.ecode} — ${e.fullname} (${e.department||''})</option>`;});}
 
-/* ── On emp change ── */
-function onLeaveEmpChange(){
+function onEmpChange(){
   const id=document.getElementById('lv_emp').value;
-  const emp=allEmployees.find(e=>e.id===id);
+  const emp=allEmps.find(e=>e.id===id);
   const strip=document.getElementById('lv_walletStrip');
   if(!emp){strip.style.display='none';return;}
   strip.style.display='block';
   document.getElementById('lv_plBal').textContent=emp.plBalance??12;
   document.getElementById('lv_slBal').textContent=emp.slBalance??3;
-  document.getElementById('lv_lwpCount').textContent=emp.lwpUsed??0;
+  document.getElementById('lv_lwp').textContent=emp.lwpUsed??0;
 }
 
-/* ── Leave type change ── */
-function onLeaveTypeChange(){
-  const type=document.getElementById('lv_type').value;
-  document.getElementById('lv_slWarning').style.display    = type==='SL'?'flex':'none';
-  document.getElementById('lv_medCertWrap').style.display  = type==='SL'?'block':'none';
-  checkPLMonthRule();
+function onTypeChange(){
+  const t=document.getElementById('lv_type').value;
+  document.getElementById('lv_slWarn').style.display=t==='SL'?'flex':'none';
+  document.getElementById('lv_medWrap').style.display=t==='SL'?'block':'none';
+  checkPLMonth();
 }
 
-/* ── Calc days ── */
-function calcLeaveDays(){
-  const from=document.getElementById('lv_from').value;
-  const to  =document.getElementById('lv_to').value;
-  const prev=document.getElementById('lv_daysPreview');
-  if(!from||!to){prev.style.display='none';return;}
-  const d1=new Date(from),d2=new Date(to);
-  const days=Math.round((d2-d1)/(1000*60*60*24))+1;
-  if(days<1){prev.style.display='none';return;}
+function calcDays(){
+  const f=document.getElementById('lv_from').value;
+  const t=document.getElementById('lv_to').value;
+  const p=document.getElementById('lv_daysPreview');
+  if(!f||!t){p.style.display='none';return;}
+  const days=Math.round((new Date(t)-new Date(f))/(1000*60*60*24))+1;
+  if(days<1){p.style.display='none';return;}
   document.getElementById('lv_daysCount').textContent=days;
-  prev.style.display='block';
-  checkPLMonthRule();
+  p.style.display='block';
+  checkPLMonth();
 }
 
-/* ── PL 1 per month check ── */
-function checkPLMonthRule(){
-  const type=document.getElementById('lv_type').value;
+function checkPLMonth(){
+  const t=document.getElementById('lv_type').value;
   const empId=document.getElementById('lv_emp').value;
-  const from =document.getElementById('lv_from').value;
-  const alert=document.getElementById('lv_plMonthAlert');
-  if(type!=='PL'||!empId||!from){alert.style.display='none';return;}
+  const from=document.getElementById('lv_from').value;
+  const al=document.getElementById('lv_plAlert');
+  if(t!=='PL'||!empId||!from){al.style.display='none';return;}
   const month=from.slice(0,7);
-  const existPL=leaveRecords.filter(r=>r.empId===empId&&r.type==='PL'&&(r.from||'').startsWith(month)&&r.status==='APPROVED');
-  alert.style.display=existPL.length>0?'flex':'none';
+  const existing=leaveRecs.filter(r=>r.empId===empId&&r.type==='PL'&&(r.from||'').startsWith(month)&&r.status==='APPROVED');
+  al.style.display=existing.length>0?'flex':'none';
 }
 
-/* ── Med cert ── */
-function handleMedCert(input){
-  const file=input.files[0];
-  if(!file)return;
-  if(file.size>5*1024*1024){showToast('error','Too Large','Max 5MB');return;}
-  currentMedCert={name:file.name,type:file.type};
-  document.getElementById('lv_medCertName').textContent=file.name;
-  document.getElementById('lv_medCertPreview').style.display='block';
-}
+function handleMed(input){const f=input.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('error','Too Large','Max 5MB');return;}currentMed={name:f.name,type:f.type};document.getElementById('lv_medName').textContent=f.name;document.getElementById('lv_medPreview').style.display='block';}
 
-/* ── Submit leave ── */
-function submitLeaveRequest(){
+function submitLeave(){
   const empId=document.getElementById('lv_emp').value;
-  const from =document.getElementById('lv_from').value;
-  const to   =document.getElementById('lv_to').value;
-  const type =document.getElementById('lv_type').value;
-  const reason=document.getElementById('lv_reason').value.trim();
-  if(!empId||!from||!to||!type){
-    showToast('error','Required','Employee, dates, and leave type are required');return;
-  }
-  const emp=allEmployees.find(e=>e.id===empId);
-  if(!emp)return;
+  const from=document.getElementById('lv_from').value;
+  const to=document.getElementById('lv_to').value;
+  const type=document.getElementById('lv_type').value;
+  if(!empId||!from||!to||!type){showToast('error','Required','Fill all fields');return;}
+  const emp=allEmps.find(e=>e.id===empId);if(!emp)return;
+  if(type==='SL'&&!currentMed&&!document.getElementById('lv_medVerified').checked){showToast('error','Med Required','Upload certificate or tick verified');return;}
   const days=Math.round((new Date(to)-new Date(from))/(1000*60*60*24))+1;
-
-  // Validate SL
-  if(type==='SL'){
-    const verified=document.getElementById('lv_medVerified').checked;
-    if(!currentMedCert&&!verified){
-      showToast('error','Medical Certificate Required','Upload certificate or tick verified to approve SL');return;
-    }
-  }
-
-  // Check balances
-  if(type==='PL'&&(emp.plBalance??12)<days){
-    showToast('warning','Insufficient PL',`Only ${emp.plBalance??12} PL days left. Extra days will be LWP.`);
-  }
-  if(type==='SL'&&(emp.slBalance??3)<days){
-    showToast('warning','Insufficient SL',`Only ${emp.slBalance??3} SL days left. Extra days will be LWP.`);
-  }
-
-  const rec={
-    id:genId('LV'),
-    empId,ecode:emp.ecode,empName:emp.fullname,department:emp.department,
-    type,from,to,days,reason,
-    medCert:currentMedCert?currentMedCert.name:null,
-    medVerified:document.getElementById('lv_medVerified')?.checked||false,
-    status:'PENDING',
-    appliedOn:todayStr(),
-    appliedAt:new Date().toISOString(),
-  };
-
-  leaveRecords.push(rec);
-  Store.set('leaveRecords',leaveRecords);
-  GSheet.send('LeaveRequests',rec);
-
+  const rec={id:genId('LV'),empId,ecode:emp.ecode,empName:emp.fullname,department:emp.department,type,from,to,days,reason:document.getElementById('lv_reason').value.trim(),medCert:currentMed?currentMed.name:null,medVerified:document.getElementById('lv_medVerified')?.checked||false,status:'PENDING',appliedOn:todayStr(),appliedAt:new Date().toISOString()};
+  leaveRecs.push(rec);Store.set('leaveRecords',leaveRecs);GSheet.send('LeaveRequests',rec);
   // Reset
-  document.getElementById('lv_emp').value='';
-  document.getElementById('lv_from').value='';
-  document.getElementById('lv_to').value='';
-  document.getElementById('lv_type').value='';
-  document.getElementById('lv_reason').value='';
-  document.getElementById('lv_walletStrip').style.display='none';
-  document.getElementById('lv_daysPreview').style.display='none';
-  document.getElementById('lv_slWarning').style.display='none';
-  document.getElementById('lv_medCertWrap').style.display='none';
-  document.getElementById('lv_medCertPreview').style.display='none';
-  document.getElementById('lv_plMonthAlert').style.display='none';
-  if(document.getElementById('lv_medVerified')) document.getElementById('lv_medVerified').checked=false;
-  currentMedCert=null;
-
-  renderStats();renderRecentLeaves();renderPendingLeaves();
-  showToast('success','Leave Submitted!',`${emp.fullname} — ${days} day(s) ${type} applied`);
+  document.getElementById('lv_emp').value='';document.getElementById('lv_from').value='';document.getElementById('lv_to').value='';document.getElementById('lv_type').value='';document.getElementById('lv_reason').value='';document.getElementById('lv_walletStrip').style.display='none';document.getElementById('lv_daysPreview').style.display='none';document.getElementById('lv_slWarn').style.display='none';document.getElementById('lv_medWrap').style.display='none';document.getElementById('lv_plAlert').style.display='none';document.getElementById('lv_medPreview').style.display='none';if(document.getElementById('lv_medVerified'))document.getElementById('lv_medVerified').checked=false;currentMed=null;
+  renderStats();renderRecent();renderPending();
+  showToast('success','Submitted!',`${emp.fullname} — ${days} day(s) ${type}`);
 }
 
-/* ── Approve / Reject ── */
 function approveLeave(id){
-  const idx=leaveRecords.findIndex(r=>r.id===id);
-  if(idx<0)return;
-  const rec=leaveRecords[idx];
-  rec.status='APPROVED';
-  rec.approvedOn=todayStr();
-
-  // Deduct from wallet
-  const empIdx=allEmployees.findIndex(e=>e.id===rec.empId);
-  if(empIdx>=0){
-    if(rec.type==='PL'){
-      allEmployees[empIdx].plBalance=Math.max(0,(allEmployees[empIdx].plBalance??12)-rec.days);
-      allEmployees[empIdx].plUsed=(allEmployees[empIdx].plUsed||0)+rec.days;
-    } else if(rec.type==='SL'){
-      allEmployees[empIdx].slBalance=Math.max(0,(allEmployees[empIdx].slBalance??3)-rec.days);
-      allEmployees[empIdx].slUsed=(allEmployees[empIdx].slUsed||0)+rec.days;
-    } else if(rec.type==='LWP'){
-      allEmployees[empIdx].lwpUsed=(allEmployees[empIdx].lwpUsed||0)+rec.days;
-    }
-    Store.set('employees',allEmployees);
+  const idx=leaveRecs.findIndex(r=>r.id===id);if(idx<0)return;
+  const rec=leaveRecs[idx];rec.status='APPROVED';rec.approvedOn=todayStr();
+  const eIdx=allEmps.findIndex(e=>e.id===rec.empId);
+  if(eIdx>=0){
+    if(rec.type==='PL'){allEmps[eIdx].plBalance=Math.max(0,(allEmps[eIdx].plBalance??12)-rec.days);allEmps[eIdx].plUsed=(allEmps[eIdx].plUsed||0)+rec.days;}
+    else if(rec.type==='SL'){allEmps[eIdx].slBalance=Math.max(0,(allEmps[eIdx].slBalance??3)-rec.days);allEmps[eIdx].slUsed=(allEmps[eIdx].slUsed||0)+rec.days;}
+    else if(rec.type==='LWP'){allEmps[eIdx].lwpUsed=(allEmps[eIdx].lwpUsed||0)+rec.days;}
+    Store.set('employees',allEmps);
   }
-
-  Store.set('leaveRecords',leaveRecords);
-  GSheet.send('LeaveApproval',{id,status:'APPROVED',approvedOn:rec.approvedOn});
-  renderStats();renderPendingLeaves();renderLeaveHistory();renderWallets();
-  showToast('success','Approved!',`${rec.empName} — ${rec.days} day(s) ${rec.type} approved`);
+  Store.set('leaveRecords',leaveRecs);GSheet.send('LeaveApproval',{id,status:'APPROVED',approvedOn:rec.approvedOn});
+  renderStats();renderPending();renderHistory();renderWallets();
+  showToast('success','Approved!',`${rec.empName} — ${rec.days}d ${rec.type}`);
 }
 
 function rejectLeave(id){
-  const idx=leaveRecords.findIndex(r=>r.id===id);
-  if(idx<0)return;
-  leaveRecords[idx].status='REJECTED';
-  leaveRecords[idx].rejectedOn=todayStr();
-  Store.set('leaveRecords',leaveRecords);
-  GSheet.send('LeaveApproval',{id,status:'REJECTED'});
-  renderStats();renderPendingLeaves();renderLeaveHistory();
-  showToast('warning','Rejected',`Leave request rejected`);
+  const idx=leaveRecs.findIndex(r=>r.id===id);if(idx<0)return;
+  leaveRecs[idx].status='REJECTED';leaveRecs[idx].rejectedOn=todayStr();
+  Store.set('leaveRecords',leaveRecs);GSheet.send('LeaveApproval',{id,status:'REJECTED'});
+  renderStats();renderPending();renderHistory();
+  showToast('warning','Rejected','Leave request rejected');
 }
 
-/* ── Stats ── */
 function renderStats(){
-  const active=allEmployees.filter(e=>e.status==='ACTIVE');
-  const plTotal=active.reduce((s,e)=>s+(e.plBalance??12),0);
-  const slTotal=active.reduce((s,e)=>s+(e.slBalance??3),0);
-  document.getElementById('st-plTotal').textContent=plTotal;
-  document.getElementById('st-slTotal').textContent=slTotal;
-  document.getElementById('st-pendingApproval').textContent=leaveRecords.filter(r=>r.status==='PENDING').length;
+  const active=allEmps.filter(e=>e.status==='ACTIVE');
+  document.getElementById('st-plTotal').textContent=active.reduce((s,e)=>s+(e.plBalance??12),0);
+  document.getElementById('st-slTotal').textContent=active.reduce((s,e)=>s+(e.slBalance??3),0);
+  document.getElementById('st-pending').textContent=leaveRecs.filter(r=>r.status==='PENDING').length;
   const month=new Date().toISOString().slice(0,7);
-  document.getElementById('st-lwpThisMonth').textContent=leaveRecords.filter(r=>r.type==='LWP'&&(r.from||'').startsWith(month)&&r.status==='APPROVED').reduce((s,r)=>s+r.days,0);
+  document.getElementById('st-lwp').textContent=leaveRecs.filter(r=>r.type==='LWP'&&(r.from||'').startsWith(month)&&r.status==='APPROVED').reduce((s,r)=>s+r.days,0);
 }
 
-/* ── Recent leaves ── */
-function renderRecentLeaves(){
-  const body=document.getElementById('recentLeavesBody');
-  const recent=[...leaveRecords].sort((a,b)=>b.appliedAt?.localeCompare(a.appliedAt||'')).slice(0,5);
-  if(!recent.length){
-    body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No leaves yet</p></td></tr>`;return;
-  }
-  const typeClass={PL:'leave-type-pl',SL:'leave-type-sl',LWP:'leave-type-lwp'};
-  const stClass={PENDING:'approval-pending',APPROVED:'approval-approved',REJECTED:'approval-rejected'};
-  body.innerHTML='';
-  recent.forEach(r=>{
-    body.innerHTML+=`
-      <tr>
-        <td style="font-weight:700">${r.empName||'—'}</td>
-        <td><span class="badge ${typeClass[r.type]||'badge-gray'}">${r.type}</span></td>
-        <td style="font-weight:700">${r.days}</td>
-        <td><span class="badge ${stClass[r.status]||'badge-gray'}">${r.status}</span></td>
-      </tr>`;
-  });
+function renderRecent(){
+  const body=document.getElementById('recentBody');
+  const recent=[...leaveRecs].sort((a,b)=>(b.appliedAt||'').localeCompare(a.appliedAt||'')).slice(0,5);
+  if(!recent.length){body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No leaves yet</p></td></tr>`;return;}
+  const tc={PL:'leave-type-pl',SL:'leave-type-sl',LWP:'leave-type-lwp'};
+  const sc={PENDING:'badge-amber',APPROVED:'badge-green',REJECTED:'badge-red'};
+  body.innerHTML=recent.map(r=>`<tr><td style="font-weight:700">${r.empName||'—'}</td><td><span class="badge ${tc[r.type]||'badge-gray'}" style="font-size:11px">${r.type}</span></td><td style="font-weight:700">${r.days}</td><td><span class="badge ${sc[r.status]||'badge-gray'}">${r.status}</span></td></tr>`).join('');
 }
 
-/* ── Pending leaves ── */
-function renderPendingLeaves(){
-  const pending=leaveRecords.filter(r=>r.status==='PENDING');
-  const badge=document.getElementById('pendingLeaveBadge');
-  if(badge) badge.textContent=`${pending.length} Pending`;
-  document.getElementById('st-pendingApproval').textContent=pending.length;
-  const body=document.getElementById('pendingLeavesBody');
-  if(!pending.length){
-    body.innerHTML=`<tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle"></i><p>No pending approvals</p></td></tr>`;return;
-  }
-  const typeClass={PL:'leave-type-pl',SL:'leave-type-sl',LWP:'leave-type-lwp'};
-  body.innerHTML='';
-  pending.forEach(r=>{
-    const medBadge=r.medCert||r.medVerified
-      ?`<span class="badge badge-green"><i class="fas fa-check"></i> Verified</span>`
-      :(r.type==='SL'?`<span class="badge badge-red">Missing</span>`:`<span class="badge badge-gray">N/A</span>`);
-    body.innerHTML+=`
-      <tr>
-        <td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${r.ecode}</div></td>
-        <td style="font-size:12.5px">${r.department||'—'}</td>
-        <td><span class="badge ${typeClass[r.type]||'badge-gray'}">${r.type}</span></td>
-        <td style="font-size:12px">${formatDate(r.from)}</td>
-        <td style="font-size:12px">${formatDate(r.to)}</td>
-        <td style="font-weight:800;color:var(--primary)">${r.days}</td>
-        <td style="font-size:12.5px">${r.reason||'—'}</td>
-        <td>${medBadge}</td>
-        <td>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-success btn-sm" onclick="approveLeave('${r.id}')"><i class="fas fa-check"></i> Approve</button>
-            <button class="btn btn-danger btn-sm" onclick="rejectLeave('${r.id}')"><i class="fas fa-times"></i> Reject</button>
-          </div>
-        </td>
-      </tr>`;
-  });
+function renderPending(){
+  const pending=leaveRecs.filter(r=>r.status==='PENDING');
+  document.getElementById('pendingBadge').textContent=pending.length;
+  document.getElementById('st-pending').textContent=pending.length;
+  const body=document.getElementById('pendingBody');
+  if(!pending.length){body.innerHTML=`<tr><td colspan="9" class="table-empty"><i class="fas fa-check-circle"></i><p>No pending</p></td></tr>`;return;}
+  const tc={PL:'badge-green',SL:'badge-blue',LWP:'badge-red'};
+  body.innerHTML=pending.map(r=>{
+    const med=r.medCert||r.medVerified?`<span class="badge badge-green" style="font-size:10px">✓</span>`:(r.type==='SL'?`<span class="badge badge-red" style="font-size:10px">Missing</span>`:`<span class="badge badge-gray" style="font-size:10px">N/A</span>`);
+    return`<tr><td style="font-weight:700">${r.empName||'—'}</td><td style="font-size:12px">${r.department||'—'}</td><td><span class="badge ${tc[r.type]||'badge-gray'}">${r.type}</span></td><td style="font-size:12px">${formatDate(r.from)}</td><td style="font-size:12px">${formatDate(r.to)}</td><td style="font-weight:800;color:var(--primary)">${r.days}</td><td style="font-size:12px">${r.reason||'—'}</td><td>${med}</td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-sm" onclick="approveLeave('${r.id}')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-sm" onclick="rejectLeave('${r.id}')"><i class="fas fa-times"></i></button></div></td></tr>`;
+  }).join('');
 }
 
-/* ── History ── */
-function renderLeaveHistory(){
-  const q   =document.getElementById('leaveHistSearch')?.value?.toLowerCase()||'';
-  const type=document.getElementById('leaveHistType')?.value||'';
-  let filtered=leaveRecords.filter(r=>{
-    if(type&&r.type!==type)return false;
-    if(q&&!(r.empName||'').toLowerCase().includes(q)&&!(r.ecode||'').toLowerCase().includes(q))return false;
-    return true;
-  }).sort((a,b)=>(b.appliedAt||'').localeCompare(a.appliedAt||''));
-
-  const body=document.getElementById('leaveHistBody');
-  if(!filtered.length){
-    body.innerHTML=`<tr><td colspan="9" class="table-empty"><i class="fas fa-history"></i><p>No records</p></td></tr>`;return;
-  }
-  const typeClass={PL:'leave-type-pl',SL:'leave-type-sl',LWP:'leave-type-lwp'};
-  const stClass={PENDING:'approval-pending',APPROVED:'approval-approved',REJECTED:'approval-rejected'};
-  body.innerHTML='';
-  filtered.forEach(r=>{
-    body.innerHTML+=`
-      <tr>
-        <td style="font-size:12px">${formatDate(r.appliedOn)}</td>
-        <td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td>
-        <td style="font-size:12.5px">${r.department||'—'}</td>
-        <td><span class="badge ${typeClass[r.type]||'badge-gray'}">${r.type}</span></td>
-        <td style="font-size:12px">${formatDate(r.from)}</td>
-        <td style="font-size:12px">${formatDate(r.to)}</td>
-        <td style="font-weight:800">${r.days}</td>
-        <td style="font-size:12.5px">${r.reason||'—'}</td>
-        <td><span class="badge ${stClass[r.status]||'badge-gray'}">${r.status}</span></td>
-      </tr>`;
-  });
+function renderHistory(){
+  const q=document.getElementById('histSearch')?.value?.toLowerCase()||'';
+  const type=document.getElementById('histType')?.value||'';
+  const filtered=[...leaveRecs].filter(r=>{if(type&&r.type!==type)return false;if(q&&!(r.empName||'').toLowerCase().includes(q)&&!(r.ecode||'').toLowerCase().includes(q))return false;return true;}).sort((a,b)=>(b.appliedAt||'').localeCompare(a.appliedAt||''));
+  const body=document.getElementById('histBody');
+  if(!filtered.length){body.innerHTML=`<tr><td colspan="9" class="table-empty"><i class="fas fa-history"></i><p>No records</p></td></tr>`;return;}
+  const tc={PL:'badge-green',SL:'badge-blue',LWP:'badge-red'};
+  const sc={PENDING:'badge-amber',APPROVED:'badge-green',REJECTED:'badge-red'};
+  body.innerHTML=filtered.map(r=>`<tr><td style="font-size:12px">${formatDate(r.appliedOn)}</td><td style="font-weight:700">${r.empName||'—'}</td><td style="font-size:12px">${r.department||'—'}</td><td><span class="badge ${tc[r.type]||'badge-gray'}">${r.type}</span></td><td style="font-size:12px">${formatDate(r.from)}</td><td style="font-size:12px">${formatDate(r.to)}</td><td style="font-weight:800">${r.days}</td><td style="font-size:12px">${r.reason||'—'}</td><td><span class="badge ${sc[r.status]||'badge-gray'}">${r.status}</span></td></tr>`).join('');
 }
 
-/* ── Wallets ── */
 function renderWallets(){
-  const q   =document.getElementById('walletSearch')?.value?.toLowerCase()||'';
-  const dept=document.getElementById('walletDeptFilter')?.value||'';
-  const emps=allEmployees.filter(e=>{
-    if(e.status!=='ACTIVE')return false;
-    if(dept&&e.department!==dept)return false;
-    if(q&&!(e.fullname||'').toLowerCase().includes(q)&&!(e.ecode||'').toLowerCase().includes(q))return false;
-    return true;
-  });
-  const body=document.getElementById('walletTableBody');
-  if(!emps.length){
-    body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-wallet"></i><p>No employees found</p></td></tr>`;return;
-  }
-  body.innerHTML='';
-  emps.forEach(e=>{
+  const q=document.getElementById('walletSearch')?.value?.toLowerCase()||'';
+  const dept=document.getElementById('walletDept')?.value||'';
+  const emps=allEmps.filter(e=>{if(e.status!=='ACTIVE')return false;if(dept&&e.department!==dept)return false;if(q&&!(e.fullname||'').toLowerCase().includes(q)&&!(e.ecode||'').toLowerCase().includes(q))return false;return true;});
+  const body=document.getElementById('walletBody');
+  if(!emps.length){body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-wallet"></i><p>No employees</p></td></tr>`;return;}
+  body.innerHTML=emps.map(e=>{
     const pl=e.plBalance??12,sl=e.slBalance??3;
-    const plPct=Math.round(pl/12*100),slPct=Math.round(sl/3*100);
-    body.innerHTML+=`
-      <tr>
-        <td><div style="font-weight:700">${e.fullname||'—'}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${e.ecode}</div></td>
-        <td style="font-size:12.5px">${e.department||'—'}</td>
-        <td>
-          <div style="font-weight:800;color:var(--success)">${pl} / 12</div>
-          <div class="wallet-bar" style="width:80px"><div class="wallet-bar-fill" style="width:${plPct}%;background:var(--success)"></div></div>
-        </td>
-        <td>
-          <div style="font-weight:800;color:var(--info)">${sl} / 3</div>
-          <div class="wallet-bar" style="width:80px"><div class="wallet-bar-fill" style="width:${slPct}%;background:var(--info)"></div></div>
-        </td>
-        <td style="font-weight:800;color:${(e.lwpUsed||0)>0?'var(--danger)':'var(--gray-400)'}">${e.lwpUsed||0}</td>
-        <td style="color:var(--gray-600)">${e.plUsed||0}</td>
-        <td style="color:var(--gray-600)">${e.slUsed||0}</td>
-        <td><button class="btn btn-outline btn-sm" onclick="openAdjustWallet('${e.id}')"><i class="fas fa-sliders"></i> Adjust</button></td>
-      </tr>`;
-  });
+    return`<tr><td><div style="font-weight:700">${e.fullname||'—'}</div><div class="font-mono" style="font-size:10.5px;color:var(--gray-400)">${e.ecode}</div></td><td style="font-size:12.5px">${e.department||'—'}</td><td><div style="font-weight:800;color:var(--success)">${pl}/12</div><div class="wallet-bar" style="width:80px"><div class="wallet-bar-fill" style="width:${Math.round(pl/12*100)}%;background:var(--success)"></div></div></td><td><div style="font-weight:800;color:var(--info)">${sl}/3</div><div class="wallet-bar" style="width:80px"><div class="wallet-bar-fill" style="width:${Math.round(sl/3*100)}%;background:var(--info)"></div></div></td><td style="font-weight:800;color:${(e.lwpUsed||0)>0?'var(--danger)':'var(--gray-400)'}">${e.lwpUsed||0}</td><td style="color:var(--gray-600)">${e.plUsed||0}</td><td style="color:var(--gray-600)">${e.slUsed||0}</td><td><button class="btn btn-outline btn-sm" onclick="openAdj('${e.id}')"><i class="fas fa-sliders"></i> Adjust</button></td></tr>`;
+  }).join('');
 }
 
-/* ── Adjust Wallet ── */
-function openAdjustWallet(id){
-  const e=allEmployees.find(x=>x.id===id);
-  if(!e)return;
-  document.getElementById('adj_empId').value=id;
-  document.getElementById('adj_empName').textContent=`${e.fullname} (${e.ecode})`;
-  document.getElementById('adj_pl').value=e.plBalance??12;
-  document.getElementById('adj_sl').value=e.slBalance??3;
-  document.getElementById('adj_plUsed').value=e.plUsed||0;
-  document.getElementById('adj_lwp').value=e.lwpUsed||0;
-  showModal('adjustWallet');
-}
-function saveWalletAdjust(){
-  const id=document.getElementById('adj_empId').value;
-  const idx=allEmployees.findIndex(e=>e.id===id);
-  if(idx<0)return;
-  allEmployees[idx].plBalance=parseInt(document.getElementById('adj_pl').value)||0;
-  allEmployees[idx].slBalance=parseInt(document.getElementById('adj_sl').value)||0;
-  allEmployees[idx].plUsed   =parseInt(document.getElementById('adj_plUsed').value)||0;
-  allEmployees[idx].lwpUsed  =parseInt(document.getElementById('adj_lwp').value)||0;
-  Store.set('employees',allEmployees);
-  closeModal('adjustWallet');
-  renderWallets();renderStats();
-  showToast('success','Updated','Leave balance adjusted');
-}
-
-/* ── Export ── */
-function exportLeaveHistory(){
-  if(!leaveRecords.length){showToast('warning','Nothing','No records');return;}
-  downloadCSV(`Leave_History_${todayStr()}.csv`,leaveRecords,
-    ['appliedOn','ecode','empName','department','type','from','to','days','reason','status']);
-}
+function openAdj(id){const e=allEmps.find(x=>x.id===id);if(!e)return;document.getElementById('adj_empId').value=id;document.getElementById('adj_empName').textContent=`${e.fullname} (${e.ecode})`;document.getElementById('adj_pl').value=e.plBalance??12;document.getElementById('adj_sl').value=e.slBalance??3;document.getElementById('adj_plUsed').value=e.plUsed||0;document.getElementById('adj_lwp').value=e.lwpUsed||0;showModal('adjustWallet');}
+function saveAdj(){const id=document.getElementById('adj_empId').value;const idx=allEmps.findIndex(e=>e.id===id);if(idx<0)return;allEmps[idx].plBalance=parseInt(document.getElementById('adj_pl').value)||0;allEmps[idx].slBalance=parseInt(document.getElementById('adj_sl').value)||0;allEmps[idx].plUsed=parseInt(document.getElementById('adj_plUsed').value)||0;allEmps[idx].lwpUsed=parseInt(document.getElementById('adj_lwp').value)||0;Store.set('employees',allEmps);closeModal('adjustWallet');renderWallets();renderStats();showToast('success','Updated','Balance adjusted');}
+function exportHistory(){if(!leaveRecs.length){showToast('warning','Nothing','No records');return;}downloadCSV(`Leave_History_${todayStr()}.csv`,leaveRecs,['appliedOn','ecode','empName','department','type','from','to','days','reason','status']);}
 </script>
 </body>
 </html>
