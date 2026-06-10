@@ -340,8 +340,8 @@ function processFileObj(file){
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      /* KEY FIX: Use cellDates:true + raw:false to get proper date strings */
-      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:true,cellText:false});
+      /* KEY FIX: Use cellDates:false + raw:false to get proper date strings */
+      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:false,cellText:false});
       const ws=wb.Sheets[wb.SheetNames[0]];
       /* Get as array of arrays with formatted values */
       const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'DD/MM/YYYY HH:mm:ss'});
