@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — House of Panchhi HR</title>
+<link rel="icon" type="image/png" href="assets/img/hop-logo-wings.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:24px;}
+.chart-box{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:22px;}
+.chart-box h3{font-size:14px;font-weight:800;color:var(--gray-900);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.chart-box h3 i{color:var(--primary);}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:140px;padding-bottom:20px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;}
+.bar{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1);min-width:20px;cursor:pointer;position:relative;}
+.bar:hover{opacity:.8;}
+.bar-val{font-size:9px;font-weight:800;color:var(--gray-700);position:absolute;top:-16px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+.bar-lbl{font-size:9px;color:var(--gray-500);font-weight:600;}
+.donut{width:100px;height:100px;border-radius:50%;position:relative;flex-shrink:0;}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:62px;height:62px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-center .dn{font-size:18px;font-weight:800;color:var(--gray-900);}
+.donut-center .dl{font-size:8px;color:var(--gray-400);font-weight:700;text-transform:uppercase;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--gray-600);font-weight:500;margin-bottom:6px;}
+.legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.metric-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:18px;display:flex;align-items:center;gap:14px;}
+.metric-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.metric-val{font-size:24px;font-weight:800;color:var(--gray-900);}
+.metric-lbl{font-size:12px;color:var(--gray-500);font-weight:500;}
+.metric-trend{font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.trend-up{background:var(--success-light);color:var(--success);}
+.trend-dn{background:var(--danger-light);color:var(--danger);}
+.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
+.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
+@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
+.maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.maintenance-overlay.show{display:flex;}
+.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;}
+.maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
+@media(max-width:768px){.analytics-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app-wrapper active" id="appWrapper">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
+    <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v1.0</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">HR & Payroll</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link active"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-link" onclick="showMaintenance('Task Manager','Coming soon')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Announcements','Coming soon')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-user-circle"></i> My Profile</div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="sidebarAvatar">AT</div>
+    <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span> Super Admin</span></div>
+  </div>
+</nav>
+
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>Analytics Dashboard</h1><p>Real-time insights — Employees, Attendance, Salary & Store</p></div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <button class="btn btn-outline btn-sm" onclick="refreshAll()"><i class="fas fa-rotate"></i> Refresh</button>
+      <div class="header-avatar" onclick="window.location='index.html'">AT</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Last updated -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:13px;color:var(--gray-500)">
+        <i class="fas fa-circle" style="color:var(--success);font-size:8px;margin-right:6px"></i>
+        Live data from your software · Last updated: <span id="lastUpdated">—</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <select id="analyticsMonth" onchange="refreshAll()" style="padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;outline:none;font-family:inherit"></select>
+      </div>
+    </div>
+
+    <!-- Top Metrics -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px" id="topMetrics"></div>
+
+    <!-- Charts Row 1 -->
+    <div class="analytics-grid">
+      <!-- Dept Split -->
+      <div class="chart-box">
+        <h3><i class="fas fa-chart-pie"></i> Department Split</h3>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="donut" id="deptDonut" style="background:var(--gray-200)">
+            <div class="donut-center"><div class="dn" id="deptDonutNum">0</div><div class="dl">Total</div></div>
+          </div>
+          <div id="deptLegend" style="flex:1"></div>
+        </div>
+      </div>
+
+      <!-- Attendance this month -->
+      <div class="chart-box">
+        <h3><i class="fas fa-chart-bar"></i> Attendance — This Month</h3>
+        <div class="bar-chart" id="attBarChart"></div>
+      </div>
+
+      <!-- Leave type split -->
+      <div class="chart-box">
+        <h3><i class="fas fa-calendar-xmark"></i> Leave Type Split</h3>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="donut" id="leaveDonut" style="background:var(--gray-200)">
+            <div class="donut-center"><div class="dn" id="leaveDonutNum">0</div><div class="dl">Leaves</div></div>
+          </div>
+          <div id="leaveLegend" style="flex:1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="analytics-grid">
+      <!-- Salary trend -->
+      <div class="chart-box">
+        <h3><i class="fas fa-money-bill-wave"></i> Salary Trend (6 Months)</h3>
+        <div class="bar-chart" id="salaryBarChart"></div>
+      </div>
+
+      <!-- Gate pass summary -->
+      <div class="chart-box">
+        <h3><i class="fas fa-door-open"></i> Gate Pass — This Month</h3>
+        <div id="gatepassStats"></div>
+      </div>
+
+      <!-- Store summary -->
+      <div class="chart-box">
+        <h3><i class="fas fa-boxes-stacked"></i> Store Summary</h3>
+        <div id="storeStats"></div>
+      </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+      <!-- Top late employees -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-header"><h3><i class="fas fa-user-clock"></i> Most Late — This Month</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Employee</th><th>Dept</th><th>Late Count</th><th>Total Late</th></tr></thead>
+            <tbody id="topLateBody">
+              <tr><td colspan="4" class="table-empty"><i class="fas fa-user-clock"></i><p>No data yet</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pending items -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-header"><h3><i class="fas fa-triangle-exclamation"></i> Pending Actions</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Item</th><th>Count</th><th>Action</th></tr></thead>
+            <tbody id="pendingActionsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Birthday & Probation -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-header"><h3><i class="fas fa-birthday-cake" style="color:#ec4899"></i> Birthdays This Month</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Employee</th><th>Dept</th><th>Date</th></tr></thead>
+            <tbody id="birthdayBody">
+              <tr><td colspan="3" class="table-empty"><i class="fas fa-birthday-cake"></i><p>No birthdays this month</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-header"><h3><i class="fas fa-user-clock" style="color:var(--warning)"></i> Probation Ending Soon</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Employee</th><th>Dept</th><th>Confirm Date</th></tr></thead>
+            <tbody id="probationBody">
+              <tr><td colspan="3" class="table-empty"><i class="fas fa-user-clock"></i><p>No upcoming confirmations</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
+      <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;·&nbsp; </span>
+      <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MAINTENANCE MODAL -->
+<div class="maintenance-overlay" id="maintenanceModal">
+  <div class="maintenance-box">
+    <div style="font-size:56px;margin-bottom:16px">🚧</div>
+    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i>&nbsp;Under Construction</div>
+    <h3 style="font-size:20px;font-weight:800;color:#111827;margin-bottom:8px" id="maintenanceTitle">Coming Soon</h3>
+    <p style="font-size:13.5px;color:#6b7280;line-height:1.7;margin-bottom:24px" id="maintenanceDesc">This module is being developed.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('maintenanceModal').classList.remove('show')" style="margin:0 auto"><i class="fas fa-thumbs-up"></i>&nbsp;Got it!</button>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+function showMaintenance(t,d){
+  document.getElementById('maintenanceTitle').textContent=t;
+  document.getElementById('maintenanceDesc').textContent=d;
+  document.getElementById('maintenanceModal').classList.add('show');
+}
+document.getElementById('maintenanceModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+
+let allEmployees=[],attRecords=[],leaveRecords=[],salaryRecords=[],gatePasses=[],storeEntries=[];
+
+window.addEventListener('load',()=>{
+  updateClock(); setInterval(updateClock,1000);
+  loadProfileName();
+  populateMonthDropdown();
+  loadData();
+});
+
+function loadProfileName(){
+  const n=localStorage.getItem('phr_profileName');
+  if(n){const av=document.getElementById('sidebarAvatar');const nm=document.getElementById('sidebarName');if(av)av.textContent=initials(n);if(nm)nm.textContent=n;}
+}
+
+function populateMonthDropdown(){
+  const sel=document.getElementById('analyticsMonth');
+  for(let i=0;i<6;i++){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const val=d.toISOString().slice(0,7);
+    const lbl=d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${val}"${i===0?' selected':''}>${lbl}</option>`;
+  }
+}
+
+function loadData(){
+  allEmployees  = Store.get('employees');
+  attRecords    = Store.get('attendance');
+  leaveRecords  = Store.get('leaveRecords');
+  salaryRecords = Store.get('salaryRecords');
+  gatePasses    = Store.get('gatepasses');
+  storeEntries  = Store.get('storeEntries');
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-IN');
+  renderAll();
+}
+
+function refreshAll(){ loadData(); showToast('success','Refreshed','Analytics updated'); }
+
+function renderAll(){
+  const month = document.getElementById('analyticsMonth')?.value || new Date().toISOString().slice(0,7);
+  renderTopMetrics(month);
+  renderDeptDonut();
+  renderAttBar(month);
+  renderLeaveDonut(month);
+  renderSalaryBar();
+  renderGatepassStats(month);
+  renderStoreStats();
+  renderTopLate(month);
+  renderPendingActions();
+  renderBirthdays();
+  renderProbation();
+}
+
+/* ── Top Metrics ── */
+function renderTopMetrics(month){
+  const active   = allEmployees.filter(e=>e.status==='ACTIVE').length;
+  const inactive = allEmployees.filter(e=>e.status==='INACTIVE').length;
+  const monthAtt = attRecords.filter(r=>(r.date||'').startsWith(month));
+  const today    = todayStr();
+  const todayAtt = attRecords.filter(r=>r.date===today);
+  const present  = todayAtt.filter(r=>r.status==='P'||r.status==='L').length;
+  const monthSal = salaryRecords.filter(r=>r.month===month);
+  const netPay   = monthSal.reduce((s,r)=>s+(r.netSalary||0),0);
+  const pendLeave= leaveRecords.filter(r=>r.status==='PENDING').length;
+
+  const metrics = [
+    {icon:'fas fa-users',bg:'purple',val:active,lbl:'Active Employees',trend:null},
+    {icon:'fas fa-user-check',bg:'green',val:present,lbl:'Present Today',trend:null},
+    {icon:'fas fa-user-xmark',bg:'red',val:todayAtt.filter(r=>r.status==='A').length,lbl:'Absent Today',trend:null},
+    {icon:'fas fa-clock',bg:'amber',val:todayAtt.filter(r=>r.status==='L').length,lbl:'Late Today',trend:null},
+    {icon:'fas fa-money-bill-wave',bg:'blue',val:netPay>0?formatINR(netPay):'—',lbl:'Net Payroll '+month,trend:null},
+    {icon:'fas fa-calendar-days',bg:'purple',val:pendLeave,lbl:'Pending Leaves',trend:null},
+  ];
+
+  const el = document.getElementById('topMetrics');
+  el.innerHTML = metrics.map(m=>`
+    <div class="metric-card">
+      <div class="metric-icon stat-icon ${m.bg}"><i class="${m.icon}"></i></div>
+      <div>
+        <div class="metric-val">${m.val}</div>
+        <div class="metric-lbl">${m.lbl}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Dept Donut ── */
+function renderDeptDonut(){
+  const active = allEmployees.filter(e=>e.status==='ACTIVE');
+  const counts = {};
+  active.forEach(e=>{ counts[e.department]=(counts[e.department]||0)+1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const total  = active.length||1;
+  const COLORS = ['#6c47ff','#10b981','#f59e0b','#3b82f6','#ef4444'];
+  document.getElementById('deptDonutNum').textContent=active.length;
+  const donut=document.getElementById('deptDonut');
+  const legend=document.getElementById('deptLegend');
+  if(!sorted.length){donut.style.background='var(--gray-200)';legend.innerHTML='<div style="color:var(--gray-400);font-size:12px">No employees yet</div>';return;}
+  let conic='',start=0;
+  legend.innerHTML='';
+  sorted.forEach(([dept,count],i)=>{
+    const pct=Math.round(count/total*100);
+    conic+=`${COLORS[i]} ${start}% ${start+pct}%,`;
+    start+=pct;
+    legend.innerHTML+=`<div class="legend-item"><span class="legend-dot" style="background:${COLORS[i]}"></span>${dept} (${count})</div>`;
+  });
+  if(start<100)conic+=`var(--gray-200) ${start}% 100%`;else conic=conic.slice(0,-1);
+  donut.style.background=`conic-gradient(${conic})`;
+}
+
+/* ── Attendance Bar ── */
+function renderAttBar(month){
+  const chart=document.getElementById('attBarChart');
+  if(!chart)return;
+  const daysInMonth=new Date(month.split('-')[0],month.split('-')[1],0).getDate();
+  const data=[];
+  for(let d=1;d<=Math.min(daysInMonth,new Date().getDate());d++){
+    const dateStr=`${month}-${String(d).padStart(2,'0')}`;
+    const dayRecs=attRecords.filter(r=>r.date===dateStr);
+    const present=dayRecs.filter(r=>r.status==='P'||r.status==='L').length;
+    data.push({day:d,val:present});
+  }
+  if(!data.length){chart.innerHTML='<div style="color:var(--gray-400);font-size:12px;text-align:center;width:100%">No attendance data yet</div>';return;}
+  const max=Math.max(...data.map(d=>d.val),1);
+  chart.innerHTML='';
+  data.forEach(d=>{
+    const wrap=document.createElement('div');wrap.className='bar-wrap';
+    const bar=document.createElement('div');bar.className='bar';
+    bar.style.cssText=`background:linear-gradient(180deg,#6c47ff,#a855f7);height:0%`;
+    bar.innerHTML=`<span class="bar-val">${d.val}</span>`;
+    const lbl=document.createElement('div');lbl.className='bar-lbl';lbl.textContent=d.day;
+    wrap.appendChild(bar);wrap.appendChild(lbl);chart.appendChild(wrap);
+    setTimeout(()=>{bar.style.height=Math.round(d.val/max*100)+'%';},100+d.day*20);
+  });
+}
+
+/* ── Leave Donut ── */
+function renderLeaveDonut(month){
+  const monthLeaves=leaveRecords.filter(r=>(r.from||'').startsWith(month)&&r.status==='APPROVED');
+  const counts={PL:0,SL:0,LWP:0};
+  monthLeaves.forEach(r=>{if(counts[r.type]!==undefined)counts[r.type]+=r.days||1;});
+  const total=Object.values(counts).reduce((s,v)=>s+v,0);
+  document.getElementById('leaveDonutNum').textContent=total;
+  const donut=document.getElementById('leaveDonut');
+  const legend=document.getElementById('leaveLegend');
+  if(!total){donut.style.background='var(--gray-200)';legend.innerHTML='<div style="color:var(--gray-400);font-size:12px">No approved leaves</div>';return;}
+  const COLORS={PL:'#10b981',SL:'#3b82f6',LWP:'#ef4444'};
+  let conic='',start=0,html='';
+  Object.entries(counts).forEach(([type,val])=>{
+    if(!val)return;
+    const pct=Math.round(val/total*100);
+    conic+=`${COLORS[type]} ${start}% ${start+pct}%,`;
+    start+=pct;
+    html+=`<div class="legend-item"><span class="legend-dot" style="background:${COLORS[type]}"></span>${type}: ${val} day(s)</div>`;
+  });
+  if(start<100)conic+=`var(--gray-200) ${start}% 100%`;else conic=conic.slice(0,-1);
+  donut.style.background=`conic-gradient(${conic})`;
+  legend.innerHTML=html;
+}
+
+/* ── Salary Bar ── */
+function renderSalaryBar(){
+  const chart=document.getElementById('salaryBarChart');
+  if(!chart)return;
+  const months=[];
+  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.toISOString().slice(0,7));}
+  const data=months.map(m=>{
+    const recs=salaryRecords.filter(r=>r.month===m);
+    const net=recs.reduce((s,r)=>s+(r.netSalary||0),0);
+    const d=new Date(m+'-01');
+    return{label:d.toLocaleDateString('en-IN',{month:'short'}),val:net};
+  });
+  const max=Math.max(...data.map(d=>d.val),1);
+  chart.innerHTML='';
+  const COLORS=['#6c47ff','#a855f7','#6c47ff','#a855f7','#6c47ff','#a855f7'];
+  data.forEach((d,i)=>{
+    const wrap=document.createElement('div');wrap.className='bar-wrap';
+    const bar=document.createElement('div');bar.className='bar';
+    bar.style.cssText=`background:${COLORS[i]};height:0%`;
+    const dispVal=d.val>0?'₹'+Math.round(d.val/1000)+'K':'0';
+    bar.innerHTML=`<span class="bar-val">${dispVal}</span>`;
+    const lbl=document.createElement('div');lbl.className='bar-lbl';lbl.textContent=d.label;
+    wrap.appendChild(bar);wrap.appendChild(lbl);chart.appendChild(wrap);
+    setTimeout(()=>{bar.style.height=Math.round(d.val/max*100)+'%';},200+i*100);
+  });
+}
+
+/* ── Gate Pass Stats ── */
+function renderGatepassStats(month){
+  const el=document.getElementById('gatepassStats');
+  const monthGP=gatePasses.filter(g=>(g.date||'').startsWith(month));
+  const out   =monthGP.filter(g=>g.status==='OUT').length;
+  const ret   =monthGP.filter(g=>g.status==='RETURNED').length;
+  const early =monthGP.filter(g=>g.earlyMinutes>0).length;
+  const totalEarly=monthGP.reduce((s,g)=>s+(g.earlyMinutes||0),0);
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--warning-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#b45309">${monthGP.length}</div>
+        <div style="font-size:11px;color:#92400e;font-weight:700">Total Passes</div>
+      </div>
+      <div style="background:var(--danger-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--danger)">${early}</div>
+        <div style="font-size:11px;color:#b91c1c;font-weight:700">Early Going</div>
+      </div>
+      <div style="background:var(--success-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--success)">${ret}</div>
+        <div style="font-size:11px;color:#065f46;font-weight:700">Returned</div>
+      </div>
+      <div style="background:var(--info-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:var(--info)">${minutesToHHMM(totalEarly)||'0'}</div>
+        <div style="font-size:11px;color:#1d4ed8;font-weight:700">Total Early</div>
+      </div>
+    </div>`;
+}
+
+/* ── Store Stats ── */
+function renderStoreStats(){
+  const el=document.getElementById('storeStats');
+  const total  =storeEntries.length;
+  const pending=storeEntries.filter(e=>e.poStatus==='PENDING').length;
+  const complete=storeEntries.filter(e=>e.poStatus==='COMPLETE').length;
+  const totalVal=storeEntries.reduce((s,e)=>s+(e.total||0),0);
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--info-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--info)">${total}</div>
+        <div style="font-size:11px;color:#1d4ed8;font-weight:700">Total Entries</div>
+      </div>
+      <div style="background:var(--danger-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--danger)">${pending}</div>
+        <div style="font-size:11px;color:#b91c1c;font-weight:700">PO/PR Pending</div>
+      </div>
+      <div style="background:var(--success-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--success)">${complete}</div>
+        <div style="font-size:11px;color:#065f46;font-weight:700">Complete</div>
+      </div>
+      <div style="background:var(--primary-light);border-radius:var(--radius-sm);padding:12px;text-align:center">
+        <div style="font-size:14px;font-weight:800;color:var(--primary)">${totalVal>0?formatINR(totalVal):'—'}</div>
+        <div style="font-size:11px;color:var(--primary-dark);font-weight:700">Total Value</div>
+      </div>
+    </div>`;
+}
+
+/* ── Top Late ── */
+function renderTopLate(month){
+  const body=document.getElementById('topLateBody');
+  const monthLate=attRecords.filter(r=>(r.date||'').startsWith(month)&&r.status==='L');
+  const empLate={};
+  monthLate.forEach(r=>{
+    if(!empLate[r.ecode])empLate[r.ecode]={name:r.empName,dept:r.department,count:0,total:0};
+    empLate[r.ecode].count++;
+    empLate[r.ecode].total+=r.lateMin||0;
+  });
+  const sorted=Object.values(empLate).sort((a,b)=>b.count-a.count).slice(0,5);
+  if(!sorted.length){body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-user-clock"></i><p>No late records</p></td></tr>`;return;}
+  body.innerHTML='';
+  sorted.forEach(e=>{
+    body.innerHTML+=`<tr>
+      <td style="font-weight:700">${e.name}</td>
+      <td style="font-size:12px">${e.dept}</td>
+      <td><span style="background:var(--danger-light);color:var(--danger);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800">${e.count}x</span></td>
+      <td style="font-weight:700;color:var(--danger)">${minutesToHHMM(e.total)}</td>
+    </tr>`;
+  });
+}
+
+/* ── Pending Actions ── */
+function renderPendingActions(){
+  const body=document.getElementById('pendingActionsBody');
+  const items=[
+    {item:'Leave Approvals',count:leaveRecords.filter(r=>r.status==='PENDING').length,link:'leave.html',color:'amber'},
+    {item:'PO/PR Pending',count:storeEntries.filter(e=>e.poStatus==='PENDING').length,link:'store.html',color:'red'},
+    {item:'Inactive Employees',count:allEmployees.filter(e=>e.status==='INACTIVE').length,link:'employees.html',color:'gray'},
+  ];
+  body.innerHTML='';
+  items.forEach(it=>{
+    const color=it.count>0?it.color:'gray';
+    body.innerHTML+=`<tr>
+      <td style="font-weight:700">${it.item}</td>
+      <td><span class="badge badge-${color==='amber'?'amber':color==='red'?'red':'gray'}">${it.count}</span></td>
+      <td><a href="${it.link}" style="color:var(--primary);font-size:12px;font-weight:700">View →</a></td>
+    </tr>`;
+  });
+}
+
+/* ── Birthdays ── */
+function renderBirthdays(){
+  const body=document.getElementById('birthdayBody');
+  const now=new Date();
+  const thisMonth=String(now.getMonth()+1).padStart(2,'0');
+  const bdays=allEmployees.filter(e=>e.dob&&e.dob.slice(5,7)===thisMonth).sort((a,b)=>a.dob.slice(8)-b.dob.slice(8));
+  if(!bdays.length){body.innerHTML=`<tr><td colspan="3" class="table-empty"><i class="fas fa-birthday-cake"></i><p>No birthdays this month</p></td></tr>`;return;}
+  body.innerHTML='';
+  bdays.forEach(e=>{
+    const day=e.dob.slice(8,10);
+    const isToday=day===String(now.getDate()).padStart(2,'0');
+    body.innerHTML+=`<tr ${isToday?'style="background:#fdf4ff"':''}>
+      <td style="font-weight:700">${e.fullname} ${isToday?'🎂':''}</td>
+      <td style="font-size:12px">${e.department}</td>
+      <td style="font-weight:700;color:var(--primary)">${day} ${new Date(e.dob).toLocaleDateString('en-IN',{month:'short'})}</td>
+    </tr>`;
+  });
+}
+
+/* ── Probation ── */
+function renderProbation(){
+  const body=document.getElementById('probationBody');
+  const today=new Date();
+  const soon=allEmployees.filter(e=>{
+    if(!e.confirm||e.status!=='ACTIVE')return false;
+    const d=new Date(e.confirm);
+    const diff=Math.round((d-today)/(1000*60*60*24));
+    return diff>=0&&diff<=30;
+  }).sort((a,b)=>a.confirm.localeCompare(b.confirm));
+  if(!soon.length){body.innerHTML=`<tr><td colspan="3" class="table-empty"><i class="fas fa-user-clock"></i><p>No upcoming confirmations</p></td></tr>`;return;}
+  body.innerHTML='';
+  soon.forEach(e=>{
+    const d=new Date(e.confirm);
+    const diff=Math.round((d-today)/(1000*60*60*24));
+    body.innerHTML+=`<tr>
+      <td style="font-weight:700">${e.fullname}</td>
+      <td style="font-size:12px">${e.department}</td>
+      <td><span style="background:${diff<=7?'var(--danger-light)':'var(--warning-light)'};color:${diff<=7?'var(--danger)':'#b45309'};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800">${formatDate(e.confirm)} (${diff}d)</span></td>
+    </tr>`;
+  });
+}
+</script>
+</body>
+</html>
