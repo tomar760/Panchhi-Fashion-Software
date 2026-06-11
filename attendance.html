@@ -33,6 +33,7 @@
 .editable-input:focus{border-color:var(--primary);}
 .editable-select{padding:5px 7px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-family:inherit;outline:none;background:#fff;}
 .late-badge{background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;}
+.very-late-badge{background:#fecaca;color:#7f1d1d;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;border:1px solid #fca5a5;}
 .stats-strip{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
 .stat-pill{display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:700;}
 .stat-pill.green{background:var(--success-light);color:var(--success);}
@@ -107,7 +108,7 @@
   <header class="top-header">
     <div class="header-left">
       <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <div class="page-title"><h1>Attendance</h1><p>Upload biometric → Late & Absent report ready</p></div>
+      <div class="page-title"><h1>Attendance</h1><p>Upload simple Excel → Late & Absent report ready in seconds</p></div>
     </div>
     <div class="header-right">
       <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
@@ -122,7 +123,7 @@
       <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-triangle-exclamation"></i></div><div class="stat-number" id="st-unmatched">—</div><div class="stat-label">Unmatched</div></div>
     </div>
     <div class="att-tabs">
-      <div class="att-tab active" onclick="switchTab('upload',this)"><i class="fas fa-upload"></i> Upload Biometric</div>
+      <div class="att-tab active" onclick="switchTab('upload',this)"><i class="fas fa-upload"></i> Upload Attendance</div>
       <div class="att-tab" onclick="switchTab('late',this)"><i class="fas fa-user-clock"></i> Late Coming Report</div>
       <div class="att-tab" onclick="switchTab('absent',this)"><i class="fas fa-user-xmark"></i> Absent Report</div>
       <div class="att-tab" onclick="switchTab('archive',this)"><i class="fas fa-archive"></i> Archive</div>
@@ -132,10 +133,10 @@
     <div class="att-section active" id="tab-upload">
       <div class="grid-1-2">
         <div class="form-card">
-          <div class="form-card-title"><i class="fas fa-file-arrow-up"></i> Upload Biometric File</div>
+          <div class="form-card-title"><i class="fas fa-file-arrow-up"></i> Upload Attendance File</div>
           <div class="upload-zone" id="attDropZone" onclick="document.getElementById('attFile').click()">
             <i class="fas fa-file-excel" style="font-size:44px;color:var(--success);display:block;margin-bottom:12px"></i>
-            <p style="font-size:14px;font-weight:700;color:var(--gray-700)">Upload Biometric Excel</p>
+            <p style="font-size:14px;font-weight:700;color:var(--gray-700)">Upload Attendance Excel</p>
             <span style="font-size:12px;color:var(--gray-400)">Drag & drop or click — .xls / .xlsx</span>
           </div>
           <input type="file" id="attFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="processFile(this)">
@@ -148,7 +149,11 @@
           </div>
           <div class="alert alert-info mt-16">
             <i class="fas fa-info-circle"></i>
-            <div><strong>Kaisi bhi date ki file upload karo</strong> — System E-Code match karega, IN time read karega, late/absent detect karega.</div>
+            <div>
+              <strong>Expected format: 4 columns</strong><br>
+              <span style="font-family:monospace;font-size:11px">ECode | Name | InTime | Status</span><br>
+              <span style="font-size:11px;color:var(--gray-500)">Status values: Early / On Time / Late / Very Late / Absent<br>Date is auto-detected from filename (YYYY-MM-DD)</span>
+            </div>
           </div>
         </div>
         <div class="table-card" style="margin-bottom:0">
@@ -165,11 +170,11 @@
         </div>
       </div>
       <div id="unmatchedSection" style="display:none;margin-top:20px">
-        <div class="alert alert-warning"><i class="fas fa-triangle-exclamation"></i><div><strong>Unmatched Records</strong> — E-Codes not in directory.</div></div>
+        <div class="alert alert-warning"><i class="fas fa-triangle-exclamation"></i><div><strong>Unmatched Records</strong> — E-Codes not found in Employee Directory. Add them in Employees page to see full details.</div></div>
         <div class="table-card">
-          <div class="table-header"><h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> Unmatched</h3></div>
+          <div class="table-header"><h3><i class="fas fa-question-circle" style="color:var(--warning)"></i> Unmatched ECodes</h3></div>
           <div class="table-wrapper">
-            <table><thead><tr><th>E-Code</th><th>Name</th><th>In Time</th><th>Issue</th></tr></thead>
+            <table><thead><tr><th>E-Code</th><th>Name (from file)</th><th>In Time</th><th>Status</th><th>Issue</th></tr></thead>
             <tbody id="unmatchedBody"></tbody></table>
           </div>
         </div>
@@ -197,18 +202,18 @@
         </div>
         <div class="report-table-wrap">
           <table class="report-table">
-            <thead><tr><th>#</th><th>Department</th><th>E-Code</th><th>Name</th><th>Phone</th><th>Shift</th><th>In Punch</th><th>Late By</th><th>Reason</th><th>Action</th><th class="sticky-col" style="text-align:center">Remove</th></tr></thead>
+            <thead><tr><th>#</th><th>Department</th><th>E-Code</th><th>Name</th><th>Phone</th><th>Shift Start</th><th>In Punch</th><th>Late By</th><th>Excel Status</th><th>Reason</th><th>Action</th><th class="sticky-col" style="text-align:center">Remove</th></tr></thead>
             <tbody id="lateBody"></tbody>
           </table>
         </div>
         <div class="form-card mt-16">
-          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview</div>
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp / Message Preview</div>
           <div id="lateMsgBox" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:280px;overflow-y:auto;color:var(--gray-800)"></div>
         </div>
       </div>
       <div id="lateEmpty" style="text-align:center;padding:48px;color:var(--gray-400)">
         <i class="fas fa-user-clock" style="font-size:48px;display:block;margin-bottom:16px;opacity:.3"></i>
-        <p style="font-size:14px;font-weight:700">Upload biometric file first</p>
+        <p style="font-size:14px;font-weight:700">Upload attendance file first, phir Late report aayega</p>
       </div>
     </div>
 
@@ -238,16 +243,16 @@
         </div>
         <div style="padding:12px 16px;border-top:1px solid var(--gray-200);display:flex;gap:10px;align-items:center">
           <button class="btn btn-primary btn-sm" onclick="saveRemarks()"><i class="fas fa-save"></i> Save Remarks</button>
-          <span style="font-size:12px;color:var(--gray-400)">Syncs to Google Sheet</span>
+          <span style="font-size:12px;color:var(--gray-400)">Saves locally</span>
         </div>
         <div class="form-card mt-16">
-          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Message Preview</div>
+          <div class="form-card-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp / Message Preview</div>
           <div id="absentMsgBox" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px;font-size:13px;line-height:1.8;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;max-height:280px;overflow-y:auto;color:var(--gray-800)"></div>
         </div>
       </div>
       <div id="absentEmpty" style="text-align:center;padding:48px;color:var(--gray-400)">
         <i class="fas fa-user-xmark" style="font-size:48px;display:block;margin-bottom:16px;opacity:.3"></i>
-        <p style="font-size:14px;font-weight:700">Upload biometric file first</p>
+        <p style="font-size:14px;font-weight:700">Upload attendance file first, phir Absent report aayega</p>
       </div>
     </div>
 
@@ -300,17 +305,42 @@
 
 <script src="assets/js/app.js"></script>
 <script>
-function showMaintenance(t,d){document.getElementById('maintenanceTitle').textContent=t;document.getElementById('maintenanceDesc').textContent=d;document.getElementById('maintenanceModal').classList.add('show');}
-document.getElementById('maintenanceModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+/* =====================================================================
+   HOUSE OF PANCHHI — ATTENDANCE MODULE
+   Simple Excel Format: ECode | Name | InTime | Status
+   Status values: Early / On Time / Late / Very Late / Absent
+   Date auto-detected from filename: YYYY-MM-DD pattern
+   ===================================================================== */
 
-/* Department code map */
-const DEPT_MAP={'ac':'ACCOUNTS','adm':'ADMIN','des':'DESIGN','dsp':'DISPATCH','emb':'EMBROIDERY','hr':'HR','mnd':'MENDING','on':'ONLINE','pp':'PRODUCTION','pur':'PURCHASE','qc':'QC','sal':'SALES','stc':'STITCHING','str':'STORE','va':'VALUE ADDITION'};
-function getDept(ecode){if(!ecode)return'—';const p=ecode.split('/');return p.length>=2?(DEPT_MAP[p[1].toLowerCase()]||p[1].toUpperCase()):'—';}
+function showMaintenance(t,d){
+  document.getElementById('maintenanceTitle').textContent=t;
+  document.getElementById('maintenanceDesc').textContent=d;
+  document.getElementById('maintenanceModal').classList.add('show');
+}
+document.getElementById('maintenanceModal').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('show');
+});
+
+/* Department code map — extracted from ECode middle segment */
+const DEPT_MAP={
+  'ac':'ACCOUNTS','adm':'ADMIN','des':'DESIGN','dsp':'DISPATCH',
+  'emb':'EMBROIDERY','hr':'HR','mnd':'MENDING','on':'ONLINE',
+  'pp':'PRODUCTION','pur':'PURCHASE','qc':'QC','sal':'SALES',
+  'stc':'STITCHING','str':'STORE','va':'VALUE ADDITION','erp':'ERP'
+};
+
+function getDept(ecode){
+  if(!ecode)return'—';
+  const p=ecode.split('/');
+  return p.length>=2?(DEPT_MAP[p[1].toLowerCase()]||p[1].toUpperCase()):'—';
+}
 
 let allEmps=[],attRecords=[],parsedBuffer=[],lateRows=[],absentRows=[],archiveData=[];
 
+/* ── INIT ── */
 window.addEventListener('load',()=>{
-  updateClock();setInterval(updateClock,1000);
+  updateClock();
+  setInterval(updateClock,1000);
   loadProfileName();
   const today=todayStr();
   document.getElementById('att_viewDate').value=today;
@@ -319,34 +349,83 @@ window.addEventListener('load',()=>{
   document.getElementById('archiveTo').value=today;
   allEmps=Store.get('employees');
   attRecords=Store.get('attendance');
-  loadDaySummary();renderStats();setupDragDrop();
+  loadDaySummary();
+  renderStats();
+  setupDragDrop();
 });
 
-function loadProfileName(){const n=localStorage.getItem('phr_profileName');if(n){const av=document.getElementById('sidebarAvatar');const nm=document.getElementById('sidebarName');if(av)av.textContent=initials(n);if(nm)nm.textContent=n;}}
-function switchTab(tab,el){document.querySelectorAll('.att-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.att-section').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');if(tab==='late')buildLateReport();if(tab==='absent')buildAbsentReport();if(tab==='archive')loadArchive();}
-function renderStats(){const today=todayStr();const recs=attRecords.filter(r=>r.date===today);document.getElementById('st-present').textContent=recs.filter(r=>r.status==='P'||r.status==='L').length||'—';document.getElementById('st-absent').textContent=recs.filter(r=>r.status==='A').length||'—';document.getElementById('st-late').textContent=recs.filter(r=>r.status==='L').length||'—';document.getElementById('st-unmatched').textContent=recs.filter(r=>r.status==='U').length||'—';}
+function loadProfileName(){
+  const n=localStorage.getItem('phr_profileName');
+  if(n){
+    const av=document.getElementById('sidebarAvatar');
+    const nm=document.getElementById('sidebarName');
+    if(av)av.textContent=initials(n);
+    if(nm)nm.textContent=n;
+  }
+}
 
-function setupDragDrop(){const dz=document.getElementById('attDropZone');if(!dz)return;dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)processFileObj(f);});}
-function processFile(input){if(input.files[0])processFileObj(input.files[0]);}
+function switchTab(tab,el){
+  document.querySelectorAll('.att-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.att-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='late')buildLateReport();
+  if(tab==='absent')buildAbsentReport();
+  if(tab==='archive')loadArchive();
+}
 
+function renderStats(){
+  const today=todayStr();
+  const recs=attRecords.filter(r=>r.date===today);
+  document.getElementById('st-present').textContent=recs.filter(r=>r.status==='P'||r.status==='L').length||'—';
+  document.getElementById('st-absent').textContent=recs.filter(r=>r.status==='A').length||'—';
+  document.getElementById('st-late').textContent=recs.filter(r=>r.status==='L').length||'—';
+  document.getElementById('st-unmatched').textContent=recs.filter(r=>r.status==='U').length||'—';
+}
+
+/* ── DRAG & DROP ── */
+function setupDragDrop(){
+  const dz=document.getElementById('attDropZone');
+  if(!dz)return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f)processFileObj(f);
+  });
+}
+
+function processFile(input){
+  if(input.files[0])processFileObj(input.files[0]);
+}
+
+/* ── FILE READER ── */
 function processFileObj(file){
-  const status=document.getElementById('uploadStatus');
+  const statusEl=document.getElementById('uploadStatus');
   const bar=document.getElementById('uploadBar');
   const txt=document.getElementById('uploadText');
   const icon=document.getElementById('uploadIcon');
-  status.style.display='block';bar.style.width='20%';txt.textContent='Reading file...';
+
+  statusEl.style.display='block';
+  bar.style.width='20%';
+  txt.textContent='File padh raha hoon...';
   icon.innerHTML='<i class="fas fa-spinner spin" style="color:var(--primary);font-size:18px"></i>';
+
+  /* Store filename for date detection */
+  const fileName=file.name||'';
 
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      /* KEY FIX: Use cellDates:false + raw:false to get proper date strings */
       const wb=XLSX.read(e.target.result,{type:'binary',cellDates:false,cellText:false});
       const ws=wb.Sheets[wb.SheetNames[0]];
-      /* Get as array of arrays with formatted values */
-      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'DD/MM/YYYY HH:mm:ss'});
-      bar.style.width='60%';txt.textContent='Matching employees...';
-      setTimeout(()=>parseAtt(data,icon,txt,bar),100);
+      /* raw:true to get exact cell values; format handles strings */
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+      bar.style.width='60%';
+      txt.textContent='Employees match kar raha hoon...';
+      setTimeout(()=>parseAtt(data,icon,txt,bar,fileName),100);
     }catch(err){
       icon.innerHTML='<i class="fas fa-times-circle" style="color:var(--danger);font-size:18px"></i>';
       txt.textContent='Error: '+err.message;
@@ -355,31 +434,193 @@ function processFileObj(file){
   reader.readAsBinaryString(file);
 }
 
-function parseInTime(val){
-  /* Handle multiple formats:
-     "06/06/2026 10:09:38"  -> 10:09
-     "10:09:38"             -> 10:09
-     "10:09"                -> 10:09
-     number (Excel serial)  -> convert
-     Date object            -> extract time
+/* ── CORE PARSER (Simple 4-col format) ──
+   Row 0 (header): ECode | Name | InTime | Status  — SKIP
+   Row 1+: data rows
+   InTime: "HH:MM" or "Not Punched"
+   Status: Early / On Time / Late / Very Late / Absent
+*/
+function parseAtt(data,icon,txt,bar,fileName){
+  parsedBuffer=[];
+
+  /* Build employee lookup by ECode */
+  const empByCode={};
+  allEmps.forEach(e=>{
+    if(e.ecode)empByCode[e.ecode.toUpperCase().trim()]=e;
+  });
+
+  /* ---- DATE DETECTION from filename ----
+     Tries: YYYY-MM-DD, YYYY_MM_DD, DDMMYYYY, DD-MM-YYYY
+     Filename example: "Panchhi_Fashion_Attendance_2026-06-11.xlsx"
   */
+  let detectedDate=todayStr();
+  if(fileName){
+    /* YYYY-MM-DD or YYYY_MM_DD */
+    const m1=fileName.match(/(\d{4})[-_](\d{2})[-_](\d{2})/);
+    if(m1)detectedDate=`${m1[1]}-${m1[2]}-${m1[3]}`;
+    else{
+      /* DD-MM-YYYY or DD_MM_YYYY */
+      const m2=fileName.match(/(\d{2})[-_](\d{2})[-_](\d{4})/);
+      if(m2)detectedDate=`${m2[3]}-${m2[2]}-${m2[1]}`;
+    }
+  }
+
+  let matched=0,unmatched=0;
+
+  data.forEach((row,rowIdx)=>{
+    /* Skip header row and empty rows */
+    if(rowIdx===0)return;
+    if(!row||!row[0])return;
+
+    const ecodeRaw=String(row[0]).trim().toUpperCase();
+    /* Only process PF/ codes */
+    if(!ecodeRaw.startsWith('PF/'))return;
+
+    const nameRaw=String(row[1]||'').trim();
+    const inTimeRaw=String(row[2]||'').trim();
+    const statusRaw=String(row[3]||'').trim().toLowerCase();
+
+    /* ---- PARSE InTime ----
+       Valid: "10:06", "09:44", "08:00"
+       Invalid / Absent: "Not Punched", "", "0"
+    */
+    const inTime=parseInTime(inTimeRaw);
+
+    /* ---- MAP STATUS ----
+       Late / Very Late → 'L'
+       Absent / Not Punched → 'A'
+       Early / On Time → 'P'
+    */
+    let status;
+    if(statusRaw==='absent'||!inTime){
+      status='A';
+    } else if(statusRaw==='late'||statusRaw==='very late'){
+      status='L';
+    } else {
+      /* early / on time */
+      status='P';
+    }
+
+    /* ---- EMPLOYEE MATCH ---- */
+    const emp=empByCode[ecodeRaw];
+
+    /* ---- LATE MINUTES CALCULATION ----
+       Use employee shift if available, else default 10:00
+       Only calculate when status is Late
+    */
+    let lateMin=0;
+    if(status==='L'&&inTime){
+      let shiftStart='10:00'; /* default */
+      if(emp&&emp.shift){
+        const parts=emp.shift.split('-');
+        if(parts[0])shiftStart=parts[0].trim();
+      }
+      lateMin=timeDiffMinutes(shiftStart,inTime);
+      if(lateMin<0)lateMin=0; /* early arrivals shouldn't be negative */
+    }
+
+    const dept=emp?emp.department:getDept(ecodeRaw);
+
+    parsedBuffer.push({
+      id:genId('ATT'),
+      date:detectedDate,
+      ecode:ecodeRaw,
+      empName:emp?emp.fullname:nameRaw,
+      nameFromFile:nameRaw,       /* keep original name from excel */
+      department:dept,
+      mobile:emp?emp.mobile:'',
+      shift:emp?emp.shift:'',
+      inTime,
+      status,
+      lateMin,
+      excelStatus:String(row[3]||'').trim(), /* original status text from file */
+      matched:!!emp,
+      remark:'',
+      leaveType:'FULL DAY',
+      preApproved:'NO',
+      leaveForm:'NO',
+      remarks:'',
+      leaveDays:'',
+      leaveFrom:'',
+      leaveTo:'',
+      upcomingDate:'',
+    });
+
+    if(emp)matched++;else unmatched++;
+  });
+
+  /* ── AUTO-FILL APPROVED LEAVES ── */
+  const leaveRecords=Store.get('leaveRecords');
+  parsedBuffer.forEach(rec=>{
+    if(rec.status!=='A')return;
+    const emp=allEmps.find(e=>e.ecode===rec.ecode);
+    if(!emp)return;
+    const lv=leaveRecords.find(l=>
+      l.empId===emp.id&&
+      l.status==='APPROVED'&&
+      l.from<=rec.date&&
+      l.to>=rec.date
+    );
+    if(lv){
+      rec.preApproved='YES';
+      rec.leaveForm=lv.medCert||lv.medVerified?'YES':'NO';
+      rec.remarks=lv.reason||'';
+      rec.leaveDays=lv.days+(lv.days>1?' DAYS':' DAY');
+      rec.leaveFrom=lv.from;
+      rec.leaveTo=lv.to;
+      rec.leaveType=lv.type==='SL'?'SICK LEAVE':lv.type==='PL'?'PAID LEAVE':'FULL DAY';
+    }
+  });
+
+  /* ── SAVE TO STORE (replace same-date records) ── */
+  attRecords=attRecords.filter(r=>r.date!==detectedDate);
+  parsedBuffer.filter(r=>r.matched).forEach(r=>attRecords.push(r));
+  Store.set('attendance',attRecords);
+
+  /* ── COUNTS ── */
+  const present=parsedBuffer.filter(r=>r.status==='P'||r.status==='L').length;
+  const absent=parsedBuffer.filter(r=>r.status==='A').length;
+  const late=parsedBuffer.filter(r=>r.status==='L').length;
+
+  /* ── UPDATE UI ── */
+  bar.style.width='100%';
+  icon.innerHTML='<i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i>';
+  txt.textContent=`Ho gaya! ${present} Present · ${late} Late · ${absent} Absent · ${unmatched} Unmatched`;
+
+  document.getElementById('st-present').textContent=present||'—';
+  document.getElementById('st-absent').textContent=absent||'—';
+  document.getElementById('st-late').textContent=late||'—';
+  document.getElementById('st-unmatched').textContent=unmatched||'—';
+
+  /* Separate late/absent rows (only matched employees in reports) */
+  lateRows=parsedBuffer.filter(r=>r.status==='L'&&r.matched);
+  absentRows=parsedBuffer.filter(r=>r.status==='A'&&r.matched);
+
+  /* Update date fields */
+  document.getElementById('att_viewDate').value=detectedDate;
+  document.getElementById('late_date').value=detectedDate;
+  document.getElementById('absent_date').value=detectedDate;
+
+  loadDaySummary();
+  showUnmatched();
+  showToast('success','File Process Ho Gayi!',
+    `${present} present · ${late} late · ${absent} absent · ${unmatched} unmatched`);
+}
+
+/* ── parseInTime: expects "HH:MM" or "HH:MM:SS" ── */
+function parseInTime(val){
   if(!val&&val!==0)return null;
-  const s=String(val).trim();
-  if(!s||s===''||s==='0')return null;
+  const s=String(val).trim().toLowerCase();
+  if(!s||s===''||s==='0'||s==='not punched'||s==='absent')return null;
 
-  /* Try "DD/MM/YYYY HH:MM:SS" or "MM/DD/YYYY HH:MM:SS" */
-  const dtMatch=s.match(/(\d{1,2})[:/](\d{2})[:/](\d{4})\s+(\d{1,2}):(\d{2})/);
-  if(dtMatch)return`${dtMatch[4].padStart(2,'0')}:${dtMatch[5]}`;
-
-  /* Try "HH:MM:SS" or "HH:MM" */
+  /* HH:MM or HH:MM:SS */
   const tMatch=s.match(/^(\d{1,2}):(\d{2})/);
   if(tMatch)return`${tMatch[1].padStart(2,'0')}:${tMatch[2]}`;
 
-  /* Try Excel numeric date serial */
+  /* Fallback: Excel numeric serial (old biometric files) */
   const num=parseFloat(s);
-  if(!isNaN(num)&&num>1){
-    const fracDay=num%1;
-    const totalMin=Math.round(fracDay*24*60);
+  if(!isNaN(num)&&num>0&&num<1){
+    const totalMin=Math.round(num*24*60);
     const h=Math.floor(totalMin/60)%24;
     const m=totalMin%60;
     return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
@@ -387,271 +628,496 @@ function parseInTime(val){
   return null;
 }
 
-function parseDateFromRow(val){
-  /* Extract YYYY-MM-DD from date string */
-  if(!val)return null;
-  const s=String(val).trim();
-  /* DD/MM/YYYY */
-  const m1=s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-  if(m1)return`${m1[3]}-${m1[2]}-${m1[1]}`;
-  /* YYYY-MM-DD */
-  const m2=s.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if(m2)return`${m2[1]}-${m2[2]}-${m2[3]}`;
-  return null;
-}
-
-function parseAtt(data,icon,txt,bar){
-  parsedBuffer=[];
-  const empByCode={};
-  allEmps.forEach(e=>{if(e.ecode)empByCode[e.ecode.toUpperCase().trim()]=e;});
-
-  let matched=0,unmatched=0;
-  let detectedDate=null;
-
-  data.forEach(row=>{
-    if(!row||!row[1])return;
-    const ecodeRaw=String(row[1]).trim().toUpperCase();
-    if(!ecodeRaw.startsWith('PF/'))return;
-
-    const nameRaw=String(row[2]||'').trim();
-    const inRaw=row[4]; /* Column 4 = IN DateTime */
-
-    /* Detect date from first valid row */
-    if(!detectedDate&&inRaw){
-      detectedDate=parseDateFromRow(String(inRaw));
-    }
-
-    const inTime=parseInTime(inRaw);
-    const emp=empByCode[ecodeRaw];
-    let lateMin=0,status='A';
-
-    if(inTime){
-      status='P';
-      if(emp&&emp.shift){
-        const shiftStart=emp.shift.split('-')[0];
-        lateMin=timeDiffMinutes(shiftStart,inTime);
-        if(lateMin>0)status='L';
-        else lateMin=0;
-      }
-    }
-
-    const dept=emp?emp.department:getDept(ecodeRaw);
-    const recordDate=detectedDate||todayStr();
-
-    parsedBuffer.push({
-      id:genId('ATT'),date:recordDate,
-      ecode:ecodeRaw,empName:emp?emp.fullname:nameRaw,
-      department:dept,mobile:emp?emp.mobile:'',
-      shift:emp?emp.shift:'',
-      inTime,status,lateMin,matched:!!emp,
-      remark:'',leaveType:'FULL DAY',preApproved:'NO',
-      leaveForm:'NO',remarks:'',leaveDays:'',leaveFrom:'',leaveTo:'',upcomingDate:'',
-    });
-    if(emp)matched++;else unmatched++;
-  });
-
-  /* Auto-fill approved leaves */
-  const leaveRecords=Store.get('leaveRecords');
-  parsedBuffer.forEach(rec=>{
-    if(rec.status!=='A')return;
-    const emp=allEmps.find(e=>e.ecode===rec.ecode);
-    if(!emp)return;
-    const lv=leaveRecords.find(l=>l.empId===emp.id&&l.status==='APPROVED'&&l.from<=rec.date&&l.to>=rec.date);
-    if(lv){rec.preApproved='YES';rec.leaveForm=lv.medCert||lv.medVerified?'YES':'NO';rec.remarks=lv.reason||'';rec.leaveDays=lv.days+(lv.days>1?' DAYS':' DAY');rec.leaveFrom=lv.from;rec.leaveTo=lv.to;rec.leaveType=lv.type==='SL'?'SICK LEAVE':lv.type==='PL'?'PAID LEAVE':'FULL DAY';}
-  });
-
-  /* Save */
-  const recDate=parsedBuffer[0]?.date||todayStr();
-  attRecords=attRecords.filter(r=>r.date!==recDate);
-  parsedBuffer.filter(r=>r.matched).forEach(r=>attRecords.push(r));
-  Store.set('attendance',attRecords);
-
-  const present=parsedBuffer.filter(r=>r.status==='P'||r.status==='L').length;
-  const absent=parsedBuffer.filter(r=>r.status==='A'&&r.matched).length;
-  const late=parsedBuffer.filter(r=>r.status==='L').length;
-
-  bar.style.width='100%';
-  icon.innerHTML='<i class="fas fa-check-circle" style="color:var(--success);font-size:18px"></i>';
-  txt.textContent=`Done! ${present} Present · ${late} Late · ${absent} Absent · ${unmatched} Unmatched`;
-
-  document.getElementById('st-present').textContent=present;
-  document.getElementById('st-absent').textContent=absent;
-  document.getElementById('st-late').textContent=late;
-  document.getElementById('st-unmatched').textContent=unmatched;
-
-  lateRows=parsedBuffer.filter(r=>r.status==='L'&&r.matched);
-  absentRows=parsedBuffer.filter(r=>r.status==='A'&&r.matched);
-
-  /* Update date fields to match detected date */
-  if(recDate){
-    document.getElementById('att_viewDate').value=recDate;
-    document.getElementById('late_date').value=recDate;
-    document.getElementById('absent_date').value=recDate;
-  }
-
-  loadDaySummary();showUnmatched();
-  showToast('success','File Processed!',`${present} present · ${late} late · ${absent} absent`);
-}
-
+/* ── DAY SUMMARY ── */
 function loadDaySummary(){
   const date=document.getElementById('att_viewDate')?.value||todayStr();
   const recs=attRecords.filter(r=>r.date===date);
   const body=document.getElementById('daySummaryBody');
-  if(!recs.length){body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>No data for this date</p></td></tr>`;return;}
+  if(!recs.length){
+    body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-upload"></i><p>Is date ka data nahi hai — pehle file upload karo</p></td></tr>`;
+    return;
+  }
   const sm={P:'badge-green',L:'badge-amber',A:'badge-red'};
   const sl={P:'Present',L:'Late',A:'Absent'};
   body.innerHTML='';
-  recs.forEach(r=>{body.innerHTML+=`<tr><td><div style="font-weight:700">${r.empName||'—'}</div><div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode}</div></td><td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td><td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}${r.lateMin>0?' (+'+minutesToHHMM(r.lateMin)+')':''}</span></td><td style="font-size:12px;color:var(--gray-500)">${r.remark||'—'}</td></tr>`;});
+  recs.sort((a,b)=>(a.department||'').localeCompare(b.department||'')).forEach(r=>{
+    const lateText=r.lateMin>0?` (+${minutesToHHMM(r.lateMin)})`:'';
+    body.innerHTML+=`<tr>
+      <td>
+        <div style="font-weight:700">${r.empName||'—'}</div>
+        <div class="font-mono" style="font-size:10px;color:var(--gray-400)">${r.ecode} · ${r.department||'—'}</div>
+      </td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+      <td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}${lateText}</span></td>
+      <td style="font-size:12px;color:var(--gray-500)">${r.excelStatus||r.remark||'—'}</td>
+    </tr>`;
+  });
 }
 
+/* ── UNMATCHED ── */
 function showUnmatched(){
   const u=parsedBuffer.filter(r=>!r.matched);
   const sec=document.getElementById('unmatchedSection');
   if(!u.length){sec.style.display='none';return;}
   sec.style.display='block';
-  document.getElementById('unmatchedBody').innerHTML=u.map(r=>`<tr style="background:#fff3cd"><td class="font-mono" style="color:var(--danger);font-weight:700">${r.ecode}</td><td>${r.empName}</td><td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td><td><span class="badge badge-red">Not in directory</span></td></tr>`).join('');
+  document.getElementById('unmatchedBody').innerHTML=u.map(r=>`
+    <tr style="background:#fff3cd">
+      <td class="font-mono" style="color:var(--danger);font-weight:700">${r.ecode}</td>
+      <td>${r.nameFromFile||'—'}</td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+      <td><span class="badge badge-${r.status==='A'?'red':r.status==='L'?'amber':'green'}">${r.excelStatus||r.status}</span></td>
+      <td><span class="badge badge-red">Directory mein nahi</span></td>
+    </tr>`).join('');
 }
 
-/* LATE REPORT */
+/* ══════════════════════════════════════════
+   LATE REPORT
+══════════════════════════════════════════ */
 function buildLateReport(){
   const date=document.getElementById('late_date')?.value||todayStr();
-  const late=lateRows.length&&lateRows[0]?.date===date?lateRows:attRecords.filter(r=>r.date===date&&r.status==='L');
-  const sec=document.getElementById('lateSection');const empty=document.getElementById('lateEmpty');
-  if(!late.length){sec.style.display='none';empty.style.display='block';showToast('info','No Late','No late records for this date');return;}
-  lateRows=[...late];sec.style.display='block';empty.style.display='none';
-  document.getElementById('lateSubtitle').textContent=`Date: ${formatDate(date)}`;
+
+  /* Use in-memory lateRows if same date, else reload from store */
+  const late=(lateRows.length&&lateRows[0]?.date===date)
+    ? lateRows
+    : attRecords.filter(r=>r.date===date&&r.status==='L');
+
+  const sec=document.getElementById('lateSection');
+  const empty=document.getElementById('lateEmpty');
+
+  if(!late.length){
+    sec.style.display='none';
+    empty.style.display='block';
+    showToast('info','Koi Late Nahi',`${date} ko koi late record nahi mila`);
+    return;
+  }
+
+  lateRows=[...late];
+  sec.style.display='block';
+  empty.style.display='none';
+
+  document.getElementById('lateSubtitle').textContent=`Date: ${formatDate(date)} · Total: ${late.length} employees`;
   document.getElementById('lateGenTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('lateStats').innerHTML=`<div class="stat-pill amber"><i class="fas fa-user-clock"></i> ${late.length} Late</div><div class="stat-pill red"><i class="fas fa-clock"></i> Max: ${minutesToHHMM(Math.max(...late.map(r=>r.lateMin||0)))}</div>`;
-  const body=document.getElementById('lateBody');body.innerHTML='';
+
+  const veryLate=late.filter(r=>(r.excelStatus||'').toLowerCase()==='very late').length;
+  const maxLate=Math.max(...late.map(r=>r.lateMin||0));
+  document.getElementById('lateStats').innerHTML=`
+    <div class="stat-pill amber"><i class="fas fa-user-clock"></i> ${late.length} Total Late</div>
+    <div class="stat-pill red"><i class="fas fa-exclamation-circle"></i> ${veryLate} Very Late</div>
+    ${maxLate>0?`<div class="stat-pill red"><i class="fas fa-clock"></i> Max: ${minutesToHHMM(maxLate)}</div>`:''}
+  `;
+
+  const body=document.getElementById('lateBody');
+  body.innerHTML='';
+
   late.forEach((r,i)=>{
-    const shiftStart=r.shift?r.shift.split('-')[0]:'';
+    const shiftStart=r.shift?r.shift.split('-')[0].trim():'10:00';
     const dept=r.department||getDept(r.ecode);
-    const tr=document.createElement('tr');tr.dataset.idx=i;
-    tr.innerHTML=`<td style="font-weight:800;color:var(--gray-400)">${i+1}</td><td style="font-weight:600">${dept}</td><td class="font-mono" style="color:var(--primary);font-weight:700">${r.ecode}</td><td style="font-weight:700">${r.empName||'—'}</td><td class="font-mono" style="color:var(--primary)">${r.mobile||'—'}</td><td class="font-mono">${shiftStart?formatTime(shiftStart):'—'}</td><td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td><td><span class="late-badge">${minutesToHHMM(r.lateMin||0)}</span></td><td><input class="editable-input" placeholder="Reason..." value="${r.remark||''}" style="min-width:130px" onchange="lateRows[${i}].remark=this.value;buildLateMsg();"></td><td><select class="editable-select" onchange="lateRows[${i}].actionTaken=this.value"><option>-</option><option>WARNING</option><option>NOTED</option><option>COUNSELLED</option></select></td><td class="sticky-col" style="text-align:center"><button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'late')"><i class="fas fa-times"></i></button></td>`;
+    const isVeryLate=(r.excelStatus||'').toLowerCase()==='very late';
+    const lateBadge=r.lateMin>0
+      ?`<span class="${isVeryLate?'very-late-badge':'late-badge'}">${minutesToHHMM(r.lateMin)}</span>`
+      :`<span class="${isVeryLate?'very-late-badge':'late-badge'}">—</span>`;
+
+    const tr=document.createElement('tr');
+    tr.dataset.idx=i;
+    tr.innerHTML=`
+      <td style="font-weight:800;color:var(--gray-400)">${i+1}</td>
+      <td style="font-weight:600;font-size:12px">${dept}</td>
+      <td class="font-mono" style="color:var(--primary);font-weight:700;font-size:12px">${r.ecode}</td>
+      <td style="font-weight:700">${r.empName||'—'}</td>
+      <td class="font-mono" style="color:var(--gray-600);font-size:12px">${r.mobile||'—'}</td>
+      <td class="font-mono" style="font-size:12px">${r.shift?formatTime(shiftStart):'10:00'}</td>
+      <td class="font-mono" style="font-size:12px;font-weight:700">${r.inTime?formatTime(r.inTime):'—'}</td>
+      <td>${lateBadge}</td>
+      <td><span style="font-size:11px;padding:2px 7px;border-radius:12px;background:${isVeryLate?'#fef9c3':'#f3f4f6'};color:${isVeryLate?'#854d0e':'#6b7280'};font-weight:700">${r.excelStatus||'Late'}</span></td>
+      <td><input class="editable-input" placeholder="Reason..." value="${r.remark||''}" style="min-width:120px" onchange="lateRows[${i}].remark=this.value;buildLateMsg();"></td>
+      <td><select class="editable-select" onchange="lateRows[${i}].actionTaken=this.value">
+        <option>-</option><option>WARNING</option><option>NOTED</option><option>COUNSELLED</option>
+      </select></td>
+      <td class="sticky-col" style="text-align:center">
+        <button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'late')"><i class="fas fa-times"></i></button>
+      </td>`;
     body.appendChild(tr);
   });
+
   buildLateMsg();
 }
 
 function buildLateMsg(){
   const date=document.getElementById('late_date')?.value||todayStr();
   const visible=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')];
-  let msg=`🕐 *LATE COMING REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(22)}\n\n`;
-  visible.forEach((tr,i)=>{const c=tr.querySelectorAll('td');msg+=`${i+1}. ${c[3]?.textContent?.trim()}\n   Dept: ${c[1]?.textContent?.trim()} | ☎️ ${c[4]?.textContent?.trim()}\n   In: ${c[6]?.textContent?.trim()} | Late by: ${c[7]?.textContent?.trim()}\n`;const r=c[8]?.querySelector('input')?.value;if(r)msg+=`   Reason: ${r}\n`;msg+='\n';});
-  msg+=`${'━'.repeat(22)}\nTotal Late: ${visible.length}`;
+  let msg=`🕐 *LATE COMING REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(24)}\n\n`;
+  visible.forEach((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    msg+=`${i+1}. *${c[3]?.textContent?.trim()}*\n`;
+    msg+=`   Dept: ${c[1]?.textContent?.trim()} | ☎️ ${c[4]?.textContent?.trim()}\n`;
+    msg+=`   In: ${c[6]?.textContent?.trim()} | Late by: ${c[7]?.textContent?.trim()}\n`;
+    const reason=c[9]?.querySelector('input')?.value;
+    if(reason)msg+=`   Reason: ${reason}\n`;
+    msg+='\n';
+  });
+  msg+=`${'━'.repeat(24)}\nTotal Late: ${visible.length}`;
   document.getElementById('lateMsgBox').textContent=msg;
 }
 
-/* ABSENT REPORT */
+/* ══════════════════════════════════════════
+   ABSENT REPORT
+══════════════════════════════════════════ */
 function buildAbsentReport(){
   const date=document.getElementById('absent_date')?.value||todayStr();
-  const absent=absentRows.length&&absentRows[0]?.date===date?absentRows:attRecords.filter(r=>r.date===date&&r.status==='A');
-  const sec=document.getElementById('absentSection');const empty=document.getElementById('absentEmpty');
-  if(!absent.length){sec.style.display='none';empty.style.display='block';showToast('info','No Absents','No absent records');return;}
-  absentRows=[...absent];sec.style.display='block';empty.style.display='none';
-  document.getElementById('absentSubtitle').textContent=`Date: ${formatDate(date)}`;
+
+  const absent=(absentRows.length&&absentRows[0]?.date===date)
+    ? absentRows
+    : attRecords.filter(r=>r.date===date&&r.status==='A');
+
+  const sec=document.getElementById('absentSection');
+  const empty=document.getElementById('absentEmpty');
+
+  if(!absent.length){
+    sec.style.display='none';
+    empty.style.display='block';
+    showToast('info','Koi Absent Nahi',`${date} ko koi absent record nahi mila`);
+    return;
+  }
+
+  absentRows=[...absent];
+  sec.style.display='block';
+  empty.style.display='none';
+
+  document.getElementById('absentSubtitle').textContent=`Date: ${formatDate(date)} · Total: ${absent.length} employees`;
   document.getElementById('absentGenTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
   const pre=absent.filter(r=>r.preApproved==='YES').length;
-  document.getElementById('absentStats').innerHTML=`<div class="stat-pill red"><i class="fas fa-user-xmark"></i> ${absent.length} Absent</div><div class="stat-pill green"><i class="fas fa-calendar-check"></i> ${pre} Pre-Approved</div><div class="stat-pill amber"><i class="fas fa-question-circle"></i> ${absent.length-pre} Unplanned</div>`;
+  document.getElementById('absentStats').innerHTML=`
+    <div class="stat-pill red"><i class="fas fa-user-xmark"></i> ${absent.length} Total Absent</div>
+    <div class="stat-pill green"><i class="fas fa-calendar-check"></i> ${pre} Pre-Approved</div>
+    <div class="stat-pill amber"><i class="fas fa-question-circle"></i> ${absent.length-pre} Unplanned</div>
+  `;
 
-  /* Group by dept */
+  /* Group by department */
   const byDept={};
-  absent.forEach(r=>{const d=r.department||getDept(r.ecode);if(!byDept[d])byDept[d]=[];byDept[d].push({...r,department:d});});
+  absent.forEach(r=>{
+    const d=r.department||getDept(r.ecode);
+    if(!byDept[d])byDept[d]=[];
+    byDept[d].push({...r,department:d});
+  });
 
-  const body=document.getElementById('absentBody');body.innerHTML='';let num=1;
+  const body=document.getElementById('absentBody');
+  body.innerHTML='';
+  let num=1;
+
   Object.entries(byDept).sort().forEach(([dept,rows])=>{
     rows.forEach((r,di)=>{
       const idx=num-1;
       const tr=document.createElement('tr');
       if(r.preApproved==='YES')tr.style.background='#f0fff4';
-      const deptCell=di===0?`<td rowspan="${rows.length}" style="font-weight:800;vertical-align:middle;font-size:12px;text-align:center;background:${r.preApproved==='YES'?'#ecfdf5':'#fafafa'}">${dept}</td>`:'';
-      tr.innerHTML=`<td style="font-weight:800;color:var(--gray-400)">${num}</td>${deptCell}<td class="font-mono" style="color:var(--primary);font-weight:700;font-size:12px">${r.ecode}</td><td style="font-weight:700">${r.empName||'—'}</td><td class="font-mono" style="color:var(--primary);font-size:12px">${r.mobile||'—'}</td><td><select class="editable-select" onchange="absentRows[${idx}].leaveType=this.value"><option ${r.leaveType==='FULL DAY'?'selected':''}>FULL DAY</option><option ${r.leaveType==='HALF DAY'?'selected':''}>HALF DAY</option><option ${r.leaveType==='SICK LEAVE'?'selected':''}>SICK LEAVE</option><option ${r.leaveType==='PAID LEAVE'?'selected':''}>PAID LEAVE</option></select></td><td><select class="editable-select" onchange="absentRows[${idx}].preApproved=this.value;buildAbsentMsg()"><option ${r.preApproved==='YES'?'selected':''}>YES</option><option ${r.preApproved==='NO'?'selected':''}>NO</option></select></td><td><select class="editable-select" onchange="absentRows[${idx}].leaveForm=this.value"><option ${r.leaveForm==='YES'?'selected':''}>YES</option><option ${r.leaveForm==='NO'?'selected':''}>NO</option></select></td><td><input class="editable-input" placeholder="Remarks..." value="${r.remarks||''}" style="min-width:120px" onchange="absentRows[${idx}].remarks=this.value;buildAbsentMsg();"></td><td><input class="editable-input" placeholder="1 DAY" value="${r.leaveDays||''}" style="width:70px" onchange="absentRows[${idx}].leaveDays=this.value"></td><td><input type="date" class="editable-input" value="${r.leaveFrom||''}" style="width:115px" onchange="absentRows[${idx}].leaveFrom=this.value"></td><td><input type="date" class="editable-input" value="${r.leaveTo||''}" style="width:115px" onchange="absentRows[${idx}].leaveTo=this.value"></td><td><input class="editable-input" placeholder="Next date..." value="${r.upcomingDate||''}" style="width:100px" onchange="absentRows[${idx}].upcomingDate=this.value"></td><td class="sticky-col" style="text-align:center"><button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'absent')"><i class="fas fa-times"></i></button></td>`;
-      body.appendChild(tr);num++;
+
+      const deptCell=di===0
+        ?`<td rowspan="${rows.length}" style="font-weight:800;vertical-align:middle;font-size:11px;text-align:center;background:${r.preApproved==='YES'?'#ecfdf5':'#fafafa'};border-right:2px solid var(--gray-200)">${dept}</td>`
+        :'';
+
+      tr.innerHTML=`
+        <td style="font-weight:800;color:var(--gray-400)">${num}</td>
+        ${deptCell}
+        <td class="font-mono" style="color:var(--primary);font-weight:700;font-size:12px">${r.ecode}</td>
+        <td style="font-weight:700;font-size:13px">${r.empName||'—'}</td>
+        <td class="font-mono" style="color:var(--gray-600);font-size:12px">${r.mobile||'—'}</td>
+        <td><select class="editable-select" onchange="absentRows[${idx}].leaveType=this.value">
+          <option ${r.leaveType==='FULL DAY'?'selected':''}>FULL DAY</option>
+          <option ${r.leaveType==='HALF DAY'?'selected':''}>HALF DAY</option>
+          <option ${r.leaveType==='SICK LEAVE'?'selected':''}>SICK LEAVE</option>
+          <option ${r.leaveType==='PAID LEAVE'?'selected':''}>PAID LEAVE</option>
+        </select></td>
+        <td><select class="editable-select" onchange="absentRows[${idx}].preApproved=this.value;buildAbsentMsg()">
+          <option ${r.preApproved==='YES'?'selected':''}>YES</option>
+          <option ${r.preApproved==='NO'?'selected':''}>NO</option>
+        </select></td>
+        <td><select class="editable-select" onchange="absentRows[${idx}].leaveForm=this.value">
+          <option ${r.leaveForm==='YES'?'selected':''}>YES</option>
+          <option ${r.leaveForm==='NO'?'selected':''}>NO</option>
+        </select></td>
+        <td><input class="editable-input" placeholder="Remarks..." value="${r.remarks||''}" style="min-width:120px" onchange="absentRows[${idx}].remarks=this.value;buildAbsentMsg();"></td>
+        <td><input class="editable-input" placeholder="1 DAY" value="${r.leaveDays||''}" style="width:70px" onchange="absentRows[${idx}].leaveDays=this.value"></td>
+        <td><input type="date" class="editable-input" value="${r.leaveFrom||''}" style="width:115px" onchange="absentRows[${idx}].leaveFrom=this.value"></td>
+        <td><input type="date" class="editable-input" value="${r.leaveTo||''}" style="width:115px" onchange="absentRows[${idx}].leaveTo=this.value"></td>
+        <td><input class="editable-input" placeholder="Next date..." value="${r.upcomingDate||''}" style="width:100px" onchange="absentRows[${idx}].upcomingDate=this.value"></td>
+        <td class="sticky-col" style="text-align:center">
+          <button class="btn btn-danger btn-icon btn-sm" onclick="removeRow(this,'absent')"><i class="fas fa-times"></i></button>
+        </td>`;
+
+      body.appendChild(tr);
+      num++;
     });
   });
+
   buildAbsentMsg();
 }
 
 function buildAbsentMsg(){
   const date=document.getElementById('absent_date')?.value||todayStr();
   const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
-  let msg=`❌ *ABSENT REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(22)}\n\n`;
-  visible.forEach((tr,i)=>{const c=tr.querySelectorAll('td');msg+=`${i+1}. ${c[3]?.textContent?.trim()}\n   Dept: ${c[1]?.textContent?.trim()} | ☎️ ${c[4]?.textContent?.trim()}\n   Pre-Approved: ${c[6]?.querySelector('select')?.value} | Days: ${c[9]?.querySelector('input')?.value||'—'}\n`;const r=c[8]?.querySelector('input')?.value;if(r)msg+=`   Remarks: ${r}\n`;msg+='\n';});
-  msg+=`${'━'.repeat(22)}\nTotal Absent: ${visible.length}`;
+  let msg=`❌ *ABSENT REPORT*\n📅 Date: ${formatDate(date)}\n🏢 House of Panchhi\n${'━'.repeat(24)}\n\n`;
+  visible.forEach((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    msg+=`${i+1}. *${c[3]?.textContent?.trim()}*\n`;
+    msg+=`   Dept: ${c[1]?.textContent?.trim()} | ☎️ ${c[4]?.textContent?.trim()}\n`;
+    msg+=`   Pre-Approved: ${c[6]?.querySelector('select')?.value} | Days: ${c[9]?.querySelector('input')?.value||'—'}\n`;
+    const rem=c[8]?.querySelector('input')?.value;
+    if(rem)msg+=`   Remarks: ${rem}\n`;
+    msg+='\n';
+  });
+  msg+=`${'━'.repeat(24)}\nTotal Absent: ${visible.length}`;
   document.getElementById('absentMsgBox').textContent=msg;
 }
 
+/* ── REMOVE ROW ── */
 function removeRow(btn,type){
   btn.closest('tr').classList.add('deleted-row');
-  const rows=document.querySelectorAll(`#${type==='late'?'lateBody':'absentBody'} tr:not(.deleted-row) td:first-child`);
+  /* Renumber remaining rows */
+  const rows=document.querySelectorAll(
+    `#${type==='late'?'lateBody':'absentBody'} tr:not(.deleted-row) td:first-child`
+  );
   rows.forEach((td,i)=>td.textContent=i+1);
   if(type==='late')buildLateMsg();else buildAbsentMsg();
 }
 
+/* ── SAVE REMARKS ── */
 function saveRemarks(){
-  absentRows.forEach(r=>{const idx=attRecords.findIndex(a=>a.id===r.id);if(idx>-1)Object.assign(attRecords[idx],r);});
+  absentRows.forEach(r=>{
+    const idx=attRecords.findIndex(a=>a.id===r.id);
+    if(idx>-1)Object.assign(attRecords[idx],r);
+  });
   Store.set('attendance',attRecords);
-  GSheet.send('Attendance_Absent',{date:document.getElementById('absent_date')?.value,count:absentRows.length});
-  showToast('success','Saved!','Remarks saved');
+  showToast('success','Save Ho Gaya!','Remarks save ho gaye');
 }
 
-/* DOWNLOADS */
-function getLatePDFRows(){return[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')].map((tr,i)=>{const c=tr.querySelectorAll('td');return`<tr><td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td><td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td><td>${c[5]?.textContent?.trim()}</td><td>${c[6]?.textContent?.trim()}</td><td style="color:#b91c1c;font-weight:bold">${c[7]?.textContent?.trim()}</td><td>${c[8]?.querySelector('input')?.value||''}</td><td>${c[9]?.querySelector('select')?.value||'-'}</td></tr>`;}).join('');}
+/* ── COPY MESSAGE ── */
+function copyMsg(id){
+  navigator.clipboard.writeText(document.getElementById(id)?.textContent||'')
+    .then(()=>showToast('success','Copy Ho Gaya!','Message clipboard mein aa gaya'));
+}
+
+/* ══════════════════════════════════════════
+   DOWNLOADS — LATE
+══════════════════════════════════════════ */
+function getLatePDFRows(){
+  return[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')].map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return`<tr>
+      <td>${i+1}</td>
+      <td>${c[1]?.textContent?.trim()}</td>
+      <td>${c[2]?.textContent?.trim()}</td>
+      <td>${c[3]?.textContent?.trim()}</td>
+      <td>${c[4]?.textContent?.trim()}</td>
+      <td>${c[5]?.textContent?.trim()}</td>
+      <td>${c[6]?.textContent?.trim()}</td>
+      <td style="color:#b91c1c;font-weight:bold">${c[7]?.textContent?.trim()}</td>
+      <td style="font-style:italic">${c[8]?.textContent?.trim()}</td>
+      <td>${c[9]?.querySelector('input')?.value||''}</td>
+      <td>${c[10]?.querySelector('select')?.value||'-'}</td>
+    </tr>`;
+  }).join('');
+}
 
 function downloadLateExcel(){
   const date=document.getElementById('late_date')?.value||todayStr();
   const visible=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')];
-  if(!visible.length){showToast('warning','Empty','No rows');return;}
-  downloadCSV(`Late_Report_${date}.csv`,visible.map((tr,i)=>{const c=tr.querySelectorAll('td');return{Sr:i+1,Department:c[1]?.textContent?.trim(),Code:c[2]?.textContent?.trim(),Name:c[3]?.textContent?.trim(),Phone:c[4]?.textContent?.trim(),ShiftStart:c[5]?.textContent?.trim(),InPunch:c[6]?.textContent?.trim(),LateBy:c[7]?.textContent?.trim(),Reason:c[8]?.querySelector('input')?.value||'',Action:c[9]?.querySelector('select')?.value||'-'};}),['Sr','Department','Code','Name','Phone','ShiftStart','InPunch','LateBy','Reason','Action']);
+  if(!visible.length){showToast('warning','Khaali','Koi rows nahi');return;}
+  downloadCSV(
+    `Late_Report_${date}.csv`,
+    visible.map((tr,i)=>{
+      const c=tr.querySelectorAll('td');
+      return{
+        Sr:i+1,
+        Department:c[1]?.textContent?.trim(),
+        ECode:c[2]?.textContent?.trim(),
+        Name:c[3]?.textContent?.trim(),
+        Phone:c[4]?.textContent?.trim(),
+        ShiftStart:c[5]?.textContent?.trim(),
+        InPunch:c[6]?.textContent?.trim(),
+        LateBy:c[7]?.textContent?.trim(),
+        ExcelStatus:c[8]?.textContent?.trim(),
+        Reason:c[9]?.querySelector('input')?.value||'',
+        Action:c[10]?.querySelector('select')?.value||'-',
+      };
+    }),
+    ['Sr','Department','ECode','Name','Phone','ShiftStart','InPunch','LateBy','ExcelStatus','Reason','Action']
+  );
 }
 
 function downloadLatePDF(){
   const date=document.getElementById('late_date')?.value||todayStr();
   const rows=getLatePDFRows();
-  if(!rows){showToast('warning','Empty','No rows');return;}
+  if(!rows){showToast('warning','Khaali','Koi rows nahi');return;}
   const cnt=[...document.querySelectorAll('#lateBody tr:not(.deleted-row)')].length;
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><style>body{font-family:Arial,sans-serif;padding:20px;font-size:11px;}.hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;}.hdr h2{margin:0;font-size:15px;}.hdr p{margin:4px 0 0;font-size:10px;opacity:.7;}table{width:100%;border-collapse:collapse;}th{background:#ede9fe;color:#4c1d95;padding:7px 8px;font-size:9.5px;text-align:left;border-bottom:2px solid #6c47ff;}td{padding:6px 8px;border-bottom:1px solid #f0f0f0;}tr:nth-child(even){background:#fafafa;}.foot{text-align:center;font-size:9px;color:#999;margin-top:14px;}</style></head><body><div class="hdr"><h2>🕐 LATE COMING REPORT</h2><p>Date: ${formatDate(date)} | House of Panchhi | Generated: ${new Date().toLocaleString('en-IN')}</p></div><table><thead><tr><th>#</th><th>Dept</th><th>Code</th><th>Name</th><th>Phone</th><th>Shift</th><th>In Punch</th><th>Late By</th><th>Reason</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table><div class="foot">Total: ${cnt} | House of Panchhi HR | Crafted by Aditya Tomar</div><script>window.print();window.close();<\/script></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>Late Report — ${formatDate(date)}</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;padding:20px;font-size:11px;color:#1a1a1a;}
+      .hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;margin-bottom:0;}
+      .hdr h2{font-size:16px;font-weight:900;letter-spacing:.5px;}
+      .hdr p{font-size:10px;opacity:.75;margin-top:4px;}
+      table{width:100%;border-collapse:collapse;margin-top:0;}
+      th{background:#ede9fe;color:#4c1d95;padding:8px 9px;font-size:9.5px;text-align:left;border-bottom:2px solid #6c47ff;white-space:nowrap;}
+      td{padding:7px 9px;border-bottom:1px solid #eee;vertical-align:middle;}
+      tr:nth-child(even){background:#faf8ff;}
+      .foot{text-align:center;font-size:9px;color:#aaa;margin-top:16px;padding-top:10px;border-top:1px solid #eee;}
+      @media print{body{padding:10px;}@page{margin:.5cm;}}
+    </style>
+  </head><body>
+    <div class="hdr">
+      <h2>🕐 LATE COMING REPORT — House of Panchhi</h2>
+      <p>Date: ${formatDate(date)} &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')} &nbsp;|&nbsp; Total: ${cnt}</p>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Dept</th><th>E-Code</th><th>Name</th><th>Phone</th><th>Shift</th><th>In Punch</th><th>Late By</th><th>Status</th><th>Reason</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="foot">House of Panchhi HR · Crafted by Aditya Tomar</div>
+  <script>setTimeout(()=>{window.print();window.close();},400);<\/script></body></html>`);
   w.document.close();
 }
 
+/* ══════════════════════════════════════════
+   DOWNLOADS — ABSENT
+══════════════════════════════════════════ */
 function downloadAbsentExcel(){
   const date=document.getElementById('absent_date')?.value||todayStr();
   const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
-  if(!visible.length){showToast('warning','Empty','No rows');return;}
-  downloadCSV(`Absent_Report_${date}.csv`,visible.map((tr,i)=>{const c=tr.querySelectorAll('td');return{Sr:i+1,Department:c[1]?.textContent?.trim(),Code:c[2]?.textContent?.trim(),Name:c[3]?.textContent?.trim(),Phone:c[4]?.textContent?.trim(),Leave:c[5]?.querySelector('select')?.value||'',PreApproved:c[6]?.querySelector('select')?.value||'',LeaveForm:c[7]?.querySelector('select')?.value||'',Remarks:c[8]?.querySelector('input')?.value||'',Days:c[9]?.querySelector('input')?.value||'',From:c[10]?.querySelector('input')?.value||'',To:c[11]?.querySelector('input')?.value||'',Upcoming:c[12]?.querySelector('input')?.value||''};}),['Sr','Department','Code','Name','Phone','Leave','PreApproved','LeaveForm','Remarks','Days','From','To','Upcoming']);
+  if(!visible.length){showToast('warning','Khaali','Koi rows nahi');return;}
+  downloadCSV(
+    `Absent_Report_${date}.csv`,
+    visible.map((tr,i)=>{
+      const c=tr.querySelectorAll('td');
+      return{
+        Sr:i+1,
+        Department:c[1]?.textContent?.trim(),
+        ECode:c[2]?.textContent?.trim(),
+        Name:c[3]?.textContent?.trim(),
+        Phone:c[4]?.textContent?.trim(),
+        Leave:c[5]?.querySelector('select')?.value||'',
+        PreApproved:c[6]?.querySelector('select')?.value||'',
+        LeaveForm:c[7]?.querySelector('select')?.value||'',
+        Remarks:c[8]?.querySelector('input')?.value||'',
+        Days:c[9]?.querySelector('input')?.value||'',
+        From:c[10]?.querySelector('input')?.value||'',
+        To:c[11]?.querySelector('input')?.value||'',
+        Upcoming:c[12]?.querySelector('input')?.value||'',
+      };
+    }),
+    ['Sr','Department','ECode','Name','Phone','Leave','PreApproved','LeaveForm','Remarks','Days','From','To','Upcoming']
+  );
 }
 
 function downloadAbsentPDF(){
   const date=document.getElementById('absent_date')?.value||todayStr();
   const visible=[...document.querySelectorAll('#absentBody tr:not(.deleted-row)')];
-  if(!visible.length){showToast('warning','Empty','No rows');return;}
-  const rows=visible.map((tr,i)=>{const c=tr.querySelectorAll('td');return`<tr><td>${i+1}</td><td>${c[1]?.textContent?.trim()}</td><td>${c[2]?.textContent?.trim()}</td><td>${c[3]?.textContent?.trim()}</td><td>${c[4]?.textContent?.trim()}</td><td>${c[5]?.querySelector('select')?.value||''}</td><td>${c[6]?.querySelector('select')?.value||''}</td><td>${c[7]?.querySelector('select')?.value||''}</td><td>${c[8]?.querySelector('input')?.value||''}</td><td>${c[9]?.querySelector('input')?.value||''}</td><td>${c[10]?.querySelector('input')?.value||''}</td><td>${c[11]?.querySelector('input')?.value||''}</td><td>${c[12]?.querySelector('input')?.value||''}</td></tr>`;}).join('');
+  if(!visible.length){showToast('warning','Khaali','Koi rows nahi');return;}
+  const rows=visible.map((tr,i)=>{
+    const c=tr.querySelectorAll('td');
+    return`<tr>
+      <td>${i+1}</td>
+      <td>${c[1]?.textContent?.trim()}</td>
+      <td>${c[2]?.textContent?.trim()}</td>
+      <td>${c[3]?.textContent?.trim()}</td>
+      <td>${c[4]?.textContent?.trim()}</td>
+      <td>${c[5]?.querySelector('select')?.value||''}</td>
+      <td>${c[6]?.querySelector('select')?.value||''}</td>
+      <td>${c[7]?.querySelector('select')?.value||''}</td>
+      <td>${c[8]?.querySelector('input')?.value||''}</td>
+      <td>${c[9]?.querySelector('input')?.value||''}</td>
+      <td>${c[10]?.querySelector('input')?.value||''}</td>
+      <td>${c[11]?.querySelector('input')?.value||''}</td>
+      <td>${c[12]?.querySelector('input')?.value||''}</td>
+    </tr>`;
+  }).join('');
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><style>body{font-family:Arial,sans-serif;padding:20px;font-size:10px;}.hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:14px 18px;border-radius:8px 8px 0 0;}.hdr h2{margin:0;font-size:14px;}.hdr p{margin:4px 0 0;font-size:10px;opacity:.7;}table{width:100%;border-collapse:collapse;}th{background:#fde8e8;color:#b91c1c;padding:6px 7px;font-size:9px;text-align:left;border-bottom:2px solid #ef4444;}td{padding:5px 7px;border-bottom:1px solid #f0f0f0;}tr:nth-child(even){background:#fafafa;}.foot{text-align:center;font-size:9px;color:#999;margin-top:14px;}</style></head><body><div class="hdr"><h2>❌ ABSENT REPORT</h2><p>Date: ${formatDate(date)} | House of Panchhi | Generated: ${new Date().toLocaleString('en-IN')}</p></div><table><thead><tr><th>#</th><th>Dept</th><th>Code</th><th>Name</th><th>Phone</th><th>Leave</th><th>Pre App.</th><th>Form</th><th>Remarks</th><th>Days</th><th>From</th><th>To</th><th>Upcoming</th></tr></thead><tbody>${rows}</tbody></table><div class="foot">Total: ${visible.length} | House of Panchhi HR | Crafted by Aditya Tomar</div><script>window.print();window.close();<\/script></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>Absent Report — ${formatDate(date)}</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;padding:20px;font-size:10px;color:#1a1a1a;}
+      .hdr{background:linear-gradient(135deg,#1a0533,#0d1f4e);color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;}
+      .hdr h2{font-size:15px;font-weight:900;}
+      .hdr p{font-size:10px;opacity:.75;margin-top:4px;}
+      table{width:100%;border-collapse:collapse;}
+      th{background:#fde8e8;color:#b91c1c;padding:7px 8px;font-size:9px;text-align:left;border-bottom:2px solid #ef4444;white-space:nowrap;}
+      td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:middle;}
+      tr:nth-child(even){background:#fff5f5;}
+      .foot{text-align:center;font-size:9px;color:#aaa;margin-top:16px;padding-top:10px;border-top:1px solid #eee;}
+      @media print{body{padding:10px;}@page{margin:.5cm;size:A4 landscape;}}
+    </style>
+  </head><body>
+    <div class="hdr">
+      <h2>❌ ABSENT REPORT — House of Panchhi</h2>
+      <p>Date: ${formatDate(date)} &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')} &nbsp;|&nbsp; Total: ${visible.length}</p>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Dept</th><th>E-Code</th><th>Name</th><th>Phone</th><th>Leave</th><th>Pre App.</th><th>Form</th><th>Remarks</th><th>Days</th><th>From</th><th>To</th><th>Upcoming</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="foot">House of Panchhi HR · Crafted by Aditya Tomar</div>
+  <script>setTimeout(()=>{window.print();window.close();},400);<\/script></body></html>`);
   w.document.close();
 }
 
-function copyMsg(id){navigator.clipboard.writeText(document.getElementById(id)?.textContent||'').then(()=>showToast('success','Copied!','Message copied'));}
-
-/* ARCHIVE */
+/* ══════════════════════════════════════════
+   ARCHIVE
+══════════════════════════════════════════ */
 function loadArchive(){
   const range=parseInt(document.getElementById('archiveRange')?.value)||7;
   const to=document.getElementById('archiveTo')?.value||todayStr();
   const fi=document.getElementById('archiveFrom')?.value;
-  let from;if(fi)from=fi;else{const d=new Date(to);d.setDate(d.getDate()-range+1);from=d.toISOString().split('T')[0];}
+  let from;
+  if(fi)from=fi;
+  else{
+    const d=new Date(to);
+    d.setDate(d.getDate()-range+1);
+    from=d.toISOString().split('T')[0];
+  }
   archiveData=attRecords.filter(r=>r.date>=from&&r.date<=to);
   renderArchive(archiveData);
 }
+
 function renderArchive(data){
   const body=document.getElementById('archiveBody');
-  if(!data.length){body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>No records</p></td></tr>`;return;}
+  if(!data.length){
+    body.innerHTML=`<tr><td colspan="8" class="table-empty"><i class="fas fa-archive"></i><p>Is range mein koi records nahi</p></td></tr>`;
+    return;
+  }
   const sm={P:'badge-green',L:'badge-amber',A:'badge-red'};
   const sl={P:'Present',L:'Late',A:'Absent'};
-  body.innerHTML=[...data].sort((a,b)=>b.date?.localeCompare(a.date||'')).map(r=>`<tr><td class="font-mono" style="font-size:12px">${formatDate(r.date)}</td><td class="font-mono" style="color:var(--primary);font-size:12px">${r.ecode}</td><td style="font-weight:700">${r.empName||'—'}</td><td style="font-size:12.5px">${r.department||getDept(r.ecode)}</td><td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td><td>${r.lateMin>0?`<span class="late-badge">${minutesToHHMM(r.lateMin)}</span>`:'—'}</td><td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}</span></td><td style="font-size:12px;color:var(--gray-500)">${r.remark||r.remarks||'—'}</td></tr>`).join('');
+  body.innerHTML=[...data]
+    .sort((a,b)=>b.date?.localeCompare(a.date||''))
+    .map(r=>`<tr>
+      <td class="font-mono" style="font-size:12px">${formatDate(r.date)}</td>
+      <td class="font-mono" style="color:var(--primary);font-size:12px">${r.ecode}</td>
+      <td style="font-weight:700">${r.empName||'—'}</td>
+      <td style="font-size:12px">${r.department||getDept(r.ecode)}</td>
+      <td class="font-mono">${r.inTime?formatTime(r.inTime):'—'}</td>
+      <td>${r.lateMin>0?`<span class="late-badge">${minutesToHHMM(r.lateMin)}</span>`:'—'}</td>
+      <td><span class="badge ${sm[r.status]||'badge-gray'}">${sl[r.status]||r.status}</span></td>
+      <td style="font-size:12px;color:var(--gray-500)">${r.excelStatus||r.remark||r.remarks||'—'}</td>
+    </tr>`).join('');
 }
-function filterArchive(){const q=document.getElementById('archiveSearch')?.value?.toLowerCase()||'';renderArchive(archiveData.filter(r=>(r.empName||'').toLowerCase().includes(q)||(r.ecode||'').toLowerCase().includes(q)||(r.department||'').toLowerCase().includes(q)));}
-function exportArchive(){if(!archiveData.length){showToast('warning','Nothing','No data');return;}downloadCSV('Attendance_Archive.csv',archiveData,['date','ecode','empName','department','inTime','lateMin','status','remark']);}
+
+function filterArchive(){
+  const q=document.getElementById('archiveSearch')?.value?.toLowerCase()||'';
+  renderArchive(archiveData.filter(r=>
+    (r.empName||'').toLowerCase().includes(q)||
+    (r.ecode||'').toLowerCase().includes(q)||
+    (r.department||'').toLowerCase().includes(q)
+  ));
+}
+
+function exportArchive(){
+  if(!archiveData.length){showToast('warning','Kuch Nahi','Data nahi hai');return;}
+  downloadCSV('Attendance_Archive.csv',archiveData,
+    ['date','ecode','empName','department','inTime','lateMin','status','excelStatus','remark','remarks']);
+}
 </script>
 </body>
 </html>
