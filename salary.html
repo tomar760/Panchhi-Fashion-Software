@@ -45,8 +45,8 @@
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon"><i class="fas fa-feather-pointed"></i></div>
-    <div class="brand-text"><h2>Panchhi HR</h2><span>Software v1.0</span></div>
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
+    <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v1.0</span></div>
   </div>
   <div class="sidebar-nav">
     <div class="nav-section">
@@ -59,14 +59,39 @@
       <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
       <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
       <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
-      <div class="nav-link active"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+      <div class="nav-link" onclick="window.location='salary.html'" class="nav-link active"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">Operations</div>
       <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+      <div class="nav-link" onclick="showMaintenance('Expenses','Coming soon!')"><i class="fas fa-receipt"></i> Expenses <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Visitor Log','Coming soon!')"><i class="fas fa-person-walking-arrow-right"></i> Visitor Log <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+      <div class="nav-link" onclick="showMaintenance('Tasks','Coming soon!')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Announcements','Coming soon!')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <div class="nav-link" onclick="showMaintenance('MIS Reports','Coming soon!')"><i class="fas fa-file-chart-column"></i> MIS Reports <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Performance','Coming soon!')"><i class="fas fa-star"></i> Performance <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="showMaintenance('Recruitment','Coming soon!')"><i class="fas fa-user-tie"></i> Recruitment <span class="nav-soon">Soon</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link" onclick="window.location='users.html'"><i class="fas fa-users-gear"></i> User Management</div>
+      <div class="nav-link" onclick="window.location='users.html'"><i class="fas fa-users-gear"></i> User Management</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-user-circle"></i> My Profile</div>
     </div>
   </div>
-  <div class="sidebar-footer"><div class="user-avatar">AD</div><div class="user-info"><h4>Admin</h4><span><span class="online-dot"></span> Super Admin</span></div></div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="sidebarAvatar">AT</div>
+    <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span> Super Admin</span></div>
+  </div>
 </nav>
 
 <div class="main-content">
