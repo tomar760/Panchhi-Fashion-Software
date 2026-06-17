@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Management — House of Panchhi HR</title>
+<link rel="icon" type="image/png" href="assets/img/hop-logo-wings.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.role-badge-super{background:linear-gradient(135deg,#6c47ff,#a855f7);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;}
+.role-badge-director{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;}
+.role-badge-staff{background:var(--gray-100);color:var(--gray-600);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;}
+.perm-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--primary-light);color:var(--primary);margin:2px;}
+.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
+.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
+@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
+.maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.maintenance-overlay.show{display:flex;}
+.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;}
+.maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:#fef3c7;color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
+.perm-label{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;}
+.perm-label:hover{border-color:var(--primary);background:var(--primary-light);}
+.perm-label input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="app-wrapper active" id="appWrapper">
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
+    <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v1.0</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-th-large"></i> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">HR & Payroll</div>
+      <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
+      <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-calendar-check"></i> Attendance</div>
+      <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
+      <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
+      <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Operations</div>
+      <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Analytics & Teams</div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-sliders"></i> Settings</div>
+      <div class="nav-link active"><i class="fas fa-users-gear"></i> User Management</div>
+      <div class="nav-link" onclick="window.location='index.html'"><i class="fas fa-user-circle"></i> My Profile</div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-avatar" id="sidebarAvatar">AT</div>
+    <div class="user-info"><h4 id="sidebarName">Aditya Tomar</h4><span><span class="online-dot"></span> Super Admin</span></div>
+  </div>
+</nav>
+
+<div class="main-content">
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="page-title"><h1>User Management</h1><p>Manage accounts & permissions</p></div>
+    </div>
+    <div class="header-right">
+      <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock"></span></div>
+      <div class="header-avatar" onclick="window.location='index.html'">AT</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-users-gear"></i></div><div class="stat-number" id="st-total">0</div><div class="stat-label">Total Users</div></div>
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div class="stat-number" id="st-active">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-user-slash"></i></div><div class="stat-number" id="st-inactive">0</div><div class="stat-label">Inactive</div></div>
+      <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-user-plus"></i></div><div class="stat-number" id="st-slots">10</div><div class="stat-label">Slots Remaining</div></div>
+    </div>
+
+    <!-- Add user btn -->
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openAddUser()"><i class="fas fa-user-plus"></i> Add New User</button>
+      <button class="btn btn-outline" onclick="loadUsers()"><i class="fas fa-rotate"></i> Refresh</button>
+      <span id="sheetStatus" class="sheet-status"></span>
+    </div>
+
+    <!-- Alert box -->
+    <div class="alert alert-info" id="accessAlert" style="display:none">
+      <i class="fas fa-lock"></i>
+      <div>Only <strong>Super Admin</strong> and <strong>Director</strong> can manage users.</div>
+    </div>
+
+    <!-- Users table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3><i class="fas fa-users-gear"></i> All Users</h3>
+        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="userSearch" placeholder="Search..." oninput="filterUsers()"></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Modules Access</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="7" class="table-empty"><i class="fas fa-users-gear"></i><p>Loading users...</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="table-card mt-24">
+      <div class="table-header">
+        <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity Log</h3>
+        <button class="btn btn-outline btn-sm" onclick="loadActivity()"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Time</th><th>Action</th><th>User</th><th>Description</th><th>Reference</th></tr></thead>
+          <tbody id="activityBody">
+            <tr><td colspan="5" class="table-empty"><i class="fas fa-history"></i><p>Loading activity...</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid var(--gray-100)">
+      <span style="font-size:12px;color:var(--gray-400);font-weight:600">House of Panchhi HR &nbsp;·&nbsp; </span>
+      <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ADD/EDIT USER MODAL -->
+<div class="modal-overlay" id="modal-addUser">
+  <div class="modal-box" style="max-width:600px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <h3 id="addUserTitle"><i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px"></i>Add New User</h3>
+      <button class="modal-close" onclick="closeModal('addUser')"><i class="fas fa-xmark"></i></button>
+    </div>
+
+    <div class="alert alert-info" style="margin-bottom:16px">
+      <i class="fas fa-info-circle"></i>
+      <div>User will receive login credentials via email. They can change password after first login.</div>
+    </div>
+
+    <input type="hidden" id="editUserId">
+
+    <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:16px">
+      <div class="form-group"><label>Full Name <span style="color:var(--danger)">*</span></label><input type="text" id="u_name" placeholder="Employee name"></div>
+      <div class="form-group"><label>Email <span style="color:var(--danger)">*</span></label><input type="email" id="u_email" placeholder="email@company.com"></div>
+      <div class="form-group"><label>Password <span style="color:var(--danger)">*</span></label><input type="text" id="u_password" placeholder="Min 6 characters" value="Panchhi@123"></div>
+      <div class="form-group"><label>Role <span style="color:var(--danger)">*</span></label>
+        <select id="u_role" onchange="onRoleChange()">
+          <option value="STAFF">Staff</option>
+          <option value="MANAGER">Manager</option>
+          <option value="DIRECTOR">Director</option>
+          <option value="SUPER_ADMIN">Super Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="u_permSection">
+      <label style="font-size:11.5px;font-weight:800;color:var(--gray-600);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:10px">Module Access</label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px" id="permGrid"></div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:20px">
+      <button class="btn btn-outline" onclick="closeModal('addUser')">Cancel</button>
+      <button class="btn btn-primary" id="saveUserBtn" onclick="saveUser()"><i class="fas fa-save"></i> Save & Send Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal-box modal-box-sm modal-confirm">
+    <div class="modal-confirm-icon red"><i class="fas fa-trash-alt"></i></div>
+    <h3>Are you sure?</h3>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="modal-footer" style="justify-content:center">
+      <button class="btn btn-outline" onclick="closeModal('confirm')">Cancel</button>
+      <button class="btn btn-danger btn-confirm-ok">Yes, Proceed</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+<script>
+const GS_URL = 'https://script.google.com/macros/s/AKfycbyGeFIezQQq_0rMhfHkuQv9brAVdjNV-SI4Fu-Hcdj7Z_RkcEUqxxdjzGZmY8mpjciG/exec';
+
+const ALL_MODULES = [
+  { id:'employees',  label:'Employee Directory', icon:'fas fa-users' },
+  { id:'attendance', label:'Attendance',          icon:'fas fa-calendar-check' },
+  { id:'gatepass',   label:'Gate Pass',           icon:'fas fa-door-open' },
+  { id:'leave',      label:'Leave Management',    icon:'fas fa-calendar-days' },
+  { id:'salary',     label:'Salary / Payroll',    icon:'fas fa-money-bill-wave' },
+  { id:'store',      label:'Store & Inventory',   icon:'fas fa-boxes-stacked' },
+  { id:'analytics',  label:'Analytics',           icon:'fas fa-chart-line' },
+  { id:'teams',      label:'Teams',               icon:'fas fa-people-group' },
+  { id:'users',      label:'User Management',     icon:'fas fa-users-gear' },
+];
+
+let allUsers = [], currentEditId = null;
+
+window.addEventListener('load', () => {
+  updateClock(); setInterval(updateClock, 1000);
+  loadProfileName();
+  checkAccess();
+  buildPermGrid();
+  loadUsers();
+  loadActivity();
+});
+
+function loadProfileName(){const n=localStorage.getItem('phr_profileName');if(n){const av=document.getElementById('sidebarAvatar');const nm=document.getElementById('sidebarName');if(av)av.textContent=initials(n);if(nm)nm.textContent=n;}}
+
+function checkAccess() {
+  const session = JSON.parse(localStorage.getItem('phr_session') || '{}');
+  if(!['SUPER_ADMIN','DIRECTOR'].includes(session.role)) {
+    document.getElementById('accessAlert').style.display = 'flex';
+    document.querySelector('.btn-group').style.display = 'none';
+  }
+}
+
+function buildPermGrid() {
+  const grid = document.getElementById('permGrid');
+  grid.innerHTML = ALL_MODULES.map(m => `
+    <label class="perm-label">
+      <input type="checkbox" class="perm-check" value="${m.id}" checked>
+      <i class="${m.icon}" style="color:var(--primary);font-size:13px"></i>
+      ${m.label}
+    </label>`).join('');
+}
+
+function onRoleChange() {
+  const role = document.getElementById('u_role').value;
+  const isAdmin = ['SUPER_ADMIN','DIRECTOR'].includes(role);
+  document.getElementById('u_permSection').style.opacity = isAdmin ? '.5' : '1';
+  document.querySelectorAll('.perm-check').forEach(c => c.checked = isAdmin || c.checked);
+  if(isAdmin) document.querySelectorAll('.perm-check').forEach(c => c.checked = true);
+}
+
+async function loadUsers() {
+  document.getElementById('userTableBody').innerHTML = `<tr><td colspan="7" class="table-empty"><i class="fas fa-spinner spin"></i><p>Loading...</p></td></tr>`;
+  try {
+    const res  = await fetch(`${GS_URL}?action=GET_USERS&sheet=Users`);
+    const json = await res.json();
+    allUsers   = json.data || [];
+    renderUsers(allUsers);
+  } catch(e) {
+    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="7" class="table-empty"><i class="fas fa-exclamation-circle"></i><p>Failed to load — check connection</p></td></tr>`;
+  }
+}
+
+function renderUsers(users) {
+  const active   = users.filter(u => u.Status === 'ACTIVE').length;
+  const inactive = users.filter(u => u.Status === 'INACTIVE').length;
+  document.getElementById('st-total').textContent    = users.length;
+  document.getElementById('st-active').textContent   = active;
+  document.getElementById('st-inactive').textContent = inactive;
+  document.getElementById('st-slots').textContent    = Math.max(0, 10 - users.length);
+
+  const body = document.getElementById('userTableBody');
+  if(!users.length) {
+    body.innerHTML = `<tr><td colspan="7" class="table-empty"><i class="fas fa-users"></i><p>No users yet</p></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = users.map((u, i) => {
+    const roleClass = u.Role==='SUPER_ADMIN' ? 'role-badge-super' : u.Role==='DIRECTOR' ? 'role-badge-director' : 'role-badge-staff';
+    const roleLabel = u.Role==='SUPER_ADMIN' ? 'Super Admin' : u.Role==='DIRECTOR' ? 'Director' : u.Role||'Staff';
+    const perms     = (u.Permissions||'').split(',').filter(Boolean);
+    const permHtml  = perms.includes('ALL') ? '<span class="perm-chip"><i class="fas fa-infinity" style="font-size:9px"></i> All Modules</span>' :
+                      perms.slice(0,3).map(p=>`<span class="perm-chip">${p}</span>`).join('') + (perms.length>3?`<span class="perm-chip">+${perms.length-3}</span>`:'');
+    const isAdmin   = u.Role==='SUPER_ADMIN' || u.Role==='DIRECTOR';
+    return `<tr>
+      <td style="font-weight:800;color:var(--gray-400)">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:10px;background:${avatarColor(u.Name||'')};display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0">${initials(u.Name||'?')}</div>
+          <div><div style="font-weight:700">${u.Name||'—'}</div><div style="font-size:10.5px;color:var(--gray-400)">${u['Created At']||''}</div></div>
+        </div>
+      </td>
+      <td class="font-mono" style="font-size:12.5px;color:var(--primary)">${u.Email||'—'}</td>
+      <td><span class="${roleClass}">${roleLabel}</span></td>
+      <td>${permHtml||'—'}</td>
+      <td><span class="badge badge-${u.Status==='ACTIVE'?'green':'red'}">${u.Status||'—'}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          ${!isAdmin?`<button class="btn btn-outline btn-icon btn-sm" onclick="editUser('${u.ID||''}')"><i class="fas fa-pen"></i></button>`:''}
+          <button class="btn btn-${u.Status==='ACTIVE'?'warning':'success'} btn-icon btn-sm" onclick="toggleUserStatus('${u.ID||''}','${u.Status||''}')">
+            <i class="fas fa-toggle-${u.Status==='ACTIVE'?'on':'off'}"></i>
+          </button>
+          ${!isAdmin?`<button class="btn btn-danger btn-icon btn-sm" onclick="deleteUser('${u.ID||''}','${u.Name||''}')"><i class="fas fa-trash"></i></button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch')?.value?.toLowerCase()||'';
+  renderUsers(allUsers.filter(u => `${u.Name} ${u.Email} ${u.Role}`.toLowerCase().includes(q)));
+}
+
+function openAddUser() {
+  currentEditId = null;
+  document.getElementById('addUserTitle').innerHTML = '<i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px"></i>Add New User';
+  document.getElementById('editUserId').value = '';
+  document.getElementById('u_name').value     = '';
+  document.getElementById('u_email').value    = '';
+  document.getElementById('u_password').value = 'Panchhi@123';
+  document.getElementById('u_role').value     = 'STAFF';
+  document.querySelectorAll('.perm-check').forEach(c => c.checked = true);
+  showModal('addUser');
+}
+
+function editUser(id) {
+  const u = allUsers.find(x => x.ID === id);
+  if(!u) return;
+  currentEditId = id;
+  document.getElementById('addUserTitle').innerHTML = `<i class="fas fa-pen" style="color:var(--primary);margin-right:8px"></i>Edit — ${u.Name}`;
+  document.getElementById('editUserId').value = id;
+  document.getElementById('u_name').value     = u.Name||'';
+  document.getElementById('u_email').value    = u.Email||'';
+  document.getElementById('u_password').value = '';
+  document.getElementById('u_role').value     = u.Role||'STAFF';
+  const perms = (u.Permissions||'').split(',').filter(Boolean);
+  document.querySelectorAll('.perm-check').forEach(c => c.checked = perms.includes('ALL') || perms.includes(c.value));
+  showModal('addUser');
+}
+
+async function saveUser() {
+  const name     = document.getElementById('u_name').value.trim();
+  const email    = document.getElementById('u_email').value.trim();
+  const password = document.getElementById('u_password').value.trim();
+  const role     = document.getElementById('u_role').value;
+  if(!name||!email){showToast('error','Required','Name and email are required');return;}
+
+  const isAdmin  = ['SUPER_ADMIN','DIRECTOR'].includes(role);
+  const perms    = isAdmin ? ['ALL'] : [...document.querySelectorAll('.perm-check:checked')].map(c=>c.value);
+
+  const btn = document.getElementById('saveUserBtn');
+  const origText = btn.innerHTML;
+  btn.innerHTML = '<i class="fas fa-spinner spin"></i> Saving...';
+  btn.disabled  = true;
+
+  try {
+    const data = { id:currentEditId||undefined, name, email, role, permissions:perms, password:password||undefined };
+    const action = currentEditId ? 'UPDATE_USER' : 'CREATE_USER';
+    const params = new URLSearchParams();
+    params.append('action', action);
+    params.append('data', JSON.stringify(data));
+    params.append('sheet', 'Users');
+
+    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const json = await res.json();
+
+    if(json.success) {
+      closeModal('addUser');
+      showToast('success', currentEditId?'Updated!':'User Created!', currentEditId?`${name} updated`:`${name} created & email sent`);
+      loadUsers();
+    } else {
+      showToast('error', 'Failed', json.msg||'Try again');
+    }
+  } catch(e) {
+    showToast('error', 'Error', 'Connection failed');
+  }
+  btn.innerHTML = origText;
+  btn.disabled  = false;
+}
+
+async function toggleUserStatus(id, status) {
+  const newStatus = status==='ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  if(!confirm(`Mark user as ${newStatus}?`)) return;
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'UPDATE_USER');
+    params.append('data', JSON.stringify({ id, status:newStatus }));
+    params.append('sheet', 'Users');
+    await fetch(GS_URL, { method:'POST', body:params });
+    loadUsers();
+    showToast('success', 'Updated', `User marked ${newStatus}`);
+  } catch(e) { showToast('error','Error','Connection failed'); }
+}
+
+function deleteUser(id, name) {
+  document.getElementById('confirmMsg').textContent = `Delete user "${name}"? They will lose all access.`;
+  document.querySelector('.btn-confirm-ok').onclick = async () => {
+    closeModal('confirm');
+    try {
+      const params = new URLSearchParams();
+      params.append('action', 'DELETE_USER');
+      params.append('id', id);
+      params.append('sheet', 'Users');
+      await fetch(GS_URL, { method:'POST', body:params });
+      loadUsers();
+      showToast('success','Deleted',`${name} removed`);
+    } catch(e){ showToast('error','Error','Connection failed'); }
+  };
+  showModal('confirm');
+}
+
+async function loadActivity() {
+  try {
+    const res  = await fetch(`${GS_URL}?action=GET_ACTIVITY&sheet=Activity&limit=50`);
+    const json = await res.json();
+    const body = document.getElementById('activityBody');
+    const data = json.data || [];
+    if(!data.length) { body.innerHTML=`<tr><td colspan="5" class="table-empty"><i class="fas fa-history"></i><p>No activity yet</p></td></tr>`; return; }
+    const actionColors = { INSERT:'badge-green', UPDATE:'badge-blue', DELETE:'badge-red', LOGIN:'badge-purple', CREATE_USER:'badge-amber', PASSWORD_RESET:'badge-amber' };
+    body.innerHTML = data.map(a => `<tr>
+      <td class="font-mono" style="font-size:11.5px;color:var(--gray-500)">${a.Timestamp||'—'}</td>
+      <td><span class="badge ${actionColors[a.Action]||'badge-gray'}" style="font-size:10px">${a.Action||'—'}</span></td>
+      <td style="font-weight:700;font-size:12.5px">${a.UserName||a.UserID||'—'}</td>
+      <td style="font-size:12.5px">${a.Description||'—'}</td>
+      <td class="font-mono" style="font-size:11px;color:var(--gray-400)">${a.Reference||'—'}</td>
+    </tr>`).join('');
+  } catch(e) {
+    document.getElementById('activityBody').innerHTML = `<tr><td colspan="5" class="table-empty"><i class="fas fa-exclamation-circle"></i><p>Failed to load</p></td></tr>`;
+  }
+}
+</script>
+</body>
+</html>

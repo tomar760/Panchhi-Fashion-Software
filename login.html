@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — House of Panchhi HR</title>
+<link rel="icon" type="image/png" href="assets/img/hop-logo-wings.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f0621 0%,#1a0533 40%,#0d1f4e 100%);position:relative;overflow:hidden;}
+.bg-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.3;pointer-events:none;}
+.bg-orb-1{width:400px;height:400px;background:#6c47ff;top:-100px;right:-100px;}
+.bg-orb-2{width:300px;height:300px;background:#a855f7;bottom:-50px;left:-50px;}
+.bg-orb-3{width:200px;height:200px;background:#3b82f6;top:50%;left:50%;transform:translate(-50%,-50%);}
+.login-card{background:rgba(255,255,255,.97);border-radius:24px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.4);position:relative;z-index:1;animation:slideUp .5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo img{width:80px;height:80px;object-fit:contain;border-radius:20px;margin-bottom:14px;}
+.login-logo h1{font-size:22px;font-weight:800;color:#111827;margin-bottom:4px;}
+.login-logo p{font-size:13px;color:#6b7280;font-weight:500;}
+.tab-row{display:flex;background:#f3f4f6;border-radius:12px;padding:4px;margin-bottom:24px;}
+.tab-btn{flex:1;padding:10px;border:none;background:none;border-radius:9px;font-size:13px;font-weight:700;color:#6b7280;cursor:pointer;transition:all .2s;font-family:inherit;}
+.tab-btn.active{background:#fff;color:#6c47ff;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.form-section{display:none;}
+.form-section.active{display:block;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.field-wrap{position:relative;}
+.field input{width:100%;padding:12px 14px 12px 42px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;font-family:inherit;color:#111827;outline:none;transition:all .2s;background:#fff;}
+.field input:focus{border-color:#6c47ff;box-shadow:0 0 0 4px rgba(108,71,255,.1);}
+.field-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:15px;}
+.field-toggle{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#9ca3af;cursor:pointer;font-size:15px;border:none;background:none;padding:0;}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#6c47ff,#a855f7);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .25s;margin-top:8px;}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,71,255,.4);}
+.login-btn:active{transform:translateY(0);}
+.login-btn:disabled{opacity:.7;cursor:not-allowed;transform:none;}
+.forgot-link{text-align:right;margin-bottom:16px;}
+.forgot-link a{font-size:12.5px;color:#6c47ff;font-weight:700;cursor:pointer;text-decoration:none;}
+.forgot-link a:hover{text-decoration:underline;}
+.divider{text-align:center;color:#9ca3af;font-size:12px;font-weight:600;margin:16px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#e5e7eb;}
+.divider::before{left:0;}.divider::after{right:0;}
+.alert{padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;display:none;}
+.alert.show{display:flex;}
+.alert.error{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
+.alert.success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+.alert.info{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd;}
+.otp-row{display:flex;gap:8px;}
+.otp-row input{flex:1;text-align:center;font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:4px;}
+.resend-row{text-align:center;font-size:12.5px;color:#6b7280;margin-top:10px;}
+.resend-row span{color:#6c47ff;font-weight:700;cursor:pointer;}
+.login-footer{text-align:center;margin-top:20px;font-size:11.5px;color:#9ca3af;}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.credit-name{font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
+@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
+</style>
+</head>
+<body>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="login-card">
+  <div class="login-logo">
+    <img src="assets/img/hop-logo-main.png" alt="HOP HR" onerror="this.style.display='none'">
+    <h1>House of Panchhi HR</h1>
+    <p>Human Resource Management System</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab('login',this)">Sign In</button>
+    <button class="tab-btn" onclick="switchTab('forgot',this)">Forgot Password</button>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert" id="alertBox"><i class="fas fa-info-circle"></i><span id="alertMsg"></span></div>
+
+  <!-- LOGIN FORM -->
+  <div class="form-section active" id="tab-login">
+    <div class="field">
+      <label>Email Address</label>
+      <div class="field-wrap">
+        <i class="fas fa-envelope field-icon"></i>
+        <input type="email" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <div class="field-wrap">
+        <i class="fas fa-lock field-icon"></i>
+        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="field-toggle" onclick="togglePass('loginPass',this)"><i class="fas fa-eye"></i></button>
+      </div>
+    </div>
+    <div class="forgot-link"><a onclick="switchTabByName('forgot')">Forgot password?</a></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      <i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In
+    </button>
+  </div>
+
+  <!-- FORGOT PASSWORD FORM -->
+  <div class="form-section" id="tab-forgot">
+
+    <!-- Step 1: Email -->
+    <div id="step-email">
+      <p style="font-size:13.5px;color:#6b7280;margin-bottom:20px;line-height:1.6">Enter your registered email. We'll send a 6-digit OTP to reset your password.</p>
+      <div class="field">
+        <label>Registered Email</label>
+        <div class="field-wrap">
+          <i class="fas fa-envelope field-icon"></i>
+          <input type="email" id="resetEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendOTP()">
+        </div>
+      </div>
+      <button class="login-btn" id="sendOTPBtn" onclick="sendOTP()">
+        <i class="fas fa-paper-plane"></i>&nbsp; Send OTP
+      </button>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="step-otp" style="display:none">
+      <p style="font-size:13.5px;color:#6b7280;margin-bottom:16px">OTP sent to <strong id="otpEmailDisplay"></strong></p>
+      <div class="field">
+        <label>Enter 6-Digit OTP</label>
+        <div class="field-wrap">
+          <i class="fas fa-key field-icon"></i>
+          <input type="text" id="otpInput" placeholder="000000" maxlength="6" style="letter-spacing:8px;font-weight:800;font-family:'JetBrains Mono',monospace;font-size:18px;" onkeydown="if(event.key==='Enter')verifyOTP()">
+        </div>
+      </div>
+      <div class="resend-row">Didn't receive? <span onclick="sendOTP()">Resend OTP</span></div>
+      <button class="login-btn" style="margin-top:16px" id="verifyOTPBtn" onclick="verifyOTP()">
+        <i class="fas fa-check-circle"></i>&nbsp; Verify OTP
+      </button>
+    </div>
+
+    <!-- Step 3: New Password -->
+    <div id="step-newpass" style="display:none">
+      <div class="field">
+        <label>New Password</label>
+        <div class="field-wrap">
+          <i class="fas fa-lock field-icon"></i>
+          <input type="password" id="newPass" placeholder="Min 8 characters">
+          <button class="field-toggle" onclick="togglePass('newPass',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <div class="field-wrap">
+          <i class="fas fa-lock field-icon"></i>
+          <input type="password" id="confirmPass" placeholder="Re-enter password" onkeydown="if(event.key==='Enter')resetPassword()">
+          <button class="field-toggle" onclick="togglePass('confirmPass',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <button class="login-btn" id="resetBtn" onclick="resetPassword()">
+        <i class="fas fa-key"></i>&nbsp; Reset Password
+      </button>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    © 2026 House of Panchhi HR &nbsp;·&nbsp; <span class="credit-name">Crafted by Aditya Tomar</span>
+  </div>
+</div>
+
+<script>
+const GS_URL = 'https://script.google.com/macros/s/AKfycbyGeFIezQQq_0rMhfHkuQv9brAVdjNV-SI4Fu-Hcdj7Z_RkcEUqxxdjzGZmY8mpjciG/exec';
+
+let otpEmail = '', otpVerified = false;
+
+/* ── Tabs ── */
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  hideAlert();
+  resetForgotSteps();
+}
+function switchTabByName(tab) {
+  const btns = document.querySelectorAll('.tab-btn');
+  const tabs = ['login','forgot'];
+  const idx  = tabs.indexOf(tab);
+  if(idx >= 0) switchTab(tab, btns[idx]);
+}
+
+/* ── Alert ── */
+function showAlert(type, msg) {
+  const box = document.getElementById('alertBox');
+  const txt = document.getElementById('alertMsg');
+  box.className = `alert ${type} show`;
+  txt.textContent = msg;
+}
+function hideAlert() {
+  document.getElementById('alertBox').className = 'alert';
+}
+
+/* ── Toggle password ── */
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if(inp.type === 'password') { inp.type='text'; icon.className='fas fa-eye-slash'; }
+  else { inp.type='password'; icon.className='fas fa-eye'; }
+}
+
+/* ── Login ── */
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value.trim();
+  hideAlert();
+  if(!email || !pass) { showAlert('error','Please enter email and password'); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<i class="fas fa-spinner spin"></i>&nbsp; Signing in...';
+  btn.disabled = true;
+
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'LOGIN');
+    params.append('data', JSON.stringify({ email, password: pass }));
+    params.append('sheet', 'Auth');
+
+    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const json = await res.json();
+
+    if(json.success) {
+      /* Save session */
+      localStorage.setItem('phr_session', JSON.stringify({
+        ...json.user,
+        loginTime: new Date().toISOString()
+      }));
+      localStorage.setItem('phr_profileName', json.user.name);
+      showAlert('success', `Welcome, ${json.user.name}! Redirecting...`);
+      setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+    } else {
+      showAlert('error', json.msg || 'Login failed. Check credentials.');
+      btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    /* Offline fallback — check localStorage */
+    const savedSession = localStorage.getItem('phr_session');
+    if(savedSession) {
+      const s = JSON.parse(savedSession);
+      if(s.email === email) {
+        showAlert('info', 'Offline mode — using saved session');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        return;
+      }
+    }
+    /* Dev fallback */
+    if(email === 'admin' && pass === 'admin123') {
+      localStorage.setItem('phr_session', JSON.stringify({ id:'USR001', name:'Aditya Tomar', email, role:'SUPER_ADMIN', permissions:['ALL'] }));
+      localStorage.setItem('phr_profileName', 'Aditya Tomar');
+      setTimeout(() => { window.location.href = 'index.html'; }, 800);
+      return;
+    }
+    showAlert('error', 'Connection failed. Check internet and try again.');
+    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
+    btn.disabled = false;
+  }
+}
+
+/* ── Send OTP ── */
+async function sendOTP() {
+  const email = document.getElementById('resetEmail').value.trim();
+  if(!email) { showAlert('error','Enter your email'); return; }
+
+  const btn = document.getElementById('sendOTPBtn');
+  btn.innerHTML = '<i class="fas fa-spinner spin"></i>&nbsp; Sending...';
+  btn.disabled = true;
+  hideAlert();
+
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'SEND_OTP');
+    params.append('data', JSON.stringify({ email }));
+    params.append('sheet', 'Auth');
+
+    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const json = await res.json();
+
+    if(json.success) {
+      otpEmail = email;
+      document.getElementById('otpEmailDisplay').textContent = email;
+      document.getElementById('step-email').style.display = 'none';
+      document.getElementById('step-otp').style.display   = 'block';
+      showAlert('success', 'OTP sent! Check your email.');
+    } else {
+      showAlert('error', json.msg || 'Failed to send OTP');
+    }
+  } catch(e) {
+    showAlert('error', 'Connection failed');
+  }
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i>&nbsp; Send OTP';
+  btn.disabled = false;
+}
+
+/* ── Verify OTP ── */
+async function verifyOTP() {
+  const otp = document.getElementById('otpInput').value.trim();
+  if(!otp || otp.length !== 6) { showAlert('error','Enter 6-digit OTP'); return; }
+
+  const btn = document.getElementById('verifyOTPBtn');
+  btn.innerHTML = '<i class="fas fa-spinner spin"></i>&nbsp; Verifying...';
+  btn.disabled = true;
+  hideAlert();
+
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'VERIFY_OTP');
+    params.append('data', JSON.stringify({ email:otpEmail, otp }));
+    params.append('sheet', 'Auth');
+
+    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const json = await res.json();
+
+    if(json.success) {
+      otpVerified = true;
+      document.getElementById('step-otp').style.display     = 'none';
+      document.getElementById('step-newpass').style.display = 'block';
+      showAlert('success', 'OTP verified! Set new password.');
+    } else {
+      showAlert('error', json.msg || 'Invalid OTP');
+    }
+  } catch(e) {
+    showAlert('error', 'Connection failed');
+  }
+  btn.innerHTML = '<i class="fas fa-check-circle"></i>&nbsp; Verify OTP';
+  btn.disabled = false;
+}
+
+/* ── Reset Password ── */
+async function resetPassword() {
+  const newPass = document.getElementById('newPass').value.trim();
+  const confirm = document.getElementById('confirmPass').value.trim();
+  hideAlert();
+  if(!newPass || newPass.length < 6) { showAlert('error','Password must be at least 6 characters'); return; }
+  if(newPass !== confirm) { showAlert('error','Passwords do not match'); return; }
+  if(!otpVerified) { showAlert('error','OTP not verified'); return; }
+
+  const btn = document.getElementById('resetBtn');
+  btn.innerHTML = '<i class="fas fa-spinner spin"></i>&nbsp; Resetting...';
+  btn.disabled = true;
+
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'RESET_PASSWORD');
+    params.append('data', JSON.stringify({ email:otpEmail, otp:document.getElementById('otpInput').value.trim(), newPassword:newPass }));
+    params.append('sheet', 'Auth');
+
+    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const json = await res.json();
+
+    if(json.success) {
+      showAlert('success', 'Password reset! Redirecting to login...');
+      setTimeout(() => { switchTabByName('login'); resetForgotSteps(); }, 2000);
+    } else {
+      showAlert('error', json.msg || 'Reset failed');
+    }
+  } catch(e) {
+    showAlert('error', 'Connection failed');
+  }
+  btn.innerHTML = '<i class="fas fa-key"></i>&nbsp; Reset Password';
+  btn.disabled = false;
+}
+
+function resetForgotSteps() {
+  document.getElementById('step-email').style.display   = 'block';
+  document.getElementById('step-otp').style.display     = 'none';
+  document.getElementById('step-newpass').style.display = 'none';
+  otpEmail = ''; otpVerified = false;
+  document.getElementById('resetEmail').value = '';
+  document.getElementById('otpInput').value   = '';
+  document.getElementById('newPass').value    = '';
+  document.getElementById('confirmPass').value= '';
+}
+
+/* ── Check if already logged in ── */
+window.addEventListener('load', () => {
+  const session = localStorage.getItem('phr_session');
+  if(session) {
+    const s = JSON.parse(session);
+    const loginTime = new Date(s.loginTime);
+    const hoursSince = (Date.now() - loginTime) / (1000*60*60);
+    if(hoursSince < 8) { window.location.href = 'index.html'; }
+    else { localStorage.removeItem('phr_session'); }
+  }
+  document.getElementById('loginEmail').focus();
+});
+</script>
+</body>
+</html>
