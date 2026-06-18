@@ -161,7 +161,7 @@
         <div class="nav-section-title">System</div>
         <div class="nav-link" data-page="settings" onclick="navigateTo('settings')"><i class="fas fa-sliders"></i> Settings</div>
         <div class="nav-link" data-page="profile" onclick="navigateTo('profile')"><i class="fas fa-user-circle"></i> My Profile</div>
-        <div class="nav-link" data-page="users" id="navUsers" onclick="navigateTo('users')"><i class="fas fa-users-gear"></i> User Management</div>
+        <div class="nav-link" onclick="window.location='users.html'"><i class="fas fa-users-gear"></i> User Management</div>
         <div class="nav-link" onclick="handleLogout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Logout</div>
       </div>
     </div>
@@ -791,10 +791,9 @@ function deleteUserConfirm(id,name){
 
 /* ── Auto-load users when navigating ── */
 const _origNavigateTo = navigateTo;
-function navigateTo(pageId){
-  _origNavigateTo(pageId);
-  if(pageId==='users')loadUsers();
-}
+/* navigateTo() now lives in app.js — this file no longer redefines it.
+   Special handling for the 'users' tab (if ever needed again) should
+   hook into app.js's navigateTo instead of shadowing it here. */
 
 </script>
 </body>
