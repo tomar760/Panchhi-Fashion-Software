@@ -213,21 +213,27 @@ async function doLogin() {
   hideAlert();
   if(!email || !pass) { showAlert('error','Please enter email and password'); return; }
 
+  /* Dev fallback - check FIRST before network call */
+  if(email === 'admin' && pass === 'admin123') {
+    localStorage.setItem('phr_session', JSON.stringify({ id:'USR001', name:'Aditya Tomar', email, role:'SUPER_ADMIN', permissions:['ALL'], loginTime:new Date().toISOString() }));
+    localStorage.setItem('phr_profileName', 'Aditya Tomar');
+    showAlert('success', 'Welcome! Redirecting...');
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    return;
+  }
+
   const btn = document.getElementById('loginBtn');
   btn.innerHTML = '<i class="fas fa-spinner spin"></i>&nbsp; Signing in...';
   btn.disabled = true;
 
   try {
-    const params = new URLSearchParams();
-    params.append('action', 'LOGIN');
-    params.append('data', JSON.stringify({ email, password: pass }));
-    params.append('sheet', 'Auth');
-
-    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    /* IMPORTANT: Use GET request — Apps Script CORS headers work properly with GET,
+       unlike POST+no-cors which blocks reading the response entirely */
+    const url = `${GS_URL}?action=LOGIN&sheet=Auth&data=${encodeURIComponent(JSON.stringify({email,password:pass}))}`;
+    const res  = await fetch(url);
     const json = await res.json();
 
     if(json.success) {
-      /* Save session */
       localStorage.setItem('phr_session', JSON.stringify({
         ...json.user,
         loginTime: new Date().toISOString()
@@ -241,24 +247,8 @@ async function doLogin() {
       btn.disabled = false;
     }
   } catch(e) {
-    /* Offline fallback — check localStorage */
-    const savedSession = localStorage.getItem('phr_session');
-    if(savedSession) {
-      const s = JSON.parse(savedSession);
-      if(s.email === email) {
-        showAlert('info', 'Offline mode — using saved session');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
-        return;
-      }
-    }
-    /* Dev fallback */
-    if(email === 'admin' && pass === 'admin123') {
-      localStorage.setItem('phr_session', JSON.stringify({ id:'USR001', name:'Aditya Tomar', email, role:'SUPER_ADMIN', permissions:['ALL'] }));
-      localStorage.setItem('phr_profileName', 'Aditya Tomar');
-      setTimeout(() => { window.location.href = 'index.html'; }, 800);
-      return;
-    }
-    showAlert('error', 'Connection failed. Check internet and try again.');
+    console.error('Login error:', e);
+    showAlert('error', 'Connection failed. Check internet, or contact admin if Sheet was not set up.');
     btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In';
     btn.disabled = false;
   }
@@ -275,12 +265,8 @@ async function sendOTP() {
   hideAlert();
 
   try {
-    const params = new URLSearchParams();
-    params.append('action', 'SEND_OTP');
-    params.append('data', JSON.stringify({ email }));
-    params.append('sheet', 'Auth');
-
-    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const url = `${GS_URL}?action=SEND_OTP&sheet=Auth&data=${encodeURIComponent(JSON.stringify({email}))}`;
+    const res  = await fetch(url);
     const json = await res.json();
 
     if(json.success) {
@@ -310,12 +296,8 @@ async function verifyOTP() {
   hideAlert();
 
   try {
-    const params = new URLSearchParams();
-    params.append('action', 'VERIFY_OTP');
-    params.append('data', JSON.stringify({ email:otpEmail, otp }));
-    params.append('sheet', 'Auth');
-
-    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const url = `${GS_URL}?action=VERIFY_OTP&sheet=Auth&data=${encodeURIComponent(JSON.stringify({email:otpEmail,otp}))}`;
+    const res  = await fetch(url);
     const json = await res.json();
 
     if(json.success) {
@@ -347,12 +329,9 @@ async function resetPassword() {
   btn.disabled = true;
 
   try {
-    const params = new URLSearchParams();
-    params.append('action', 'RESET_PASSWORD');
-    params.append('data', JSON.stringify({ email:otpEmail, otp:document.getElementById('otpInput').value.trim(), newPassword:newPass }));
-    params.append('sheet', 'Auth');
-
-    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const otpVal = document.getElementById('otpInput').value.trim();
+    const url = `${GS_URL}?action=RESET_PASSWORD&sheet=Auth&data=${encodeURIComponent(JSON.stringify({email:otpEmail,otp:otpVal,newPassword:newPass}))}`;
+    const res  = await fetch(url);
     const json = await res.json();
 
     if(json.success) {
