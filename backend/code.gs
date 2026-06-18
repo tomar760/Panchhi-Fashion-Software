@@ -104,9 +104,20 @@ function doGet(e) {
     const action = e.parameter.action || 'READ';
     const filter = e.parameter.filter || '';
     const id     = e.parameter.id;
+    const data   = e.parameter.data ? JSON.parse(e.parameter.data) : {};
 
     let result;
     switch(action) {
+      /* Auth actions - now also work via GET (needed for reliable CORS) */
+      case 'LOGIN':          result = handleLogin(data); break;
+      case 'SEND_OTP':       result = handleSendOTP(data); break;
+      case 'VERIFY_OTP':     result = handleVerifyOTP(data); break;
+      case 'RESET_PASSWORD': result = handleResetPassword(data); break;
+      case 'CREATE_USER':    result = handleCreateUser(data); break;
+      case 'UPDATE_USER':    result = handleUpdateUser(data); break;
+      case 'DELETE_USER':    result = handleDeleteUser(id); break;
+
+      /* Data actions */
       case 'READ':         result = readData(sheet, filter); break;
       case 'GET_ACTIVITY': result = getActivity(parseInt(e.parameter.limit)||50); break;
       case 'GET_USERS':    result = getUsers(); break;
@@ -115,7 +126,7 @@ function doGet(e) {
     }
     return respond(result);
   } catch(err) {
-    return respond({ success:false, error:err.message });
+    return respond({ success:false, error:err.message, stack:err.stack });
   }
 }
 
