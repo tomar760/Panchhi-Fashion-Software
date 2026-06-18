@@ -32,16 +32,22 @@ const SHEETS = {
 
 /* ════════════════════════════════════
    CORS HELPER
+   NOTE: ContentService output does NOT support .setHeader() chaining
+   in Apps Script — CORS for GET requests is handled automatically by
+   Google for script.google.com/macros/s/.../exec URLs. No manual
+   header injection is needed (and attempting it throws this exact
+   "setHeader is not a function" error).
 ════════════════════════════════════ */
 function cors(output) {
-  return output
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  return output; // pass-through — kept for readability/future use
 }
-function doOptions(e) { return cors(ContentService.createTextOutput('')); }
+function doOptions(e) {
+  return ContentService.createTextOutput('');
+}
 function respond(data) {
-  return cors(ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON));
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /* ════════════════════════════════════
