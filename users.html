@@ -362,12 +362,8 @@ async function saveUser() {
   try {
     const data = { id:currentEditId||undefined, name, email, role, permissions:perms, password:password||undefined };
     const action = currentEditId ? 'UPDATE_USER' : 'CREATE_USER';
-    const params = new URLSearchParams();
-    params.append('action', action);
-    params.append('data', JSON.stringify(data));
-    params.append('sheet', 'Users');
-
-    const res  = await fetch(GS_URL, { method:'POST', body:params });
+    const url = `${GS_URL}?action=${action}&sheet=Users&data=${encodeURIComponent(JSON.stringify(data))}`;
+    const res  = await fetch(url);
     const json = await res.json();
 
     if(json.success) {
@@ -388,11 +384,8 @@ async function toggleUserStatus(id, status) {
   const newStatus = status==='ACTIVE' ? 'INACTIVE' : 'ACTIVE';
   if(!confirm(`Mark user as ${newStatus}?`)) return;
   try {
-    const params = new URLSearchParams();
-    params.append('action', 'UPDATE_USER');
-    params.append('data', JSON.stringify({ id, status:newStatus }));
-    params.append('sheet', 'Users');
-    await fetch(GS_URL, { method:'POST', body:params });
+    const url = `${GS_URL}?action=UPDATE_USER&sheet=Users&data=${encodeURIComponent(JSON.stringify({id,status:newStatus}))}`;
+    await fetch(url);
     loadUsers();
     showToast('success', 'Updated', `User marked ${newStatus}`);
   } catch(e) { showToast('error','Error','Connection failed'); }
@@ -403,11 +396,8 @@ function deleteUser(id, name) {
   document.querySelector('.btn-confirm-ok').onclick = async () => {
     closeModal('confirm');
     try {
-      const params = new URLSearchParams();
-      params.append('action', 'DELETE_USER');
-      params.append('id', id);
-      params.append('sheet', 'Users');
-      await fetch(GS_URL, { method:'POST', body:params });
+      const url = `${GS_URL}?action=DELETE_USER&sheet=Users&id=${encodeURIComponent(id)}`;
+      await fetch(url);
       loadUsers();
       showToast('success','Deleted',`${name} removed`);
     } catch(e){ showToast('error','Error','Connection failed'); }
