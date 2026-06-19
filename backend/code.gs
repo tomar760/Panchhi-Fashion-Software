@@ -359,16 +359,21 @@ function insertData(sheetName, data, userId) {
   const sheet   = getOrCreate(ss, mapped.name);
   if(sheet.getLastRow() === 0) { sheet.appendRow(mapped.headers); styleHeader(sheet); }
 
-  /* Check if exists → update */
-  if(data.id) {
-    const existRow = findRow(sheet, 1, data.id);
-    if(existRow > 0) {
-      const row = mapped.toRow(data);
-      sheet.getRange(existRow, 1, 1, row.length).setValues([row]);
-      alternateRows(sheet);
-      logActivity(ss, 'UPDATE', userId||'SYSTEM', '', 'Updated in '+sheetName, data.id);
-      return { success:true, action:'UPDATED' };
-    }
+  /* Check if exists → update instead of creating duplicate.
+     For Employees specifically, match by E-Code (col 2) too — bulk MIS
+     uploads generate a fresh random ID every time but E-Code is stable,
+     so matching by ID alone would create duplicate rows on re-upload. */
+  let existRow = -1;
+  if(data.id) existRow = findRow(sheet, 1, data.id);
+  if(existRow < 0 && mapped.name === SHEETS.EMPLOYEES && data.ecode) {
+    existRow = findRow(sheet, 2, data.ecode);
+  }
+  if(existRow > 0) {
+    const row = mapped.toRow(data);
+    sheet.getRange(existRow, 1, 1, row.length).setValues([row]);
+    alternateRows(sheet);
+    logActivity(ss, 'UPDATE', userId||'SYSTEM', '', 'Updated in '+sheetName, data.id||data.ecode);
+    return { success:true, action:'UPDATED' };
   }
 
   sheet.appendRow(mapped.toRow(data));
@@ -519,9 +524,10 @@ function getOrCreate(ss, name) {
 function findRow(sheet, col, value) {
   const last = sheet.getLastRow();
   if(last < 2) return -1;
+  const target = value?.toString().trim().toLowerCase();
   const vals = sheet.getRange(2, col, last-1, 1).getValues();
   for(let i=0; i<vals.length; i++) {
-    if(vals[i][0]?.toString().trim() === value?.toString().trim()) return i+2;
+    if(vals[i][0]?.toString().trim().toLowerCase() === target) return i+2;
   }
   return -1;
 }
