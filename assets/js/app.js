@@ -1,823 +1,403 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>House of Panchhi HR</title>
-<!-- Favicon -->
-<link rel="icon" type="image/png" href="assets/img/hop-logo-wings.png">
-<link rel="apple-touch-icon" href="assets/img/hop-logo-wings.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="assets/css/style.css">
-<style>
-/* ── Dashboard specific ── */
-.dashboard-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:20px;margin-bottom:24px;}
-.chart-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:22px;}
-.chart-card h3{font-size:14px;font-weight:800;color:var(--gray-900);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
-.chart-card h3 i{color:var(--primary);}
-.bar-chart{display:flex;align-items:flex-end;gap:10px;height:160px;padding-bottom:24px;position:relative;}
-.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
-.bar{width:100%;border-radius:6px 6px 0 0;min-width:24px;position:relative;transition:height 1s cubic-bezier(0.4,0,0.2,1);cursor:pointer;}
-.bar:hover{opacity:0.82;}
-.bar-val{font-size:10px;font-weight:800;color:var(--gray-700);position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;}
-.bar-label{font-size:10px;color:var(--gray-500);font-weight:600;margin-top:4px;}
-.donut-wrap{display:flex;align-items:center;gap:20px;margin-top:8px;}
-.donut{width:110px;height:110px;border-radius:50%;position:relative;flex-shrink:0;}
-.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:68px;height:68px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.donut-center .dn{font-size:20px;font-weight:800;color:var(--gray-900);}
-.donut-center .dl{font-size:9px;color:var(--gray-400);font-weight:700;text-transform:uppercase;}
-.donut-legend{font-size:11.5px;}
-.donut-legend li{display:flex;align-items:center;gap:6px;margin-bottom:7px;color:var(--gray-600);font-weight:500;list-style:none;}
-.donut-legend li span{width:9px;height:9px;border-radius:3px;flex-shrink:0;display:inline-block;}
-.reminder-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:22px;margin-bottom:20px;}
-.reminder-card h3{font-size:14px;font-weight:800;color:var(--gray-900);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.reminder-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:8px;}
-.reminder-item:last-child{margin-bottom:0;}
-.reminder-item.red{background:var(--danger-light);}
-.reminder-item.amber{background:var(--warning-light);}
-.reminder-item.blue{background:var(--info-light);}
-.reminder-item.green{background:var(--success-light);}
-.reminder-item i{font-size:14px;margin-top:1px;flex-shrink:0;}
-.reminder-item.red i{color:var(--danger);}
-.reminder-item.amber i{color:var(--warning);}
-.reminder-item.blue i{color:var(--info);}
-.reminder-item.green i{color:var(--success);}
-.reminder-item .rt{font-size:12.5px;font-weight:700;color:var(--gray-800);}
-.reminder-item .rs{font-size:11px;color:var(--gray-500);margin-top:2px;}
-.activity-time{font-size:11px;color:var(--gray-400);white-space:nowrap;font-family:'JetBrains Mono',monospace;}
+/* ============================================================
+   PANCHHI HR SOFTWARE — app.js v4.0
+   Multi-user + GSheet Primary DB + Real-time Sync
+============================================================ */
 
-/* ── Maintenance Modal ── */
-.maintenance-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.maintenance-overlay.show{display:flex;}
-.maintenance-box{background:#fff;border-radius:24px;padding:44px 36px;max-width:420px;width:90vw;text-align:center;animation:modalPop .3s cubic-bezier(0.34,1.56,0.64,1);}
-.maintenance-icon{font-size:56px;margin-bottom:16px;display:block;}
-.maintenance-box h3{font-size:20px;font-weight:800;color:var(--gray-900);margin-bottom:8px;}
-.maintenance-box p{font-size:13.5px;color:var(--gray-500);line-height:1.7;margin-bottom:24px;}
-.maintenance-badge{display:inline-flex;align-items:center;gap:6px;background:var(--warning-light);color:#92400e;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:20px;}
+const App = {
+  currentUser: null,
+  version: 'v1.0.0',
+  syncInterval: null,
+};
 
-/* ── Animated Footer Credit ── */
-.app-footer{text-align:center;padding:20px;margin-top:8px;border-top:1px solid var(--gray-100);}
-.credit-text{font-size:12px;color:var(--gray-400);font-weight:600;}
-.credit-name{font-size:13px;font-weight:800;background:linear-gradient(90deg,#6c47ff,#a855f7,#ec4899,#f59e0b,#10b981,#3b82f6,#6c47ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rainbowText 3s linear infinite;}
-@keyframes rainbowText{0%{background-position:0% center;}100%{background-position:200% center;}}
-
-/* ── Sidebar Logo ── */
-.sidebar-logo-img{width:36px;height:36px;object-fit:contain;border-radius:10px;}
-.login-logo-img{width:80px;height:80px;object-fit:contain;margin-bottom:12px;}
-
-/* ── Birthday Alert ── */
-.birthday-card{background:linear-gradient(135deg,#fdf4ff,#fce7f3);border:1px solid #f9a8d4;border-radius:var(--radius-md);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.birthday-card i{font-size:20px;color:#ec4899;}
-.birthday-card .bname{font-size:13px;font-weight:800;color:var(--gray-900);}
-.birthday-card .bdept{font-size:11.5px;color:var(--gray-500);}
-
-@media(max-width:900px){.dashboard-grid{grid-template-columns:1fr;}}
-</style>
-</head>
-<body>
-
-<!-- ══════════ LOGIN ══════════ -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-bg-pattern"></div>
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="assets/img/hop-logo-main.png" alt="House of Panchhi HR" class="login-logo-img"
-        onerror="this.style.display='none';document.getElementById('loginFallbackIcon').style.display='flex'">
-      <div id="loginFallbackIcon" style="display:none;width:72px;height:72px;background:linear-gradient(135deg,var(--primary),#a855f7);border-radius:20px;align-items:center;justify-content:center;margin:0 auto 12px">
-        <i class="fas fa-feather-pointed" style="font-size:30px;color:#fff"></i>
-      </div>
-      <h1>House of Panchhi HR</h1>
-      <p>Human Resource Management System</p>
-    </div>
-    <div class="login-field">
-      <label>Email Address</label>
-      <input type="email" id="loginUser" placeholder="your@email.com" autocomplete="email">
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <div style="position:relative">
-        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
-        <button onclick="togglePassView()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400)"><i class="fas fa-eye" id="passEyeIcon"></i></button>
-      </div>
-    </div>
-    <div id="loginError" style="display:none;background:#fee2e2;color:#b91c1c;padding:9px 12px;border-radius:8px;font-size:12.5px;font-weight:600;margin-bottom:8px;text-align:center"></div>
-    <button class="login-btn" id="loginBtn" onclick="handleLogin()">
-      <i class="fas fa-arrow-right-to-bracket"></i> Sign In
-    </button>
-    <div style="text-align:center;margin-top:12px">
-      <a href="#" onclick="showForgotPassword()" style="font-size:12.5px;color:var(--primary);font-weight:600;text-decoration:none">Forgot Password?</a>
-    </div>
-    <div class="login-footer">© 2026 House of Panchhi HR &nbsp;·&nbsp; v1.0.0</div>
-  </div>
-</div>
-
-<!-- ══════════ APP ══════════ -->
-<div class="app-wrapper" id="appWrapper">
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-  <!-- ── SIDEBAR ── -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img"
-        onerror="this.outerHTML='<div class=\'brand-icon\'><i class=\'fas fa-feather-pointed\'></i></div>'">
-      <div class="brand-text">
-        <h2>House of Panchhi</h2>
-        <span>HR Software v1.0</span>
-      </div>
-    </div>
-
-    <div class="sidebar-nav">
-      <div class="nav-section">
-        <div class="nav-section-title">Main</div>
-        <div class="nav-link active" data-page="dashboard" onclick="navigateTo('dashboard')">
-          <i class="fas fa-th-large"></i> Dashboard
-        </div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">HR & Payroll</div>
-        <div class="nav-link" onclick="window.location='employees.html'"><i class="fas fa-users"></i> Employee Directory</div>
-
-        <div class="nav-link has-sub" onclick="toggleSubNav(this)">
-          <i class="fas fa-calendar-check"></i> Attendance
-          <i class="fas fa-chevron-right nav-chevron"></i>
-        </div>
-        <div class="nav-sub">
-          <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-clock"></i> Daily Attendance</div>
-          <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-user-clock"></i> Late Coming Report</div>
-          <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-user-xmark"></i> Absent Report</div>
-          <div class="nav-link" onclick="window.location='attendance.html'"><i class="fas fa-archive"></i> Attendance Archive</div>
-        </div>
-
-        <div class="nav-link" onclick="window.location='gatepass.html'"><i class="fas fa-door-open"></i> Gate Pass</div>
-        <div class="nav-link" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i> Leave Management</div>
-        <div class="nav-link" onclick="window.location='salary.html'"><i class="fas fa-money-bill-wave"></i> Salary / Payroll</div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">Operations</div>
-        <div class="nav-link" onclick="window.location='store.html'"><i class="fas fa-boxes-stacked"></i> Store & Inventory</div>
-        <div class="nav-link" onclick="showMaintenance('Expenses Tracker','Track company expenses, petty cash & budgets')"><i class="fas fa-receipt"></i> Expenses <span class="nav-soon">Soon</span></div>
-        <div class="nav-link" onclick="showMaintenance('Visitor Log','Track office visitors, entry & exit times')"><i class="fas fa-person-walking-arrow-right"></i> Visitor Log <span class="nav-soon">Soon</span></div>
-        <div class="nav-link" onclick="showMaintenance('Purchase Orders','Manage PO creation, approval & tracking')"><i class="fas fa-file-invoice"></i> Purchase Orders <span class="nav-soon">Soon</span></div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">Analytics & Teams</div>
-        <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
-        <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
-        <div class="nav-link" onclick="showMaintenance('Task Manager','Assign & track daily tasks across departments')"><i class="fas fa-list-check"></i> Task Manager <span class="nav-soon">Soon</span></div>
-        <div class="nav-link" onclick="showMaintenance('Announcements','Send notices & announcements to all staff')"><i class="fas fa-bullhorn"></i> Announcements <span class="nav-soon">Soon</span></div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">Reports</div>
-        <div class="nav-link" onclick="showMaintenance('MIS Reports','Master reports — attendance, salary, store in one place')"><i class="fas fa-file-chart-column"></i> MIS Reports <span class="nav-soon">Soon</span></div>
-        <div class="nav-link" onclick="showMaintenance('Performance','Employee ratings, appraisal & performance tracking')"><i class="fas fa-star"></i> Performance <span class="nav-soon">Soon</span></div>
-        <div class="nav-link" onclick="showMaintenance('Recruitment','Manage hiring pipeline & candidate tracking')"><i class="fas fa-user-tie"></i> Recruitment <span class="nav-soon">Soon</span></div>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-section-title">System</div>
-        <div class="nav-link" data-page="settings" onclick="navigateTo('settings')"><i class="fas fa-sliders"></i> Settings</div>
-        <div class="nav-link" data-page="profile" onclick="navigateTo('profile')"><i class="fas fa-user-circle"></i> My Profile</div>
-        <div class="nav-link" data-page="users" id="navUsers" onclick="navigateTo('users')"><i class="fas fa-users-gear"></i> User Management</div>
-        <div class="nav-link" onclick="handleLogout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Logout</div>
-      </div>
-    </div>
-
-    <div class="sidebar-footer" onclick="navigateTo('profile')">
-      <div class="user-avatar" id="sidebarAvatar" style="background:linear-gradient(135deg,var(--primary),#a855f7)">AT</div>
-      <div class="user-info">
-        <h4 id="sidebarName">Aditya Tomar</h4>
-        <span><span class="online-dot"></span> Super Admin</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ── MAIN ── -->
-  <div class="main-content">
-    <header class="top-header">
-      <div class="header-left">
-        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="page-title">
-          <h1 id="pageTitle">Dashboard</h1>
-          <p id="pageSubtitle">Overview & quick actions</p>
-        </div>
-      </div>
-      <div class="header-right">
-        <div class="header-clock"><i class="fas fa-clock"></i><span id="liveClock" class="clock-label">00:00:00</span></div>
-        <button class="header-icon-btn" onclick="showToast('info','Notifications','No new notifications')">
-          <i class="fas fa-bell"></i><span class="header-notif-dot"></span>
-        </button>
-        <div class="header-avatar" id="headerAvatar" onclick="navigateTo('profile')" style="background:linear-gradient(135deg,var(--primary),#a855f7)">AT</div>
-      </div>
-    </header>
-
-    <div class="page-content">
-
-      <!-- ══ DASHBOARD ══ -->
-      <div class="page active" id="page-dashboard">
-        <div style="margin-bottom:20px">
-          <h2 id="greetingText" style="font-size:20px;font-weight:800;color:var(--gray-900)">Good Morning! 👋</h2>
-          <p id="greetingDate" style="font-size:13px;color:var(--gray-500);margin-top:3px"></p>
-        </div>
-
-        <!-- Birthday Alert -->
-        <div id="birthdaySection" style="display:none;margin-bottom:20px"></div>
-
-        <!-- Stats -->
-        <div class="stat-cards">
-          <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div class="stat-number" id="ds-totalEmp">0</div><div class="stat-label">Total Employees</div></div>
-          <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div class="stat-number" id="ds-presentToday">—</div><div class="stat-label">Present Today</div></div>
-          <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-user-xmark"></i></div><div class="stat-number" id="ds-absentToday">—</div><div class="stat-label">Absent Today</div></div>
-          <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-door-open"></i></div><div class="stat-number" id="ds-onGatepass">0</div><div class="stat-label">On Gate Pass</div></div>
-          <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-money-bill-wave"></i></div><div class="stat-number" id="ds-payroll">—</div><div class="stat-label">Payroll This Month</div></div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="section-title"><i class="fas fa-bolt"></i> Quick Actions</div>
-        <div class="quick-grid">
-          <div class="quick-btn" onclick="window.location='employees.html'"><i class="fas fa-user-plus"></i><span>Add Employee</span></div>
-          <div class="quick-btn" onclick="window.location='attendance.html'"><i class="fas fa-clipboard-check"></i><span>Attendance</span></div>
-          <div class="quick-btn" onclick="window.location='gatepass.html'"><i class="fas fa-passport"></i><span>Gate Pass</span></div>
-          <div class="quick-btn" onclick="window.location='leave.html'"><i class="fas fa-calendar-days"></i><span>Leave</span></div>
-          <div class="quick-btn" onclick="window.location='salary.html'"><i class="fas fa-calculator"></i><span>Payroll</span></div>
-          <div class="quick-btn" onclick="window.location='store.html'"><i class="fas fa-box"></i><span>Store Entry</span></div>
-          <div class="quick-btn" onclick="showMaintenance('Task Manager','Assign & track daily tasks — Coming Soon!')"><i class="fas fa-list-check"></i><span>Tasks</span></div>
-          <div class="quick-btn" onclick="showMaintenance('Announcements','Send notices to staff')"><i class="fas fa-bullhorn"></i><span>Announce</span></div>
-        </div>
-
-        <!-- Charts -->
-        <div class="dashboard-grid">
-          <div class="chart-card">
-            <h3><i class="fas fa-chart-bar"></i> Monthly Attendance Overview</h3>
-            <div class="bar-chart" id="dashBarChart"></div>
-          </div>
-          <div class="chart-card">
-            <h3><i class="fas fa-chart-pie"></i> Department Split</h3>
-            <div class="donut-wrap">
-              <div class="donut" id="dashDonut">
-                <div class="donut-center"><div class="dn" id="dashDonutNum">0</div><div class="dl">Total</div></div>
-              </div>
-              <ul class="donut-legend" id="dashDonutLegend"></ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reminders & Activity -->
-        <div class="grid-1-2">
-          <div class="reminder-card">
-            <h3><i class="fas fa-bell" style="color:var(--warning)"></i> Reminders & Alerts</h3>
-            <div id="dashReminders">
-              <div class="reminder-item amber">
-                <i class="fas fa-exclamation-circle"></i>
-                <div><div class="rt">Pending PO / PR Numbers</div><div class="rs" id="dash-poCount">Check store entries</div></div>
-              </div>
-              <div class="reminder-item red">
-                <i class="fas fa-user-clock"></i>
-                <div><div class="rt">Late Coming — Today</div><div class="rs" id="dash-lateCount">Upload attendance to see</div></div>
-              </div>
-              <div class="reminder-item blue">
-                <i class="fas fa-calendar-xmark"></i>
-                <div><div class="rt">Leave Requests Pending</div><div class="rs" id="dash-pendingLeave">No pending requests</div></div>
-              </div>
-              <div class="reminder-item green" id="dash-probationAlert" style="display:none">
-                <i class="fas fa-user-clock"></i>
-                <div><div class="rt">Probation Ending Soon</div><div class="rs" id="dash-probationText"></div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="table-card" style="margin-bottom:0">
-            <div class="table-header">
-              <h3><i class="fas fa-clock-rotate-left"></i> Recent Activity</h3>
-              <span class="badge badge-green"><span class="online-dot pulse"></span>&nbsp;Live</span>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead><tr><th>Time</th><th>Activity</th><th>Employee</th><th>Status</th></tr></thead>
-                <tbody id="dashActivityBody">
-                  <tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No activity yet</p><span>Actions will appear here</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Footer Credit -->
-        <div class="app-footer">
-          <div class="credit-text">House of Panchhi HR Software &nbsp;·&nbsp; <span class="credit-name">Crafted with ❤️ by Aditya Tomar</span></div>
-        </div>
-      </div>
-
-      <!-- ══ SETTINGS ══ -->
-      <div class="page" id="page-settings">
-        <div class="grid-2">
-          <div class="form-card">
-            <div class="form-card-title"><i class="fas fa-scale-balanced"></i> Payroll Rules</div>
-            <div class="toggle-row"><div class="toggle-info"><h4>PF Deduction (12%)</h4><p>Enable when applicable</p></div><label class="toggle-switch"><input type="checkbox" onchange="showToast('success','Saved','PF updated')"><span class="toggle-slider"></span></label></div>
-            <div class="toggle-row"><div class="toggle-info"><h4>ESIC Deduction (0.75%)</h4><p>Enable when applicable</p></div><label class="toggle-switch"><input type="checkbox" onchange="showToast('success','Saved','ESIC updated')"><span class="toggle-slider"></span></label></div>
-            <div class="toggle-row"><div class="toggle-info"><h4>3-Hour Grace (Senior Staff)</h4><p>3 hrs free per month</p></div><label class="toggle-switch"><input type="checkbox" checked onchange="showToast('success','Saved','Grace updated')"><span class="toggle-slider"></span></label></div>
-            <div class="toggle-row"><div class="toggle-info"><h4>31-Day Bonus (Stitching/Embroidery)</h4><p>Full month = 31 days salary</p></div><label class="toggle-switch"><input type="checkbox" checked onchange="showToast('success','Saved','Bonus updated')"><span class="toggle-slider"></span></label></div>
-          </div>
-          <div class="form-card">
-            <div class="form-card-title"><i class="fas fa-building"></i> Company Configuration</div>
-            <div class="form-group mb-16"><label>Company Name</label><input type="text" value="House of Panchhi"></div>
-            <div class="form-group mb-16"><label>Working Hours / Day</label><input type="number" value="9"></div>
-            <div class="form-group mb-16"><label>Max Advance % of Salary</label><input type="number" value="50"></div>
-            <div class="form-group mb-16"><label>PL per Year</label><input type="number" value="12"></div>
-            <div class="form-group mb-16"><label>SL per Year</label><input type="number" value="3"></div>
-            <div class="form-group mb-16"><label>Google Sheets Web App URL</label><input type="url" id="sheetsUrl" placeholder="https://script.google.com/..."></div>
-            <button class="btn btn-primary btn-full" onclick="saveSettings()"><i class="fas fa-save"></i> Save Configuration</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ PROFILE ══ -->
-      <div class="page" id="page-profile">
-        <div class="form-card">
-          <div style="display:flex;align-items:center;gap:20px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--gray-100);flex-wrap:wrap">
-            <div id="profileAvatarLg" style="width:80px;height:80px;background:linear-gradient(135deg,var(--primary),#a855f7);border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:800;flex-shrink:0;cursor:pointer" onclick="document.getElementById('profilePhotoInput').click()">
-              AT
-              <div style="position:absolute;bottom:-4px;right:-4px;background:var(--primary);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff">
-                <i class="fas fa-camera" style="font-size:9px;color:#fff"></i>
-              </div>
-            </div>
-            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)">
-            <div>
-              <h2 id="profileDisplayName" style="font-size:20px;font-weight:800;color:var(--gray-900)">Aditya Tomar</h2>
-              <p style="font-size:13px;color:var(--gray-500);margin-top:2px">Super Admin · House of Panchhi HR</p>
-              <div style="display:flex;gap:8px;margin-top:8px">
-                <span class="badge badge-purple"><i class="fas fa-crown" style="font-size:9px"></i> Super Admin</span>
-                <span class="badge badge-green"><span class="online-dot"></span> Online</span>
-              </div>
-            </div>
-          </div>
-          <div class="form-grid form-grid-2">
-            <div class="form-group"><label>Full Name</label><input type="text" id="profileName" value="Aditya Tomar" onchange="updateProfileName()"></div>
-            <div class="form-group"><label>Role</label><input type="text" value="Super Admin" disabled></div>
-            <div class="form-group"><label>Email</label><input type="email" id="profileEmail" placeholder="your@email.com"></div>
-            <div class="form-group"><label>Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
-          </div>
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-100)">
-            <h3 style="font-size:14px;font-weight:800;color:var(--gray-900);margin-bottom:16px"><i class="fas fa-lock" style="color:var(--primary);margin-right:6px"></i> Change Password</h3>
-            <div class="form-grid form-grid-2">
-              <div class="form-group"><label>Current Password</label><input type="password" placeholder="Current password"></div>
-              <div class="form-group"><label>New Password</label><input type="password" placeholder="New password"></div>
-            </div>
-          </div>
-          <div class="btn-group mt-16">
-            <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
-            <button class="btn btn-outline" onclick="showToast('success','Done','Password changed')"><i class="fas fa-key"></i> Update Password</button>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- end page-content -->
-  </div><!-- end main-content -->
-</div><!-- end app-wrapper -->
-
-<!-- ══ MAINTENANCE MODAL ══ -->
-<div class="maintenance-overlay" id="maintenanceModal">
-  <div class="maintenance-box">
-    <span class="maintenance-icon">🚧</span>
-    <div class="maintenance-badge"><i class="fas fa-hard-hat"></i> Under Construction</div>
-    <h3 id="maintenanceTitle">Module Coming Soon</h3>
-    <p id="maintenanceDesc">This module is currently being developed and will be available in a future update. Stay tuned!</p>
-    <button class="btn btn-primary" onclick="closeMaintenance()" style="margin:0 auto"><i class="fas fa-thumbs-up"></i> Got it!</button>
-  </div>
-</div>
-
-<!-- ══ CONFIRM MODAL ══ -->
-<div class="modal-overlay" id="modal-confirm">
-  <div class="modal-box modal-box-sm modal-confirm">
-    <div class="modal-confirm-icon red"><i class="fas fa-trash-alt"></i></div>
-    <h3>Are you sure?</h3>
-    <p>This action cannot be undone.</p>
-    <div class="modal-footer" style="justify-content:center">
-      <button class="btn btn-outline" onclick="closeModal('confirm')">Cancel</button>
-      <button class="btn btn-danger btn-confirm-ok">Yes, Proceed</button>
-    </div>
-  </div>
-</div>
-
-<!-- FORGOT PASSWORD MODAL -->
-<div class="modal-overlay" id="modal-forgotPwd" style="z-index:3000">
-  <div class="modal-box modal-box-sm">
-    <div class="modal-header">
-      <h3><i class="fas fa-key" style="color:var(--primary);margin-right:8px"></i>Reset Password</h3>
-      <button class="modal-close" onclick="closeModal('forgotPwd')"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div id="fpStep1">
-      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Enter your registered email — we'll send an OTP.</p>
-      <div class="form-group mb-16"><label>Email Address</label><input type="email" id="fp_email" placeholder="your@email.com"></div>
-      <button class="btn btn-primary btn-full" onclick="sendOTP()"><i class="fas fa-paper-plane"></i> Send OTP</button>
-    </div>
-    <div id="fpStep2" style="display:none">
-      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Enter the 6-digit OTP sent to your email.</p>
-      <div class="form-group mb-16"><label>OTP</label><input type="text" id="fp_otp" placeholder="Enter 6-digit OTP" maxlength="6" style="letter-spacing:6px;font-size:18px;text-align:center;font-family:'JetBrains Mono',monospace"></div>
-      <div class="form-group mb-16"><label>New Password</label><input type="password" id="fp_newpass" placeholder="New password"></div>
-      <div class="form-group mb-16"><label>Confirm Password</label><input type="password" id="fp_confirmpass" placeholder="Confirm password"></div>
-      <button class="btn btn-primary btn-full" onclick="resetPassword()"><i class="fas fa-lock"></i> Reset Password</button>
-    </div>
-    <div id="fpMsg" style="display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:12.5px;font-weight:600;text-align:center"></div>
-  </div>
-</div>
-
-<!-- USER MANAGEMENT PAGE -->
-<div class="page" id="page-users">
-  <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div>
-      <h2 style="font-size:18px;font-weight:800;color:var(--gray-900)">User Management</h2>
-      <p style="font-size:13px;color:var(--gray-500)">Max 10 accounts · Only Super Admin & Director can manage</p>
-    </div>
-    <button class="btn btn-primary" onclick="openCreateUser()"><i class="fas fa-user-plus"></i> Add User</button>
-  </div>
-  <div class="table-card">
-    <div class="table-header"><h3><i class="fas fa-users-gear"></i> All Users</h3><span id="userCount" class="badge badge-purple">0 users</span></div>
-    <div class="table-wrapper">
-      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Permissions</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="usersTableBody"><tr><td colspan="6" class="table-empty"><i class="fas fa-users"></i><p>Loading...</p></td></tr></tbody></table>
-    </div>
-  </div>
-</div>
-
-<!-- CREATE USER MODAL -->
-<div class="modal-overlay" id="modal-createUser">
-  <div class="modal-box" style="max-width:560px">
-    <div class="modal-header">
-      <h3><i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px"></i>Create New User</h3>
-      <button class="modal-close" onclick="closeModal('createUser')"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div class="form-grid form-grid-2" style="gap:12px;margin-bottom:14px">
-      <div class="form-group"><label>Full Name *</label><input type="text" id="nu_name" placeholder="Employee name"></div>
-      <div class="form-group"><label>Email *</label><input type="email" id="nu_email" placeholder="email@company.com"></div>
-      <div class="form-group"><label>Password *</label><input type="password" id="nu_pass" placeholder="Min 8 characters" value="Panchhi@123"></div>
-      <div class="form-group"><label>Role *</label>
-        <select id="nu_role">
-          <option value="STAFF">Staff</option>
-          <option value="MANAGER">Manager</option>
-          <option value="HR">HR</option>
-          <option value="ACCOUNTS">Accounts</option>
-          <option value="DIRECTOR">Director</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group mb-16">
-      <label>Module Permissions</label>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--gray-50);padding:12px;border-radius:var(--radius-md)">
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="ALL" style="accent-color:var(--primary)"> All Modules</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="employees" style="accent-color:var(--primary)"> Employees</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="attendance" style="accent-color:var(--primary)"> Attendance</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="gatepass" style="accent-color:var(--primary)"> Gate Pass</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="leave" style="accent-color:var(--primary)"> Leave</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="salary" style="accent-color:var(--primary)"> Salary</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="store" style="accent-color:var(--primary)"> Store</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="analytics" style="accent-color:var(--primary)"> Analytics</label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer"><input type="checkbox" class="perm-check" value="teams" style="accent-color:var(--primary)"> Teams</label>
-      </div>
-    </div>
-    <div class="alert alert-info" style="font-size:12px">
-      <i class="fas fa-info-circle"></i>
-      <div>User will receive login credentials via email at the provided address.</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('createUser')">Cancel</button>
-      <button class="btn btn-primary" onclick="createNewUser()"><i class="fas fa-paper-plane"></i> Create & Send Email</button>
-    </div>
-  </div>
-</div>
-
-<script src="assets/js/app.js"></script>
-<script>
 /* ══════════════════════════════════════
-   DASHBOARD + APP INIT
+   GOOGLE SHEET — PRIMARY DATABASE
 ══════════════════════════════════════ */
+const GSheet = {
+  URL: 'https://script.google.com/macros/s/AKfycbyGeFIezQQq_0rMhfHkuQv9brAVdjNV-SI4Fu-Hcdj7Z_RkcEUqxxdjzGZmY8mpjciG/exec',
 
-/* ── Maintenance Modal ── */
-function showMaintenance(title, desc) {
-  document.getElementById('maintenanceTitle').textContent = title;
-  document.getElementById('maintenanceDesc').textContent  = desc + '\n\nOur team is working hard to bring this to you soon!';
-  document.getElementById('maintenanceModal').classList.add('show');
+  showStatus(type, msg) {
+    ['sheetStatus','sheetStatus2'].forEach(id => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.textContent = msg;
+      el.className = 'sheet-status ' + type;
+      if(type==='success') setTimeout(()=>{el.textContent='';el.className='sheet-status';}, 3500);
+    });
+  },
+
+  async post(params) {
+    try {
+      const p = new URLSearchParams(params);
+      await fetch(this.URL, { method:'POST', mode:'no-cors', body:p });
+      return { success: true };
+    } catch(e) {
+      console.error('GSheet post error:', e);
+      return { success: false, error: e.message };
+    }
+  },
+
+  async get(params) {
+    try {
+      const url = this.URL + '?' + new URLSearchParams(params).toString();
+      const res  = await fetch(url);
+      return await res.json();
+    } catch(e) {
+      console.error('GSheet get error:', e);
+      return { success: false, error: e.message };
+    }
+  },
+
+  async send(sheet, data) {
+    this.showStatus('loading', '⏳ Saving...');
+    if(Array.isArray(data) && data.length > 50) {
+      return await this.sendBatch(sheet, data);
+    }
+    const userId = App.currentUser?.id || 'SYSTEM';
+    await this.post({ sheet, data: JSON.stringify(data), action:'INSERT', userId });
+    this.showStatus('success', '✓ Saved to Google Sheet');
+    return true;
+  },
+
+  async sendBatch(sheet, arr) {
+    const BATCH = 50, total = arr.length;
+    let done = 0;
+    const userId = App.currentUser?.id || 'SYSTEM';
+    for(let i=0; i<total; i+=BATCH) {
+      const chunk = arr.slice(i, i+BATCH);
+      await this.post({ sheet, data: JSON.stringify(chunk), action:'BATCH', userId });
+      done += chunk.length;
+      this.showStatus('loading', `⏳ Syncing... ${done}/${total}`);
+      await new Promise(r => setTimeout(r, 700));
+    }
+    this.showStatus('success', `✓ All ${total} records saved`);
+    return true;
+  },
+
+  async read(sheet) {
+    const res = await this.get({ sheet, action:'READ' });
+    if(res.success && res.data) {
+      const key = sheetKey(sheet);
+      if(key) Store.set(key, res.data);
+      return res.data;
+    }
+    return Store.get(sheetKey(sheet)||'_tmp');
+  },
+
+  async login(email, password) {
+    return await this.get({ action:'LOGIN', sheet:'Auth',
+      data: JSON.stringify({email, password}) });
+  },
+
+  async sendOTP(email) {
+    return await this.get({ action:'SEND_OTP', sheet:'Auth',
+      data: JSON.stringify({email}) });
+  },
+
+  async verifyOTP(email, otp) {
+    return await this.get({ action:'VERIFY_OTP', sheet:'Auth',
+      data: JSON.stringify({email, otp}) });
+  },
+
+  async resetPassword(email, otp, newPassword) {
+    return await this.get({ action:'RESET_PASSWORD', sheet:'Auth',
+      data: JSON.stringify({email, otp, newPassword}) });
+  },
+
+  async createUser(data) {
+    return await this.get({ action:'CREATE_USER', sheet:'Users',
+      data: JSON.stringify(data) });
+  },
+
+  async getUsers() {
+    return await this.get({ action:'GET_USERS', sheet:'Users' });
+  },
+
+  async updateUser(data) {
+    return await this.get({ action:'UPDATE_USER', sheet:'Users',
+      data: JSON.stringify(data) });
+  },
+
+  async deleteUser(id) {
+    return await this.get({ action:'DELETE_USER', sheet:'Users', id });
+  },
+
+  async getActivity(limit=50) {
+    return await this.get({ action:'GET_ACTIVITY', sheet:'Activity', limit });
+  },
+};
+
+function sheetKey(sheet) {
+  const m = {'Employees':'employees','Attendance':'attendance','GatePass':'gatepasses','LeaveRequests':'leaveRecords','Payroll':'salaryRecords','AdvanceLoan':'advanceLedger','Store':'storeEntries'};
+  return m[sheet]||null;
 }
-function closeMaintenance() {
-  document.getElementById('maintenanceModal').classList.remove('show');
+
+/* ══════════════════════════════════════
+   LOCAL STORAGE CACHE
+══════════════════════════════════════ */
+const Store = {
+  get(key) { try{return JSON.parse(localStorage.getItem('phr_'+key))||[];}catch{return[];} },
+  set(key,data) { try{localStorage.setItem('phr_'+key,JSON.stringify(data));return true;}catch{return false;} },
+  getObj(key) { try{return JSON.parse(localStorage.getItem('phr_'+key))||{};}catch{return{};} },
+  setObj(key,data) { try{localStorage.setItem('phr_'+key,JSON.stringify(data));return true;}catch{return false;} },
+};
+
+/* ══════════════════════════════════════
+   AUTH — LOGIN / LOGOUT
+══════════════════════════════════════ */
+async function handleLogin() {
+  const email = document.getElementById('loginUser')?.value?.trim();
+  const pass  = document.getElementById('loginPass')?.value?.trim();
+  const btn   = document.getElementById('loginBtn');
+  const err   = document.getElementById('loginError');
+
+  if(!email||!pass) { if(err){err.textContent='Enter email and password';err.style.display='block';} return; }
+
+  if(btn) { btn.innerHTML='<i class="fas fa-spinner spin"></i> Signing in...'; btn.disabled=true; }
+  if(err) err.style.display='none';
+
+  try {
+    const res = await GSheet.get({ action:'LOGIN', sheet:'Auth', data:JSON.stringify({email,password:pass}) });
+
+    if(res.success && res.user) {
+      App.currentUser = res.user;
+      Store.setObj('currentUser', res.user);
+      onLoginSuccess(res.user);
+    } else {
+      if(err) { err.textContent = res.msg||'Login failed'; err.style.display='block'; }
+      if(btn) { btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Sign In'; btn.disabled=false; }
+    }
+  } catch(e) {
+    /* Offline fallback — check hardcoded super admin */
+    const saved = Store.getObj('currentUser');
+    if(saved && saved.email===email) {
+      App.currentUser = saved;
+      onLoginSuccess(saved);
+    } else {
+      if(err) { err.textContent='Connection error. Check internet.'; err.style.display='block'; }
+      if(btn) { btn.innerHTML='<i class="fas fa-arrow-right-to-bracket"></i> Sign In'; btn.disabled=false; }
+    }
+  }
 }
-document.getElementById('maintenanceModal').addEventListener('click', function(e) {
-  if (e.target === this) closeMaintenance();
+
+function onLoginSuccess(user) {
+  document.getElementById('loginOverlay')?.classList.add('hidden');
+  document.getElementById('appWrapper')?.classList.add('active');
+  updateUserUI(user);
+  updateClock();
+  startAutoSync();
+  if(typeof initDashboard==='function') initDashboard();
+  showToast('success', `Welcome, ${user.name}!`, `Logged in as ${user.role}`);
+}
+
+function handleLogout() {
+  App.currentUser = null;
+  Store.setObj('currentUser', null);
+  stopAutoSync();
+  document.getElementById('loginOverlay')?.classList.remove('hidden');
+  document.getElementById('appWrapper')?.classList.remove('active');
+  if(document.getElementById('loginUser')) document.getElementById('loginUser').value='';
+  if(document.getElementById('loginPass')) document.getElementById('loginPass').value='';
+}
+
+function updateUserUI(user) {
+  if(!user) return;
+  const name = user.name || 'User';
+  const av   = initials(name);
+  document.querySelectorAll('.user-avatar, #sidebarAvatar, #headerAvatar').forEach(el => {
+    if(!el.querySelector('img')) el.textContent = av;
+  });
+  document.querySelectorAll('#sidebarName').forEach(el => el.textContent = name);
+
+  /* Apply permissions — hide restricted nav links */
+  if(user.role !== 'SUPER_ADMIN' && user.role !== 'DIRECTOR') {
+    const perms = user.permissions || [];
+    document.querySelectorAll('.nav-link[data-module]').forEach(link => {
+      const mod = link.getAttribute('data-module');
+      if(mod && !perms.includes(mod) && !perms.includes('ALL')) {
+        link.style.display = 'none';
+      }
+    });
+  }
+}
+
+/* ══════════════════════════════════════
+   AUTO SYNC — every 5 min
+══════════════════════════════════════ */
+function startAutoSync() {
+  stopAutoSync();
+  App.syncInterval = setInterval(async () => {
+    await refreshFromSheet();
+  }, 5 * 60 * 1000);
+}
+function stopAutoSync() {
+  if(App.syncInterval) { clearInterval(App.syncInterval); App.syncInterval=null; }
+}
+async function refreshFromSheet() {
+  try {
+    await GSheet.read('Employees');
+    await GSheet.read('Attendance');
+    console.log('Auto-synced from GSheet', new Date().toLocaleTimeString());
+  } catch(e) {}
+}
+
+/* ══════════════════════════════════════
+   CLOCK & GREETING
+══════════════════════════════════════ */
+function updateClock() {
+  const now  = new Date();
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const el   = document.getElementById('liveClock');
+  if(el) el.textContent = time;
+
+  const h = now.getHours();
+  const greeting = h<12?'Good Morning':h<17?'Good Afternoon':h<21?'Good Evening':'Good Night';
+  const name = App.currentUser?.name || Store.getObj('currentUser')?.name || 'there';
+
+  const gEl = document.getElementById('greetingText');
+  if(gEl) gEl.textContent = `${greeting}, ${name}! 👋`;
+  const dEl = document.getElementById('greetingDate');
+  if(dEl) dEl.textContent = now.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+function navigateTo(pageId) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const page = document.getElementById('page-'+pageId);
+  if(page) page.classList.add('active');
+  const link = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+  if(link) link.classList.add('active');
+  if(window.innerWidth<=768) closeSidebar();
+  const titles = {dashboard:{t:'Dashboard',s:'Overview & quick actions'},settings:{t:'Settings',s:'System configuration'},profile:{t:'My Profile',s:'Account settings'},users:{t:'User Management',s:'Manage accounts & permissions'}};
+  const ti = titles[pageId];
+  if(ti) {
+    const tEl=document.getElementById('pageTitle');const sEl=document.getElementById('pageSubtitle');
+    if(tEl)tEl.textContent=ti.t;if(sEl)sEl.textContent=ti.s;
+  }
+}
+
+function toggleSubNav(el) {
+  const sub=el.nextElementSibling;
+  if(!sub?.classList.contains('nav-sub'))return;
+  const open=sub.classList.contains('open');
+  document.querySelectorAll('.nav-sub').forEach(s=>s.classList.remove('open'));
+  document.querySelectorAll('.nav-link.has-sub').forEach(l=>l.classList.remove('open'));
+  if(!open){sub.classList.add('open');el.classList.add('open');}
+}
+function toggleSidebar(){document.getElementById('sidebar')?.classList.toggle('open');document.getElementById('sidebarOverlay')?.classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sidebarOverlay')?.classList.remove('show');}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(type='info',title='',message='',duration=3500) {
+  let c=document.getElementById('toastContainer');
+  if(!c){c=document.createElement('div');c.id='toastContainer';c.className='toast-container';document.body.appendChild(c);}
+  const icons={success:'fas fa-check-circle',error:'fas fa-times-circle',warning:'fas fa-exclamation-triangle',info:'fas fa-info-circle'};
+  const t=document.createElement('div');t.className=`toast ${type}`;
+  t.innerHTML=`<div class="toast-icon"><i class="${icons[type]||icons.info}"></i></div><div class="toast-body"><h4>${title}</h4>${message?`<p>${message}</p>`:''}</div>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},duration);
+}
+
+/* ══════════════════════════════════════
+   MODALS
+══════════════════════════════════════ */
+function showModal(id){document.getElementById('modal-'+id)?.classList.add('show');}
+function closeModal(id){document.getElementById('modal-'+id)?.classList.remove('show');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('show');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'));});
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function nowTimeStr(){const n=new Date();return n.toTimeString().slice(0,5);}
+function formatDate(d){if(!d)return'—';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function formatTime(t){if(!t)return'—';const[h,m]=t.split(':').map(Number);const ap=h>=12?'PM':'AM';return`${h%12||12}:${String(m).padStart(2,'0')} ${ap}`;}
+function timeDiffMinutes(t1,t2){if(!t1||!t2)return 0;const[h1,m1]=t1.split(':').map(Number);const[h2,m2]=t2.split(':').map(Number);return(h2*60+m2)-(h1*60+m1);}
+function minutesToHHMM(min){if(!min||min<=0)return'0 min';const h=Math.floor(Math.abs(min)/60),m=Math.abs(min)%60;if(h===0)return`${m} min`;if(m===0)return`${h} hr`;return`${h} hr ${m} min`;}
+function formatINR(n){if(!n&&n!==0)return'—';return'₹'+Number(n).toLocaleString('en-IN');}
+function genId(p=''){return p+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();}
+function initials(name=''){const p=name.trim().split(' ').filter(Boolean);if(!p.length)return'?';if(p.length===1)return p[0].slice(0,2).toUpperCase();return(p[0][0]+p[p.length-1][0]).toUpperCase();}
+const AVATAR_COLORS=['linear-gradient(135deg,#7c3aed,#a855f7)','linear-gradient(135deg,#10b981,#34d399)','linear-gradient(135deg,#3b82f6,#60a5fa)','linear-gradient(135deg,#f59e0b,#fbbf24)','linear-gradient(135deg,#ef4444,#f87171)','linear-gradient(135deg,#ec4899,#f472b6)','linear-gradient(135deg,#8b5cf6,#a78bfa)','linear-gradient(135deg,#06b6d4,#22d3ee)'];
+function avatarColor(name=''){let h=0;for(let c of name)h=c.charCodeAt(0)+((h<<5)-h);return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length];}
+function btnLoading(btn,text='Processing...'){const orig=btn.innerHTML;btn.innerHTML=`<i class="fas fa-spinner spin"></i>&nbsp;${text}`;btn.disabled=true;return function done(st){setTimeout(()=>{btn.innerHTML=`<i class="fas fa-check"></i>&nbsp;${st||'Done'}`;btn.style.background='linear-gradient(135deg,#10b981,#34d399)';setTimeout(()=>{btn.innerHTML=orig;btn.disabled=false;btn.style.background='';},900);},1400);};}
+function downloadCSV(filename,rows,headers){const csv=[headers.join(','),...rows.map(r=>headers.map(h=>`"${(r[h]??'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);showToast('success','Downloaded',filename);}
+
+/* ══════════════════════════════════════
+   MASTER DATA
+══════════════════════════════════════ */
+const DEPARTMENTS=['ADMIN','SALES','ONLINE SALES','ONLINE DISPATCH','DESIGN','DISPATCH','QC','STICHING','EMBROIDERY','MENDING','PRODUCTION PLANNING','PURCHASE','STORE','VALUE ADDITION'];
+const DESIGNATIONS={'ADMIN':['HR MANAGER','HR EXECUTIVE','SR. ACCOUNTANT','JR. ACCOUNTANT','ERP EXECUTIVE','SECURITY','HOUSE KEEPER'],'SALES':['SALES MANAGER','SALES COORDINATOR','SALES EXECUTIVE','SALES ASSOCIATE','SHOP ASSISTANT','COLLECTION EXECUTIVE'],'ONLINE SALES':['ONLINE HOD','GRAPHICS DESIGNER','SOCIAL MEDIA EXECUTIVE','D2C EXECUTIVE','ECOMMERCE EXECUTIVE','VIDEO EDITOR'],'ONLINE DISPATCH':['ONLINE DISPATCH SUPERVISOR','ONLINE PACKER','ONLINE DISPATCH EXECUTIVE','QUALITY CHECK'],'DESIGN':['DESIGN HEAD','FASHION DESIGNER','SR.COM.DESIGNER','JR. COM.DESIGNER','SKETCHER','STITCHING MASTER','STITCHING EXECUTIVE','MOCKING EXECUTIVE'],'DISPATCH':['SUPERVISOR','PACKER','HELPER','DRIVER','BILLING EXECUTIVE'],'QC':['SUPERVISOR','CHECKER','HELPER - STONE'],'STICHING':['SUPERVISOR','SR. MASTER','STITCHING EXECUTIVE','HELPER'],'EMBROIDERY':['SUPERVISOR','OPERATOR','PATTA STITCHING','HELPER'],'MENDING':['SUPERVISOR','CHECKER','ALTER EXECUTIVE','MENDOR','FOLDING CHECKER'],'PRODUCTION PLANNING':['PRODUCTION EXECUTIVE'],'PURCHASE':['HOD','PURCHASE EXECUTIVE','FABRIC CHECKER'],'STORE':['STORE MANAGER','STORE KEEPER','HELPER'],'VALUE ADDITION':['HOD','HELPER','ALTER EXECUTIVE','FOLDING - HELPER']};
+const DEPT_CODE_MAP={'ac':'ACCOUNTS','adm':'ADMIN','des':'DESIGN','dsp':'DISPATCH','emb':'EMBROIDERY','hr':'HR','mnd':'MENDING','on':'ONLINE','pp':'PRODUCTION','pur':'PURCHASE','qc':'QC','sal':'SALES','stc':'STITCHING','str':'STORE','va':'VALUE ADDITION'};
+const ALL_MODULES=['employees','attendance','gatepass','leave','salary','store','analytics','teams'];
+
+function getDeptFromEcode(ecode){if(!ecode)return'—';const p=ecode.split('/');return p.length>=2?(DEPT_CODE_MAP[p[1].toLowerCase()]||p[1].toUpperCase()):'—';}
+function populateDeptDropdown(selectId){const sel=document.getElementById(selectId);if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">Select Department...</option>';DEPARTMENTS.forEach(d=>sel.innerHTML+=`<option value="${d}">${d}</option>`);if(cur)sel.value=cur;}
+function populateDesigDropdown(deptVal,selectId){const sel=document.getElementById(selectId);if(!sel)return;const desigs=DESIGNATIONS[deptVal]||[];sel.innerHTML='<option value="">Select Designation...</option>';desigs.forEach(d=>sel.innerHTML+=`<option value="${d}">${d}</option>`);}
+function populateDeptDropdownFull(selectId){const sel=document.getElementById(selectId);if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">All Departments</option>';DEPARTMENTS.forEach(d=>sel.innerHTML+=`<option value="${d}">${d}</option>`);if(cur)sel.value=cur;}
+function getShiftLabel(shift){const m={'09:00-18:00':'9:00 AM–6:00 PM','10:00-19:00':'10:00 AM–7:00 PM','08:00-17:00':'8:00 AM–5:00 PM','11:00-20:00':'11:00 AM–8:00 PM'};return m[shift]||shift||'—';}
+
+/* ══════════════════════════════════════
+   PERMISSION CHECK
+══════════════════════════════════════ */
+function hasPermission(module) {
+  const user = App.currentUser || Store.getObj('currentUser');
+  if(!user) return false;
+  if(user.role==='SUPER_ADMIN'||user.role==='DIRECTOR') return true;
+  const perms = user.permissions||[];
+  return perms.includes('ALL') || perms.includes(module);
+}
+
+function checkAccess(module) {
+  if(!hasPermission(module)) {
+    showToast('error','Access Denied',`You don't have permission for this module`);
+    return false;
+  }
+  return true;
+}
+
+/* ══════════════════════════════════════
+   SHEET STATUS CSS
+══════════════════════════════════════ */
+(function(){
+  const s=document.createElement('style');
+  s.textContent=`.sheet-status{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;transition:all .3s;display:inline-block;}.sheet-status.success{background:#d1fae5;color:#065f46;}.sheet-status.loading{background:#dbeafe;color:#1d4ed8;}.sheet-status.error{background:#fee2e2;color:#b91c1c;}`;
+  document.head.appendChild(s);
+})();
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  setInterval(updateClock,1000);
+  updateClock();
+
+  /* Deep-link support: other module pages link here as
+     index.html#settings or index.html#profile — on load,
+     open that specific tab instead of always landing on dashboard. */
+  const hashPage = window.location.hash.replace('#','');
+  if(hashPage && document.getElementById('page-'+hashPage)) {
+    navigateTo(hashPage);
+  }
+
+  /* Check if already logged in */
+  const saved = Store.getObj('currentUser');
+  if(saved && saved.id) {
+    App.currentUser = saved;
+    document.getElementById('loginOverlay')?.classList.add('hidden');
+    document.getElementById('appWrapper')?.classList.add('active');
+    updateUserUI(saved);
+    startAutoSync();
+    if(typeof initDashboard==='function') initDashboard();
+  }
+
+  /* Login enter key */
+  document.getElementById('loginPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')handleLogin();});
+  document.getElementById('loginUser')?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPass')?.focus();});
 });
 
-/* ── Profile ── */
-function updateProfileName() {
-  const name = document.getElementById('profileName')?.value?.trim() || 'Admin';
-  document.getElementById('profileDisplayName').textContent = name;
-  document.getElementById('sidebarName').textContent        = name;
-  document.getElementById('sidebarAvatar').textContent      = initials(name);
-  document.getElementById('headerAvatar').textContent       = initials(name);
-  document.getElementById('profileAvatarLg').innerHTML      = initials(name) +
-    '<div style="position:absolute;bottom:-4px;right:-4px;background:var(--primary);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff"><i class="fas fa-camera" style="font-size:9px;color:#fff"></i></div>';
-  App.currentUser.name = name;
-  updateClock();
-}
-
-function handleProfilePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const avatar = document.getElementById('profileAvatarLg');
-    avatar.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`;
-    document.getElementById('sidebarAvatar').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
-    document.getElementById('headerAvatar').innerHTML  = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
-  };
-  reader.readAsDataURL(file);
-}
-
-function saveProfile() {
-  updateProfileName();
-  showToast('success', 'Saved!', 'Profile updated successfully');
-}
-
-/* ── Dashboard Init ── */
-function initDashboard() {
-  const emps   = Store.get('employees');
-  const active = emps.filter(e => e.status === 'ACTIVE');
-  document.getElementById('ds-totalEmp').textContent = active.length;
-
-  const today  = todayStr();
-  const att    = Store.get('attendance').filter(r => r.date === today);
-  document.getElementById('ds-presentToday').textContent = att.filter(r => r.status === 'P' || r.status === 'L').length || '—';
-  document.getElementById('ds-absentToday').textContent  = att.filter(r => r.status === 'A').length || '—';
-
-  const gps = Store.get('gatepasses').filter(g => g.date === today && !g.returnTime);
-  document.getElementById('ds-onGatepass').textContent = gps.length;
-
-  const month    = today.slice(0, 7);
-  const salRecs  = Store.get('salaryRecords').filter(r => r.month === month);
-  const netTotal = salRecs.reduce((s, r) => s + (r.netSalary || 0), 0);
-  document.getElementById('ds-payroll').textContent = netTotal > 0 ? formatINR(netTotal) : '—';
-
-  // Pending leave
-  const pendLeave = Store.get('leaveRecords').filter(r => r.status === 'PENDING').length;
-  document.getElementById('dash-pendingLeave').textContent =
-    pendLeave > 0 ? `${pendLeave} request(s) awaiting approval` : 'No pending requests';
-
-  // PO pending
-  const poPending = Store.get('storeEntries').filter(e => e.poStatus === 'PENDING').length;
-  document.getElementById('dash-poCount').textContent =
-    poPending > 0 ? `${poPending} entries missing PO/PR numbers` : 'All entries complete';
-
-  buildBarChart();
-  buildDonutChart(active);
-  buildActivityLog();
-  checkBirthdays(active);
-  checkProbation(active);
-}
-
-/* ── Birthday check ── */
-function checkBirthdays(emps) {
-  const today  = new Date();
-  const todayMD = `${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  const bdays   = emps.filter(e => e.dob && e.dob.slice(5) === todayMD);
-  const section = document.getElementById('birthdaySection');
-  if (!bdays.length) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  section.innerHTML = bdays.map(e => `
-    <div class="birthday-card">
-      <i class="fas fa-birthday-cake"></i>
-      <div>
-        <div class="bname">🎂 Happy Birthday, ${e.fullname}!</div>
-        <div class="bdept">${e.department || ''} · ${e.ecode}</div>
-      </div>
-    </div>`).join('');
-}
-
-/* ── Probation check ── */
-function checkProbation(emps) {
-  const today = new Date();
-  const soon  = emps.filter(e => {
-    if (!e.confirm) return false;
-    const d = new Date(e.confirm);
-    const diff = Math.round((d - today) / (1000*60*60*24));
-    return diff >= 0 && diff <= 7;
-  });
-  const el = document.getElementById('dash-probationAlert');
-  const txt = document.getElementById('dash-probationText');
-  if (soon.length > 0) {
-    el.style.display = 'flex';
-    txt.textContent  = `${soon.length} employee(s) confirmation date approaching`;
-  }
-}
-
-/* ── Bar chart ── */
-function buildBarChart() {
-  const chart = document.getElementById('dashBarChart');
-  if (!chart) return;
-  const months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const now     = new Date();
-  const data    = Array.from({length:6}, (_,i) => ({
-    label: months[(now.getMonth()-5+i+12)%12],
-    val:   Math.floor(Math.random()*30)+70
-  }));
-  const colors = ['#6c47ff','#a855f7','#6c47ff','#a855f7','#6c47ff','#a855f7'];
-  chart.innerHTML = '';
-  const max = Math.max(...data.map(d=>d.val));
-  data.forEach((d,i) => {
-    const wrap = document.createElement('div'); wrap.className='bar-wrap';
-    const bar  = document.createElement('div'); bar.className='bar';
-    bar.style.cssText = `background:${colors[i]};height:0%`;
-    bar.innerHTML = `<span class="bar-val">${d.val}%</span>`;
-    const lbl = document.createElement('div'); lbl.className='bar-label'; lbl.textContent=d.label;
-    wrap.appendChild(bar); wrap.appendChild(lbl); chart.appendChild(wrap);
-    setTimeout(()=>{ bar.style.height=Math.round(d.val/max*100)+'%'; }, 200+i*80);
-  });
-}
-
-/* ── Donut chart ── */
-function buildDonutChart(emps) {
-  const donut  = document.getElementById('dashDonut');
-  const legend = document.getElementById('dashDonutLegend');
-  const numEl  = document.getElementById('dashDonutNum');
-  if (!donut) return;
-  if (numEl) numEl.textContent = emps.length;
-  const deptCounts = {};
-  emps.forEach(e => { deptCounts[e.department] = (deptCounts[e.department]||0)+1; });
-  const sorted = Object.entries(deptCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const total  = emps.length || 1;
-  if (!sorted.length) { donut.style.background='var(--gray-200)'; legend.innerHTML='<li style="color:var(--gray-400);font-size:12px">No employees yet</li>'; return; }
-  const COLORS = ['#6c47ff','#10b981','#f59e0b','#3b82f6','#ef4444'];
-  let conic='', start=0;
-  legend.innerHTML='';
-  sorted.forEach(([dept,count],i)=>{
-    const pct = Math.round(count/total*100);
-    conic += `${COLORS[i]} ${start}% ${start+pct}%,`;
-    start += pct;
-    const li = document.createElement('li');
-    li.innerHTML = `<span style="background:${COLORS[i]}"></span>${dept} (${pct}%)`;
-    legend.appendChild(li);
-  });
-  if (start<100) conic+=`var(--gray-200) ${start}% 100%`; else conic=conic.slice(0,-1);
-  donut.style.background = `conic-gradient(${conic})`;
-}
-
-/* ── Activity log ── */
-function buildActivityLog() {
-  const body  = document.getElementById('dashActivityBody');
-  if (!body) return;
-  const acts  = Store.get('activity');
-  if (!acts.length) {
-    body.innerHTML=`<tr><td colspan="4" class="table-empty"><i class="fas fa-inbox"></i><p>No activity yet</p><span>Actions will appear here</span></td></tr>`;
-    return;
-  }
-  body.innerHTML='';
-  acts.slice(-10).reverse().forEach(a=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td class="activity-time">${a.time||'—'}</td>
-      <td style="font-size:13px">${a.activity||''}</td>
-      <td style="font-size:12.5px;font-weight:600;color:var(--gray-700)">${a.employee||'System'}</td>
-      <td><span class="badge badge-${a.badgeType||'gray'}">${a.status||''}</span></td>`;
-    body.appendChild(tr);
-  });
-}
-
-/* ── Settings ── */
-function saveSettings() {
-  const url = document.getElementById('sheetsUrl')?.value?.trim();
-  if (url) GSheet.WEB_APP_URL = url;
-  showToast('success','Saved','Settings saved successfully');
-}
-
-/* ── Load profile from storage ── */
-window.addEventListener('load', () => {
-  updateClock();
-  const savedName = localStorage.getItem('phr_profileName');
-  if (savedName) {
-    App.currentUser.name = savedName;
-    document.getElementById('profileName').value = savedName;
-    updateProfileName();
-  }
-});
-
-function saveProfile() {
-  const name = document.getElementById('profileName')?.value?.trim() || 'Admin';
-  localStorage.setItem('phr_profileName', name);
-  updateProfileName();
-  showToast('success','Saved!','Profile updated successfully');
-}
-
-/* ── Toggle Password ── */
-function togglePassView(){
-  const inp=document.getElementById('loginPass');
-  const icon=document.getElementById('passEyeIcon');
-  if(inp.type==='password'){inp.type='text';icon.className='fas fa-eye-slash';}
-  else{inp.type='password';icon.className='fas fa-eye';}
-}
-
-/* ── Forgot Password ── */
-function showForgotPassword(){showModal('forgotPwd');}
-async function sendOTP(){
-  const email=document.getElementById('fp_email')?.value?.trim();
-  if(!email){showFPMsg('Enter your email','error');return;}
-  showFPMsg('Sending OTP...','info');
-  const res=await GSheet.sendOTP(email);
-  if(res.success){
-    document.getElementById('fpStep1').style.display='none';
-    document.getElementById('fpStep2').style.display='block';
-    showFPMsg('OTP sent! Check your email.','success');
-  } else {
-    showFPMsg(res.msg||'Failed to send OTP','error');
-  }
-}
-async function resetPassword(){
-  const email=document.getElementById('fp_email')?.value?.trim();
-  const otp=document.getElementById('fp_otp')?.value?.trim();
-  const np=document.getElementById('fp_newpass')?.value;
-  const cp=document.getElementById('fp_confirmpass')?.value;
-  if(!otp||!np||!cp){showFPMsg('Fill all fields','error');return;}
-  if(np!==cp){showFPMsg('Passwords do not match','error');return;}
-  if(np.length<6){showFPMsg('Min 6 characters','error');return;}
-  const res=await GSheet.resetPassword(email,otp,np);
-  if(res.success){
-    showFPMsg('Password reset! You can now login.','success');
-    setTimeout(()=>{closeModal('forgotPwd');document.getElementById('fpStep1').style.display='block';document.getElementById('fpStep2').style.display='none';},2000);
-  } else {
-    showFPMsg(res.msg||'Invalid OTP','error');
-  }
-}
-function showFPMsg(msg,type){
-  const el=document.getElementById('fpMsg');
-  if(!el)return;
-  el.style.display='block';
-  el.textContent=msg;
-  el.style.background=type==='success'?'#d1fae5':type==='error'?'#fee2e2':'#dbeafe';
-  el.style.color=type==='success'?'#065f46':type==='error'?'#b91c1c':'#1d4ed8';
-}
-
-/* ── User Management ── */
-async function loadUsers(){
-  const res=await GSheet.getUsers();
-  const body=document.getElementById('usersTableBody');
-  const count=document.getElementById('userCount');
-  if(!body)return;
-  const users=res.data||[];
-  if(count)count.textContent=`${users.length}/10 users`;
-  if(!users.length){body.innerHTML=`<tr><td colspan="6" class="table-empty"><i class="fas fa-users"></i><p>No users</p></td></tr>`;return;}
-  const roleColors={SUPER_ADMIN:'badge-purple',DIRECTOR:'badge-blue',MANAGER:'badge-green',HR:'badge-amber',STAFF:'badge-gray',ACCOUNTS:'badge-blue'};
-  body.innerHTML=users.map(u=>`<tr>
-    <td style="font-weight:700">${u.Name||u.name||'—'}</td>
-    <td class="font-mono" style="font-size:12px">${u.Email||u.email||'—'}</td>
-    <td><span class="badge ${roleColors[u.Role||u.role]||'badge-gray'}">${u.Role||u.role||'—'}</span></td>
-    <td style="font-size:12px">${(u.Permissions||u.permissions||'').replace('ALL','All Modules')}</td>
-    <td><span class="badge badge-${(u.Status||u.status)==='ACTIVE'?'green':'red'}">${u.Status||u.status||'—'}</span></td>
-    <td><div style="display:flex;gap:6px">
-      <button class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.ID||u.id}','${u.Status||u.status}')"><i class="fas fa-toggle-on"></i></button>
-      <button class="btn btn-danger btn-sm" onclick="deleteUserConfirm('${u.ID||u.id}','${u.Name||u.name}')"><i class="fas fa-trash"></i></button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function openCreateUser(){showModal('createUser');}
-
-async function createNewUser(){
-  const name=document.getElementById('nu_name')?.value?.trim();
-  const email=document.getElementById('nu_email')?.value?.trim();
-  const pass=document.getElementById('nu_pass')?.value;
-  const role=document.getElementById('nu_role')?.value;
-  if(!name||!email||!pass){showToast('error','Required','Fill all fields');return;}
-  const perms=[...document.querySelectorAll('.perm-check:checked')].map(c=>c.value);
-  const res=await GSheet.createUser({name,email,password:pass,role,permissions:perms});
-  if(res.success){
-    closeModal('createUser');
-    loadUsers();
-    showToast('success','User Created!',`${name} — credentials sent to ${email}`);
-  } else {
-    showToast('error','Failed',res.msg||'Could not create user');
-  }
-}
-
-async function toggleUserStatus(id,currentStatus){
-  const newStatus=currentStatus==='ACTIVE'?'INACTIVE':'ACTIVE';
-  await GSheet.updateUser({id,status:newStatus});
-  loadUsers();
-  showToast('success','Updated',`User ${newStatus.toLowerCase()}`);
-}
-
-function deleteUserConfirm(id,name){
-  if(!confirm(`Delete user ${name}? This cannot be undone.`))return;
-  GSheet.deleteUser(id).then(()=>{loadUsers();showToast('success','Deleted','User removed');});
-}
-
-/* ── Auto-load users when navigating ── */
-const _origNavigateTo = navigateTo;
-function navigateTo(pageId){
-  _origNavigateTo(pageId);
-  if(pageId==='users')loadUsers();
-}
-
-</script>
-</body>
-</html>
+console.log('%c🪶 House of Panchhi HR v1.0 — Multi-user Edition','color:#6c47ff;font-weight:bold;font-size:14px');
