@@ -294,16 +294,28 @@ function handleCreateUser(data) {
   sheet.appendRow(row);
   alternateRows(sheet);
 
-  /* Send welcome email */
+  /* Send welcome email — wrapped separately so a Gmail permission/quota
+     failure never blocks the user record itself from being created.
+     If this fails, the user still exists; check Executions log for the
+     reason (commonly: GmailApp needs one-time manual authorization). */
+  let emailSent = true, emailError = '';
   try {
     GmailApp.sendEmail(data.email,
       `Welcome to ${APP_NAME}`,
       `Hello ${data.name},\n\nYour account has been created.\n\nEmail: ${data.email}\nPassword: ${data.password||'changeme123'}\n\nPlease login and change your password.\n\nURL: https://tomar760.github.io/Panchhi-Fashion-Software/\n\n— ${APP_NAME} Team`
     );
-  } catch(err) { console.log('Email error:', err.message); }
+  } catch(err) {
+    emailSent = false;
+    emailError = err.message;
+  }
 
   logActivity(ss, 'CREATE_USER', 'ADMIN', 'Admin', 'Created user: '+data.name, data.email);
-  return { success:true, id, msg:'User created and email sent' };
+  return {
+    success: true,
+    id,
+    msg: emailSent ? 'User created and email sent' : 'User created, but email failed: '+emailError,
+    emailSent
+  };
 }
 
 function getUsers() {
