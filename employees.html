@@ -60,7 +60,7 @@ tr.inactive-row td{opacity:1;} tr.inactive-row{background:#fff5f5;}
 <!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.outerHTML='<div class=\'brand-icon\'><i class=\'fas fa-feather-pointed\'></i></div>'">
+    <img src="assets/img/hop-logo-wings.png" alt="HOP" class="sidebar-logo-img" onerror="this.style.display='none'">
     <div class="brand-text"><h2>House of Panchhi</h2><span>HR Software v1.0</span></div>
   </div>
   <div class="sidebar-nav">
@@ -84,14 +84,14 @@ tr.inactive-row td{opacity:1;} tr.inactive-row{background:#fff5f5;}
     </div>
     <div class="nav-section">
       <div class="nav-section-title">Analytics & Teams</div>
-      <div class="nav-link" onclick="showMaintenance('Analytics Dashboard','Real-time charts & analytics')"><i class="fas fa-chart-line"></i> Analytics <span class="nav-soon">Soon</span></div>
-      <div class="nav-link" onclick="showMaintenance('Teams Module','Manage departments & targets')"><i class="fas fa-people-group"></i> Teams <span class="nav-soon">Soon</span></div>
+      <div class="nav-link" onclick="window.location='analytics.html'"><i class="fas fa-chart-line"></i> Analytics</div>
+      <div class="nav-link" onclick="window.location='teams.html'"><i class="fas fa-people-group"></i> Teams</div>
       <div class="nav-link" onclick="showMaintenance('Task Manager','Assign & track daily tasks')"><i class="fas fa-list-check"></i> Tasks <span class="nav-soon">Soon</span></div>
     </div>
     <div class="nav-section">
       <div class="nav-section-title">System</div>
       <div class="nav-link" onclick="window.location='index.html#settings'"><i class="fas fa-sliders"></i> Settings</div>
-      <div class="nav-link" onclick="window.location=\'users.html\'"><i class="fas fa-users-gear"></i> User Management</div>
+      <div class="nav-link" onclick="window.location='users.html'"><i class="fas fa-users-gear"></i> User Management</div>
       <div class="nav-link" onclick="window.location='index.html#profile'"><i class="fas fa-user-circle"></i> My Profile</div>
     </div>
   </div>
