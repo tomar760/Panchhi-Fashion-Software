@@ -251,7 +251,9 @@ function updateClock() {
 
   const h = now.getHours();
   const greeting = h<12?'Good Morning':h<17?'Good Afternoon':h<21?'Good Evening':'Good Night';
-  const name = App.currentUser?.name || Store.getObj('currentUser')?.name || 'there';
+  /* Read name from phr_session (saved by login.html) with fallbacks */
+  const _session = (() => { try { return JSON.parse(localStorage.getItem('phr_session')||'{}'); } catch(e) { return {}; } })();
+  const name = App.currentUser?.name || _session.name || Store.getObj('currentUser')?.name || localStorage.getItem('phr_profileName') || 'there';
 
   const gEl = document.getElementById('greetingText');
   if(gEl) gEl.textContent = `${greeting}, ${name}! 👋`;
