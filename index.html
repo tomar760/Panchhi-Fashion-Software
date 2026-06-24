@@ -520,33 +520,56 @@ function saveProfile() {
 }
 
 /* ── Dashboard Init ── */
-function initDashboard() {
+async function initDashboard() {
+  /* Show cached data immediately for fast load */
+  renderDashboard();
+
+  /* Then fetch fresh data from GSheet in background */
+  try {
+    const [emps, att, gps, leaves, store] = await Promise.all([
+      GSheet.read('Employees'),
+      GSheet.read('Attendance'),
+      GSheet.read('GatePass'),
+      GSheet.read('LeaveRequests'),
+      GSheet.read('Store'),
+    ]);
+    /* GSheet.read() already updates localStorage cache internally */
+    renderDashboard(); /* Re-render with fresh data */
+  } catch(e) {
+    console.log('Dashboard GSheet fetch failed, using cache:', e);
+  }
+}
+
+function renderDashboard() {
   const emps   = Store.get('employees');
   const active = emps.filter(e => e.status === 'ACTIVE');
-  document.getElementById('ds-totalEmp').textContent = active.length;
+  const el = document.getElementById('ds-totalEmp');
+  if(el) el.textContent = active.length || '—';
 
   const today  = todayStr();
   const att    = Store.get('attendance').filter(r => r.date === today);
-  document.getElementById('ds-presentToday').textContent = att.filter(r => r.status === 'P' || r.status === 'L').length || '—';
-  document.getElementById('ds-absentToday').textContent  = att.filter(r => r.status === 'A').length || '—';
+  const pEl = document.getElementById('ds-presentToday');
+  const aEl = document.getElementById('ds-absentToday');
+  if(pEl) pEl.textContent = att.filter(r => r.status === 'P' || r.status === 'L').length || '—';
+  if(aEl) aEl.textContent = att.filter(r => r.status === 'A').length || '—';
 
   const gps = Store.get('gatepasses').filter(g => g.date === today && !g.returnTime);
-  document.getElementById('ds-onGatepass').textContent = gps.length;
+  const gpEl = document.getElementById('ds-onGatepass');
+  if(gpEl) gpEl.textContent = gps.length;
 
   const month    = today.slice(0, 7);
   const salRecs  = Store.get('salaryRecords').filter(r => r.month === month);
   const netTotal = salRecs.reduce((s, r) => s + (r.netSalary || 0), 0);
-  document.getElementById('ds-payroll').textContent = netTotal > 0 ? formatINR(netTotal) : '—';
+  const payEl = document.getElementById('ds-payroll');
+  if(payEl) payEl.textContent = netTotal > 0 ? formatINR(netTotal) : '—';
 
-  // Pending leave
   const pendLeave = Store.get('leaveRecords').filter(r => r.status === 'PENDING').length;
-  document.getElementById('dash-pendingLeave').textContent =
-    pendLeave > 0 ? `${pendLeave} request(s) awaiting approval` : 'No pending requests';
+  const lvEl = document.getElementById('dash-pendingLeave');
+  if(lvEl) lvEl.textContent = pendLeave > 0 ? `${pendLeave} request(s) awaiting approval` : 'No pending requests';
 
-  // PO pending
   const poPending = Store.get('storeEntries').filter(e => e.poStatus === 'PENDING').length;
-  document.getElementById('dash-poCount').textContent =
-    poPending > 0 ? `${poPending} entries missing PO/PR numbers` : 'All entries complete';
+  const poEl = document.getElementById('dash-poCount');
+  if(poEl) poEl.textContent = poPending > 0 ? `${poPending} entries missing PO/PR numbers` : 'All entries complete';
 
   buildBarChart();
   buildDonutChart(active);
@@ -790,7 +813,7 @@ function deleteUserConfirm(id,name){
 }
 
 /* ── Auto-load users when navigating ── */
-const _origNavigateTo = navigateTo;
+/* navigateTo is defined in app.js — no override needed */
 /* navigateTo() now lives in app.js — this file no longer redefines it.
    Special handling for the 'users' tab (if ever needed again) should
    hook into app.js's navigateTo instead of shadowing it here. */
