@@ -521,6 +521,12 @@ function saveProfile() {
 
 /* ── Dashboard Init ── */
 async function initDashboard() {
+  /* Load session info into App.currentUser so greeting shows correct name */
+  try {
+    const s = JSON.parse(localStorage.getItem('phr_session')||'{}');
+    if(s.name) { App.currentUser = App.currentUser || {}; App.currentUser.name = s.name; }
+  } catch(e) {}
+
   /* Show cached data immediately for fast load */
   renderDashboard();
 
@@ -542,16 +548,17 @@ async function initDashboard() {
 
 function renderDashboard() {
   const emps   = Store.get('employees');
-  const active = emps.filter(e => e.status === 'ACTIVE');
+  const active = emps.filter(e => (e.status||e['Status']||'').toUpperCase() === 'ACTIVE');
   const el = document.getElementById('ds-totalEmp');
   if(el) el.textContent = active.length || '—';
 
   const today  = todayStr();
-  const att    = Store.get('attendance').filter(r => r.date === today);
+  const att    = Store.get('attendance').filter(r => (r.date||r['Date']||'') === today);
   const pEl = document.getElementById('ds-presentToday');
   const aEl = document.getElementById('ds-absentToday');
-  if(pEl) pEl.textContent = att.filter(r => r.status === 'P' || r.status === 'L').length || '—';
-  if(aEl) aEl.textContent = att.filter(r => r.status === 'A').length || '—';
+  const attStatus = r => (r.status||r['Status']||'').toUpperCase();
+  if(pEl) pEl.textContent = att.filter(r => attStatus(r)==='P' || attStatus(r)==='L').length || '—';
+  if(aEl) aEl.textContent = att.filter(r => attStatus(r)==='A').length || '—';
 
   const gps = Store.get('gatepasses').filter(g => g.date === today && !g.returnTime);
   const gpEl = document.getElementById('ds-onGatepass');
