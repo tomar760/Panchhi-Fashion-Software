@@ -521,29 +521,33 @@ function saveProfile() {
 
 /* ── Dashboard Init ── */
 async function initDashboard() {
-  /* Load session info into App.currentUser so greeting shows correct name */
+  /* Load session name */
   try {
     const s = JSON.parse(localStorage.getItem('phr_session')||'{}');
     if(s.name) { App.currentUser = App.currentUser || {}; App.currentUser.name = s.name; }
   } catch(e) {}
 
-  /* Show cached data immediately for fast load */
-  renderDashboard();
+  /* Show loading spinners on stat cards while fetching */
+  ['ds-totalEmp','ds-presentToday','ds-absentToday','ds-onGatepass','ds-payroll'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '<i class="fas fa-spinner spin" style="font-size:14px;color:var(--gray-400)"></i>';
+  });
 
-  /* Then fetch fresh data from GSheet in background */
+  /* Wait for ALL GSheet data before rendering — this ensures fresh counts */
   try {
-    const [emps, att, gps, leaves, store] = await Promise.all([
+    await Promise.all([
       GSheet.read('Employees'),
       GSheet.read('Attendance'),
       GSheet.read('GatePass'),
       GSheet.read('LeaveRequests'),
       GSheet.read('Store'),
     ]);
-    /* GSheet.read() already updates localStorage cache internally */
-    renderDashboard(); /* Re-render with fresh data */
   } catch(e) {
-    console.log('Dashboard GSheet fetch failed, using cache:', e);
+    console.log('GSheet fetch failed, using cached data:', e);
   }
+
+  /* Render once with fresh (or cached) data */
+  renderDashboard();
 }
 
 function renderDashboard() {
