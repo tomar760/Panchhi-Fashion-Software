@@ -76,9 +76,56 @@ const GSheet = {
   async read(sheet) {
     const res = await this.get({ sheet, action:'READ' });
     if(res.success && res.data) {
+      /* Normalize: GSheet returns {"E-Code":"..","Status":".."}
+         but all frontend code uses lowercase keys {ecode, status}
+         So we convert ALL keys to lowercase here once, permanently */
+      const normalized = res.data.map(row => {
+        const obj = {};
+        Object.keys(row).forEach(k => {
+          /* Convert "E-Code" -> "e-code", "Full Name" -> "full name"
+             Then map to exact frontend field names */
+          obj[k] = row[k]; // keep original too
+          obj[k.toLowerCase().replace(/[^a-z0-9]/g,'_')] = row[k]; // snake_case
+        });
+        /* Map specific GSheet column names to frontend field names */
+        const map = {
+          'E-Code':'ecode','Full Name':'fullname','First Name':'fname',
+          'Last Name':'lname','Father/Husband':'fhname','Status':'status',
+          'Department':'department','Designation':'designation',
+          'Mobile':'mobile','Alt Mobile':'altmobile','Email':'email',
+          'Official Email':'offemail','Joining Date':'joining',
+          'Confirmation Date':'confirm','Shift':'shift','DOB':'dob',
+          'Gender':'gender','Marital Status':'marital','Location':'location',
+          'Senior Tag':'tagSenior','Bonus Tag':'tagBonus',
+          'Fixed CTC':'fixctc','New CTC':'newctc','Payment Mode':'paymode',
+          'Bank':'bank','Account Holder':'bankname','Account No':'accno',
+          'IFSC':'ifsc','Branch':'branch','Aadhar':'aadhar','PAN':'pan',
+          'Current Address':'curraddr','PIN':'currpin',
+          'Permanent Address':'permaddr','Permanent PIN':'permpin',
+          'Emergency Name':'emgname','Emergency Relation':'emgrelation',
+          'Emergency Phone':'emgphone','Old E-Code':'oldcode',
+          'Remark':'remark','Added On':'addedOn','UAN':'uan',
+          'PF':'pfapp','ESIC':'esicapp','ESIC No':'esicno',
+          'Date':'date','In Time':'inTime','Late Min':'lateMin',
+          'E-CODE':'ecode','Name':'empName','Out Time':'outTime',
+          'Return Time':'returnTime','Purpose':'purpose',
+          'Type':'type','From':'from','To':'to','Days':'days',
+          'Reason':'reason','Approved On':'approvedOn',
+          'Month':'month','Net Salary':'netSalary','Gross':'gross',
+        };
+        Object.keys(map).forEach(gk => {
+          if(row[gk] !== undefined) obj[map[gk]] = row[gk];
+        });
+        /* Fix boolean-like fields from GSheet (YES/NO -> true/false) */
+        if(obj.tagSenior !== undefined) obj.tagSenior = String(obj.tagSenior).toUpperCase()==='YES';
+        if(obj.tagBonus  !== undefined) obj.tagBonus  = String(obj.tagBonus).toUpperCase()==='YES';
+        /* Normalize status to uppercase */
+        if(obj.status) obj.status = String(obj.status).toUpperCase().trim();
+        return obj;
+      });
       const key = sheetKey(sheet);
-      if(key) Store.set(key, res.data);
-      return res.data;
+      if(key) Store.set(key, normalized);
+      return normalized;
     }
     return Store.get(sheetKey(sheet)||'_tmp');
   },
