@@ -278,6 +278,9 @@ function navigateTo(pageId) {
     const tEl=document.getElementById('pageTitle');const sEl=document.getElementById('pageSubtitle');
     if(tEl)tEl.textContent=ti.t;if(sEl)sEl.textContent=ti.s;
   }
+  /* Call page-specific init function whenever a tab is navigated to */
+  const initFn = window['init_'+pageId] || (pageId==='dashboard' ? window.initDashboard : null);
+  if(typeof initFn === 'function') initFn();
 }
 
 function toggleSubNav(el) {
