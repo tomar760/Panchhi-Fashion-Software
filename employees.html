@@ -404,15 +404,19 @@ tr.inactive-row td{opacity:1;} tr.inactive-row{background:#fff5f5;}
 let allEmployees=[],importBuffer=[],currentEmpId=null,statusFilter='ACTIVE';
 
 /* ── Init ── */
-window.addEventListener('load',()=>{
+window.addEventListener('load', async ()=>{
   updateClock(); setInterval(updateClock,1000);
   setDateLimits();
   populateDeptDropdown('f_dept');
   populateDeptDropdown('filterDept');
-  allEmployees=Store.get('employees');
-  updateStats(); renderTable();
-  setupDragDrop();
   loadProfileName();
+  setupDragDrop();
+  allEmployees = Store.get('employees');
+  updateStats(); renderTable();
+  try {
+    const fresh = await GSheet.read('Employees');
+    if(fresh && fresh.length > 0){ allEmployees = fresh; updateStats(); renderTable(); }
+  } catch(e){ console.log('GSheet fetch failed:', e); }
 });
 
 /* ── Load saved profile name ── */
@@ -491,8 +495,8 @@ function renderTable(){
   const desig=document.getElementById('filterDesig')?.value||'';
   const shift=document.getElementById('filterShift')?.value||'';
   let filtered=allEmployees.filter(e=>{
-    if(statusFilter==='ACTIVE'&&e.status!=='ACTIVE')return false;
-    if(statusFilter==='INACTIVE'&&e.status!=='INACTIVE')return false;
+    if(statusFilter==='ACTIVE'&&(e.status||e['Status']||'').toString().toUpperCase().trim()!=='ACTIVE')return false;
+    if(statusFilter==='INACTIVE'&&(e.status||e['Status']||'').toString().toUpperCase().trim()!=='INACTIVE')return false;
     if(dept&&e.department!==dept)return false;
     if(desig&&e.designation!==desig)return false;
     if(shift&&e.shift!==shift)return false;
@@ -545,10 +549,11 @@ function renderTable(){
 
 /* ── Stats ── */
 function updateStats(){
+  const gs = e => (e.status||e['Status']||'').toString().toUpperCase().trim();
   document.getElementById('statTotal').textContent=allEmployees.length;
-  document.getElementById('statActive').textContent=allEmployees.filter(e=>e.status==='ACTIVE').length;
-  document.getElementById('statInactive').textContent=allEmployees.filter(e=>e.status==='INACTIVE').length;
-  document.getElementById('statDepts').textContent=new Set(allEmployees.map(e=>e.department).filter(Boolean)).size;
+  document.getElementById('statActive').textContent=allEmployees.filter(e=>gs(e)==='ACTIVE').length;
+  document.getElementById('statInactive').textContent=allEmployees.filter(e=>gs(e)==='INACTIVE'||gs(e)==='LEFT').length;
+  document.getElementById('statDepts').textContent=new Set(allEmployees.map(e=>(e.department||e['Department']||'')).filter(Boolean)).size;
 }
 
 /* ── Save employee ── */
