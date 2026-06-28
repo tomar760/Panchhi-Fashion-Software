@@ -162,7 +162,7 @@
         <div class="nav-link" data-page="settings" onclick="navigateTo('settings')"><i class="fas fa-sliders"></i> Settings</div>
         <div class="nav-link" data-page="profile" onclick="navigateTo('profile')"><i class="fas fa-user-circle"></i> My Profile</div>
         <div class="nav-link" onclick="window.location='users.html'"><i class="fas fa-users-gear"></i> User Management</div>
-        <div class="nav-link" onclick="handleLogout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Logout</div>
+        <div class="nav-link" onclick="doLogout()" style="color:var(--danger)"><i class="fas fa-right-from-bracket"></i> Logout</div>
       </div>
     </div>
 
@@ -514,6 +514,12 @@ function handleProfilePhoto(input) {
   reader.readAsDataURL(file);
 }
 
+function doLogout() {
+  if(!confirm('Logout karna chahte ho?')) return;
+  localStorage.removeItem('phr_session');
+  window.location.href = 'login.html';
+}
+
 function saveProfile() {
   updateProfileName();
   showToast('success', 'Saved!', 'Profile updated successfully');
@@ -709,7 +715,9 @@ window.addEventListener('load', () => {
   const savedName = localStorage.getItem('phr_profileName');
   if (savedName) {
     App.currentUser.name = savedName;
-    document.getElementById('profileName').value = savedName;
+    /* null check — profileName input only exists when profile tab is open */
+    const profileInput = document.getElementById('profileName');
+    if(profileInput) profileInput.value = savedName;
     updateProfileName();
   }
 });
