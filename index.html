@@ -715,10 +715,13 @@ window.addEventListener('load', () => {
   updateClock();
   const savedName = localStorage.getItem('phr_profileName');
   if (savedName) {
-    App.currentUser.name = savedName;
+    /* Guard: App may not be defined yet if app.js loads late */
+    if(typeof App !== 'undefined' && App.currentUser) {
+      App.currentUser.name = savedName;
+    }
     const _pn = document.getElementById('profileName');
     if(_pn) _pn.value = savedName;
-    updateProfileName();
+    if(typeof updateProfileName === 'function') updateProfileName();
   }
 });
 
